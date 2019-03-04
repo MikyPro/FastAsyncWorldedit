@@ -21,11 +21,8 @@ package com.sk89q.jnbt;
 
 import com.boydti.fawe.jnbt.NBTStreamer;
 import com.boydti.fawe.object.RunnableVal2;
-import java.io.Closeable;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +40,7 @@ import java.util.Map;
 public final class NBTInputStream implements Closeable {
 
     private final DataInput is;
+    private byte[] buf;
 
     /**
      * Creates a new {@code NBTInputStream}, which will source its data
@@ -61,6 +59,32 @@ public final class NBTInputStream implements Closeable {
 
     public NBTInputStream(DataInput di) {
         this.is = di;
+    }
+
+    public static int getSize(int type) {
+        switch (type) {
+            default:
+            case NBTConstants.TYPE_END:
+            case NBTConstants.TYPE_BYTE:
+                return 1;
+            case NBTConstants.TYPE_BYTE_ARRAY:
+            case NBTConstants.TYPE_STRING:
+            case NBTConstants.TYPE_LIST:
+            case NBTConstants.TYPE_COMPOUND:
+            case NBTConstants.TYPE_INT_ARRAY:
+            case NBTConstants.TYPE_SHORT:
+                return 2;
+            case NBTConstants.TYPE_FLOAT:
+            case NBTConstants.TYPE_INT:
+                return 4;
+            case NBTConstants.TYPE_DOUBLE:
+            case NBTConstants.TYPE_LONG:
+                return 8;
+        }
+    }
+
+    public static Class<?> inject() {
+        return NBTInputStream.class;
     }
 
     /**
@@ -132,8 +156,6 @@ public final class NBTInputStream implements Closeable {
             return "";
         }
     }
-
-    private byte[] buf;
 
     public void readTagPaylodLazy(int type, int depth, String node, RunnableVal2<String, RunnableVal2> getReader) throws IOException {
         switch (type) {
@@ -279,28 +301,6 @@ public final class NBTInputStream implements Closeable {
                 return;
             default:
                 throw new IOException("Invalid tag type: " + type + ".");
-        }
-    }
-
-    public static int getSize(int type) {
-        switch (type) {
-            default:
-            case NBTConstants.TYPE_END:
-            case NBTConstants.TYPE_BYTE:
-                return 1;
-            case NBTConstants.TYPE_BYTE_ARRAY:
-            case NBTConstants.TYPE_STRING:
-            case NBTConstants.TYPE_LIST:
-            case NBTConstants.TYPE_COMPOUND:
-            case NBTConstants.TYPE_INT_ARRAY:
-            case NBTConstants.TYPE_SHORT:
-                return 2;
-            case NBTConstants.TYPE_FLOAT:
-            case NBTConstants.TYPE_INT:
-                return 4;
-            case NBTConstants.TYPE_DOUBLE:
-            case NBTConstants.TYPE_LONG:
-                return 8;
         }
     }
 
@@ -545,9 +545,5 @@ public final class NBTInputStream implements Closeable {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public static Class<?> inject() {
-        return NBTInputStream.class;
     }
 }

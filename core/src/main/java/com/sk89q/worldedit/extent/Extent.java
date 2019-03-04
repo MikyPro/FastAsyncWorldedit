@@ -3,14 +3,12 @@ package com.sk89q.worldedit.extent;
 import com.boydti.fawe.FaweCache;
 import com.boydti.fawe.jnbt.anvil.generator.*;
 import com.boydti.fawe.object.PseudoRandom;
-import com.boydti.fawe.object.clipboard.WorldCopyClipboard;
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockID;
 import com.sk89q.worldedit.blocks.BlockType;
 import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.entity.Entity;
-import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.pattern.Pattern;
@@ -19,9 +17,10 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.WorldData;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public interface Extent extends InputExtent, OutputExtent {
 
@@ -188,26 +187,30 @@ public interface Extent extends InputExtent, OutputExtent {
         for (int d = 0; d <= clearance; d++) {
             int y1 = y + d;
             block = getLazyBlock(x, y1, z);
-            if (FaweCache.canPassThrough(block.getId(), block.getData()) != state && block != EditSession.nullBlock) return y1 - offset;
+            if (FaweCache.canPassThrough(block.getId(), block.getData()) != state && block != EditSession.nullBlock)
+                return y1 - offset;
             int y2 = y - d;
             block = getLazyBlock(x, y2, z);
-            if (FaweCache.canPassThrough(block.getId(), block.getData()) != state && block != EditSession.nullBlock) return y2 + offset;
+            if (FaweCache.canPassThrough(block.getId(), block.getData()) != state && block != EditSession.nullBlock)
+                return y2 + offset;
         }
         if (clearanceAbove != clearanceBelow) {
             if (clearanceAbove < clearanceBelow) {
                 for (int layer = y - clearance - 1; layer >= minY; layer--) {
                     block = getLazyBlock(x, layer, z);
-                    if (FaweCache.canPassThrough(block.getId(), block.getData()) != state && block != EditSession.nullBlock) return layer + offset;
+                    if (FaweCache.canPassThrough(block.getId(), block.getData()) != state && block != EditSession.nullBlock)
+                        return layer + offset;
                 }
             } else {
                 for (int layer = y + clearance + 1; layer <= maxY; layer++) {
                     block = getLazyBlock(x, layer, z);
-                    if (FaweCache.canPassThrough(block.getId(), block.getData()) != state && block != EditSession.nullBlock) return layer - offset;
+                    if (FaweCache.canPassThrough(block.getId(), block.getData()) != state && block != EditSession.nullBlock)
+                        return layer - offset;
                 }
             }
         }
         int result = state ? failedMin : failedMax;
-        if(result > 0 && !ignoreAir) {
+        if (result > 0 && !ignoreAir) {
             block = getLazyBlock(x, result, z);
             return block.isAir() ? -1 : result;
         }

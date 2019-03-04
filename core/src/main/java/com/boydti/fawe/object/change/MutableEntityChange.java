@@ -14,6 +14,7 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.history.UndoContext;
 import com.sk89q.worldedit.history.change.Change;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +23,8 @@ public class MutableEntityChange implements Change {
 
     public CompoundTag tag;
     public boolean create;
+    private FaweQueue queue;
+    private boolean checkedQueue;
 
     public MutableEntityChange(CompoundTag tag, boolean create) {
         this.tag = tag;
@@ -74,9 +77,6 @@ public class MutableEntityChange implements Change {
             Fawe.debug("FAWE doesn't support: " + context + " for " + getClass() + " (bug Empire92)");
         }
     }
-
-    private FaweQueue queue;
-    private boolean checkedQueue;
 
     public void create(UndoContext context) {
         if (queue != null) {

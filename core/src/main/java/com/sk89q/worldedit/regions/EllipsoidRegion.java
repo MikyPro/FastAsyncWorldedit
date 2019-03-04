@@ -19,14 +19,10 @@
 
 package com.sk89q.worldedit.regions;
 
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.MutableBlockVector;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.storage.ChunkStore;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -78,6 +74,10 @@ public class EllipsoidRegion extends AbstractRegion {
 
     public EllipsoidRegion(EllipsoidRegion ellipsoidRegion) {
         this(ellipsoidRegion.world, ellipsoidRegion.center, ellipsoidRegion.getRadius());
+    }
+
+    public static Class<EllipsoidRegion> inject() {
+        return EllipsoidRegion.class;
     }
 
     @Override
@@ -262,9 +262,5 @@ public class EllipsoidRegion extends AbstractRegion {
     @Override
     public EllipsoidRegion clone() {
         return (EllipsoidRegion) super.clone();
-    }
-
-    public static Class<EllipsoidRegion> inject() {
-        return EllipsoidRegion.class;
     }
 }

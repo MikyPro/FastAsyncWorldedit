@@ -15,6 +15,7 @@ import com.sk89q.worldedit.extension.platform.CommandManager;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.regions.selector.CuboidRegionSelector;
 import com.sk89q.worldedit.util.Location;
+
 import java.util.List;
 
 public class ScatterCommand extends ScatterBrush {

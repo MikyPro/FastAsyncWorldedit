@@ -6,20 +6,20 @@ import com.boydti.fawe.util.MainUtil;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import javax.annotation.Nullable;
 
 public abstract class FaweChunk<T> implements Callable<FaweChunk> {
 
+    public static int HEIGHT = 256;
+    private final ArrayDeque<Runnable> tasks = new ArrayDeque<Runnable>(0);
     private FaweQueue parent;
     private int x, z;
-    public static int HEIGHT = 256;
-
-    private final ArrayDeque<Runnable> tasks = new ArrayDeque<Runnable>(0);
 
     /**
      * A FaweSections object represents a chunk and the blocks that you wish to change in it.

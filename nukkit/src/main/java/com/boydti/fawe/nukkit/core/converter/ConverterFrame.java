@@ -2,26 +2,17 @@ package com.boydti.fawe.nukkit.core.converter;
 
 import com.boydti.fawe.Fawe;
 import com.boydti.fawe.FaweVersion;
-import com.boydti.fawe.installer.BrowseButton;
-import com.boydti.fawe.installer.CloseButton;
-import com.boydti.fawe.installer.ImagePanel;
-import com.boydti.fawe.installer.InteractiveButton;
-import com.boydti.fawe.installer.InvisiblePanel;
-import com.boydti.fawe.installer.MinimizeButton;
-import com.boydti.fawe.installer.MovablePanel;
-import com.boydti.fawe.installer.TextAreaOutputStream;
-import com.boydti.fawe.installer.URLButton;
+import com.boydti.fawe.installer.*;
 import com.boydti.fawe.object.clipboard.remap.WikiScraper;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.wrappers.FakePlayer;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Toolkit;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -35,20 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 public class ConverterFrame extends JFrame {
     private final InvisiblePanel loggerPanel;
@@ -64,6 +41,7 @@ public class ConverterFrame extends JFrame {
     private JTextArea loggerTextArea;
     private BrowseButton browseLoad;
     private BrowseButton browseSave;
+    private AtomicBoolean dependenciesLoaded = new AtomicBoolean(false);
 
     public ConverterFrame() throws Exception {
         final MovablePanel movable = new MovablePanel(this);
@@ -110,7 +88,8 @@ public class ConverterFrame extends JFrame {
                 ImagePanel imgPanel = new ImagePanel(image);
                 imgPanel.setPreferredSize(new Dimension(32, 36));
                 topBarLeft.add(imgPanel);
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
 
             topBarCenter.add(title);
             topBarRight.add(minimize);
@@ -296,6 +275,10 @@ public class ConverterFrame extends JFrame {
         async(() -> downloadDependencies());
     }
 
+    public static void main(String[] args) throws Exception {
+        ConverterFrame window = new ConverterFrame();
+    }
+
     public void setTitle(String title) {
         if (title == null) title = "(FAWE) Anvil and LevelDB converter";
         this.title.setText(title);
@@ -313,7 +296,7 @@ public class ConverterFrame extends JFrame {
     }
 
     public void setProgress(String text, int percent) {
-        Border border = BorderFactory.createTitledBorder(new EmptyBorder(0, 0, 0, 0), "Time remaining: " + text, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Lucida Sans Unicode",Font.PLAIN,12), OFF_WHITE);
+        Border border = BorderFactory.createTitledBorder(new EmptyBorder(0, 0, 0, 0), "Time remaining: " + text, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, new Font("Lucida Sans Unicode", Font.PLAIN, 12), OFF_WHITE);
         progressBar.setVisible(true);
         progressBar.setBorder(border);
         progressBar.setValue(percent);
@@ -359,7 +342,6 @@ public class ConverterFrame extends JFrame {
         new Thread(r).start();
     }
 
-    private AtomicBoolean dependenciesLoaded = new AtomicBoolean(false);
     private void downloadDependencies() {
         synchronized (dependenciesLoaded) {
             if (dependenciesLoaded.get()) return;
@@ -467,9 +449,5 @@ public class ConverterFrame extends JFrame {
             }
         });
         installThread.start();
-    }
-
-    public static void main(String[] args) throws Exception {
-        ConverterFrame window = new ConverterFrame();
     }
 }

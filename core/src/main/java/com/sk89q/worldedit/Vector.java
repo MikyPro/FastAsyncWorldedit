@@ -21,9 +21,10 @@ package com.sk89q.worldedit;
 
 import com.boydti.fawe.util.MathMan;
 import com.sk89q.worldedit.math.transform.AffineTransform;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
-import javax.annotation.Nullable;
 
 /**
  * An immutable 3-dimensional vector.
@@ -105,6 +106,71 @@ public class Vector implements Comparable<Vector>, Serializable {
         this.mutZ(0);
     }
 
+    /**
+     * Create a new {@code BlockVector} using the given components.
+     *
+     * @param x the X coordinate
+     * @param y the Y coordinate
+     * @param z the Z coordinate
+     * @return a new {@code BlockVector}
+     */
+    public static BlockVector toBlockPoint(double x, double y, double z) {
+        return new BlockVector(
+                Math.floor(x),
+                Math.floor(y),
+                Math.floor(z)
+        );
+    }
+
+    /**
+     * Gets the minimum components of two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return minimum
+     */
+    public static Vector getMinimum(Vector v1, Vector v2) {
+        return new Vector(
+                Math.min(v1.getX(), v2.getX()),
+                Math.min(v1.getY(), v2.getY()),
+                Math.min(v1.getZ(), v2.getZ())
+        );
+    }
+
+    /**
+     * Gets the maximum components of two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return maximum
+     */
+    public static Vector getMaximum(Vector v1, Vector v2) {
+        return new Vector(
+                Math.max(v1.getX(), v2.getX()),
+                Math.max(v1.getY(), v2.getY()),
+                Math.max(v1.getZ(), v2.getZ())
+        );
+    }
+
+    /**
+     * Gets the midpoint of two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return maximum
+     */
+    public static Vector getMidpoint(Vector v1, Vector v2) {
+        return new Vector(
+                (v1.getX() + v2.getX()) / 2,
+                (v1.getY() + v2.getY()) / 2,
+                (v1.getZ() + v2.getZ()) / 2
+        );
+    }
+
+    public static Class<?> inject() {
+        return Vector.class;
+    }
+
     public Vector setComponents(int x, int y, int z) {
         this.mutX(x);
         this.mutY(y);
@@ -153,15 +219,6 @@ public class Vector implements Comparable<Vector>, Serializable {
     }
 
     /**
-     * Get the X coordinate rounded.
-     *
-     * @return the x coordinate
-     */
-    public int getBlockX() {
-        return MathMan.roundInt(getX());
-    }
-
-    /**
      * Set the X coordinate.
      *
      * @param x the new X
@@ -182,21 +239,21 @@ public class Vector implements Comparable<Vector>, Serializable {
     }
 
     /**
+     * Get the X coordinate rounded.
+     *
+     * @return the x coordinate
+     */
+    public int getBlockX() {
+        return MathMan.roundInt(getX());
+    }
+
+    /**
      * Get the Y coordinate.
      *
      * @return the y coordinate
      */
     public double getY() {
         return y;
-    }
-
-    /**
-     * Get the Y coordinate rounded.
-     *
-     * @return the y coordinate
-     */
-    public int getBlockY() {
-        return MathMan.roundInt(getY());
     }
 
     /**
@@ -220,21 +277,21 @@ public class Vector implements Comparable<Vector>, Serializable {
     }
 
     /**
+     * Get the Y coordinate rounded.
+     *
+     * @return the y coordinate
+     */
+    public int getBlockY() {
+        return MathMan.roundInt(getY());
+    }
+
+    /**
      * Get the Z coordinate.
      *
      * @return the z coordinate
      */
     public double getZ() {
         return z;
-    }
-
-    /**
-     * Get the Z coordinate rounded.
-     *
-     * @return the z coordinate
-     */
-    public int getBlockZ() {
-        return MathMan.roundInt(getZ());
     }
 
     /**
@@ -255,6 +312,15 @@ public class Vector implements Comparable<Vector>, Serializable {
      */
     public Vector setZ(int z) {
         return new Vector(getX(), getY(), z);
+    }
+
+    /**
+     * Get the Z coordinate rounded.
+     *
+     * @return the z coordinate
+     */
+    public int getBlockZ() {
+        return MathMan.roundInt(getZ());
     }
 
     /**
@@ -770,22 +836,6 @@ public class Vector implements Comparable<Vector>, Serializable {
     }
 
     /**
-     * Create a new {@code BlockVector} using the given components.
-     *
-     * @param x the X coordinate
-     * @param y the Y coordinate
-     * @param z the Z coordinate
-     * @return a new {@code BlockVector}
-     */
-    public static BlockVector toBlockPoint(double x, double y, double z) {
-        return new BlockVector(
-                Math.floor(x),
-                Math.floor(y),
-                Math.floor(z)
-        );
-    }
-
-    /**
      * Create a new {@code BlockVector} from this vector.
      *
      * @return a new {@code BlockVector}
@@ -850,51 +900,6 @@ public class Vector implements Comparable<Vector>, Serializable {
         return "(" + x + ", " + y + ", " + z + ")";
     }
 
-    /**
-     * Gets the minimum components of two vectors.
-     *
-     * @param v1 the first vector
-     * @param v2 the second vector
-     * @return minimum
-     */
-    public static Vector getMinimum(Vector v1, Vector v2) {
-        return new Vector(
-                Math.min(v1.getX(), v2.getX()),
-                Math.min(v1.getY(), v2.getY()),
-                Math.min(v1.getZ(), v2.getZ())
-        );
-    }
-
-    /**
-     * Gets the maximum components of two vectors.
-     *
-     * @param v1 the first vector
-     * @param v2 the second vector
-     * @return maximum
-     */
-    public static Vector getMaximum(Vector v1, Vector v2) {
-        return new Vector(
-                Math.max(v1.getX(), v2.getX()),
-                Math.max(v1.getY(), v2.getY()),
-                Math.max(v1.getZ(), v2.getZ())
-        );
-    }
-    
-    /**
-     * Gets the midpoint of two vectors.
-     *
-     * @param v1 the first vector
-     * @param v2 the second vector
-     * @return maximum
-     */
-    public static Vector getMidpoint(Vector v1, Vector v2) {
-        return new Vector(
-                (v1.getX() + v2.getX()) / 2,
-                (v1.getY() + v2.getY()) / 2,
-                (v1.getZ() + v2.getZ()) / 2
-        );
-    }
-
     private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
         if (!(this instanceof MutableBlockVector)) {
             stream.writeDouble(x);
@@ -908,9 +913,5 @@ public class Vector implements Comparable<Vector>, Serializable {
         this.x = stream.readDouble();
         this.y = stream.readDouble();
         this.z = stream.readDouble();
-    }
-
-    public static Class<?> inject() {
-        return Vector.class;
     }
 }

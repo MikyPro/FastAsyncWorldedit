@@ -21,20 +21,14 @@ package com.sk89q.worldedit.regions;
 
 import com.boydti.fawe.config.Settings;
 import com.boydti.fawe.object.collection.LocalBlockVectorSet;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.MutableBlockVector;
-import com.sk89q.worldedit.MutableBlockVector2D;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldVector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.storage.ChunkStore;
+
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -86,6 +80,42 @@ public class CuboidRegion extends AbstractRegion implements FlatRegion {
             setWorld(((WorldVector) pos2).getWorld());
         }
         recalculate();
+    }
+
+    /**
+     * Make a cuboid region out of the given region using the minimum and maximum
+     * bounds of the provided region.
+     *
+     * @param region the region
+     * @return a new cuboid region
+     */
+    public static CuboidRegion makeCuboid(Region region) {
+        checkNotNull(region);
+        return new CuboidRegion(region.getMinimumPoint(), region.getMaximumPoint());
+    }
+
+    public static boolean contains(CuboidRegion region) {
+        Vector min = region.getMinimumPoint();
+        Vector max = region.getMaximumPoint();
+        return region.contains(min.getBlockX(), min.getBlockY(), min.getBlockZ()) && region.contains(max.getBlockX(), max.getBlockY(), max.getBlockZ());
+    }
+
+    /**
+     * Make a cuboid from the center.
+     *
+     * @param origin  the origin
+     * @param apothem the apothem, where 0 is the minimum value to make a 1x1 cuboid
+     * @return a cuboid region
+     */
+    public static CuboidRegion fromCenter(Vector origin, int apothem) {
+        checkNotNull(origin);
+        checkArgument(apothem >= 0, "apothem => 0 required");
+        Vector size = new Vector(1, 1, 1).multiply(apothem);
+        return new CuboidRegion(origin.subtract(size), origin.add(size));
+    }
+
+    public static Class<?> inject() {
+        return CuboidRegion.class;
     }
 
     public void setUseOldIterator(boolean useOldIterator) {
@@ -318,6 +348,10 @@ public class CuboidRegion extends AbstractRegion implements FlatRegion {
         recalculate();
     }
 
+//    private int ly = Integer.MIN_VALUE;
+//    private int lz = Integer.MIN_VALUE;
+//    private boolean lr, lry, lrz;
+
     @Override
     public Set<Vector2D> getChunks() {
         Vector min = getMinimumPoint();
@@ -409,10 +443,6 @@ public class CuboidRegion extends AbstractRegion implements FlatRegion {
         return contains(position.getBlockX(), position.getBlockY(), position.getBlockZ());
     }
 
-//    private int ly = Integer.MIN_VALUE;
-//    private int lz = Integer.MIN_VALUE;
-//    private boolean lr, lry, lrz;
-
     @Override
     public boolean contains(int x, int y, int z) {
         return x >= this.minX && x <= this.maxX && z >= this.minZ && z <= this.maxZ && y >= this.minY && y <= this.maxY;
@@ -444,29 +474,24 @@ public class CuboidRegion extends AbstractRegion implements FlatRegion {
         }
         return new Iterator<BlockVector>() {
             final MutableBlockVector mutable = new MutableBlockVector(0, 0, 0);
-            private Vector min = getMinimumPoint();
-            private Vector max = getMaximumPoint();
-
-            int bx = min.getBlockX();
-            int by = min.getBlockY();
-            int bz = min.getBlockZ();
-
-            int tx = max.getBlockX();
-            int ty = max.getBlockY();
-            int tz = max.getBlockZ();
-
-            private int x = min.getBlockX();
-            private int y = min.getBlockY();
-            private int z = min.getBlockZ();
-
-            int cx = x >> 4;
-            int cz = z >> 4;
+            public boolean hasNext = true;
             int cbx = Math.max(bx, cx << 4);
             int cbz = Math.max(bz, cz << 4);
             int ctx = Math.min(tx, 15 + (cx << 4));
             int ctz = Math.min(tz, 15 + (cz << 4));
-
-            public boolean hasNext = true;
+            private Vector min = getMinimumPoint();
+            int bx = min.getBlockX();
+            int by = min.getBlockY();
+            int bz = min.getBlockZ();
+            private Vector max = getMaximumPoint();
+            int tx = max.getBlockX();
+            int ty = max.getBlockY();
+            int tz = max.getBlockZ();
+            private int x = min.getBlockX();
+            int cx = x >> 4;
+            private int y = min.getBlockY();
+            private int z = min.getBlockZ();
+            int cz = z >> 4;
 
             @Override
             public boolean hasNext() {
@@ -631,41 +656,5 @@ public class CuboidRegion extends AbstractRegion implements FlatRegion {
     @Override
     public CuboidRegion clone() {
         return (CuboidRegion) super.clone();
-    }
-
-    /**
-     * Make a cuboid region out of the given region using the minimum and maximum
-     * bounds of the provided region.
-     *
-     * @param region the region
-     * @return a new cuboid region
-     */
-    public static CuboidRegion makeCuboid(Region region) {
-        checkNotNull(region);
-        return new CuboidRegion(region.getMinimumPoint(), region.getMaximumPoint());
-    }
-
-    public static boolean contains(CuboidRegion region) {
-        Vector min = region.getMinimumPoint();
-        Vector max = region.getMaximumPoint();
-        return region.contains(min.getBlockX(), min.getBlockY(), min.getBlockZ()) && region.contains(max.getBlockX(), max.getBlockY(), max.getBlockZ());
-    }
-
-    /**
-     * Make a cuboid from the center.
-     *
-     * @param origin  the origin
-     * @param apothem the apothem, where 0 is the minimum value to make a 1x1 cuboid
-     * @return a cuboid region
-     */
-    public static CuboidRegion fromCenter(Vector origin, int apothem) {
-        checkNotNull(origin);
-        checkArgument(apothem >= 0, "apothem => 0 required");
-        Vector size = new Vector(1, 1, 1).multiply(apothem);
-        return new CuboidRegion(origin.subtract(size), origin.add(size));
-    }
-
-    public static Class<?> inject() {
-        return CuboidRegion.class;
     }
 }

@@ -64,7 +64,7 @@ public final class BlockData {
                     case 9:
                         return 6;
                 }
-            /* FALL-THROUGH */
+                /* FALL-THROUGH */
 
             case BlockID.POWERED_RAIL:
             case BlockID.DETECTOR_RAIL:
@@ -166,7 +166,7 @@ public final class BlockData {
                     break;
                 }
 
-            /* FALL-THROUGH */
+                /* FALL-THROUGH */
 
             case BlockID.COCOA_PLANT:
             case BlockID.TRIPWIRE_HOOK: {
@@ -376,7 +376,7 @@ public final class BlockData {
                     case 6:
                         return 9;
                 }
-            /* FALL-THROUGH */
+                /* FALL-THROUGH */
 
             case BlockID.POWERED_RAIL:
             case BlockID.DETECTOR_RAIL:
@@ -479,7 +479,7 @@ public final class BlockData {
                     break;
                 }
 
-            /* FALL-THROUGH */
+                /* FALL-THROUGH */
 
             case BlockID.COCOA_PLANT:
             case BlockID.TRIPWIRE_HOOK: {
@@ -752,7 +752,7 @@ public final class BlockData {
                     case 9:
                         return data - flipX - flipZ * 3;
                 }
-            /* FALL-THROUGH */
+                /* FALL-THROUGH */
 
             case BlockID.POWERED_RAIL:
             case BlockID.DETECTOR_RAIL:
@@ -872,7 +872,7 @@ public final class BlockData {
             case BlockID.PUMPKIN:
             case BlockID.JACKOLANTERN:
                 if (data > 3) break;
-            /* FALL-THROUGH */
+                /* FALL-THROUGH */
 
             case BlockID.REDSTONE_REPEATER_OFF:
             case BlockID.REDSTONE_REPEATER_ON:

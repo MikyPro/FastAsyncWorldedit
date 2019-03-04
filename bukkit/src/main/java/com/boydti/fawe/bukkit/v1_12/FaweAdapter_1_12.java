@@ -1,55 +1,12 @@
 package com.boydti.fawe.bukkit.v1_12;
 
 import com.google.common.base.Preconditions;
-import com.sk89q.jnbt.ByteArrayTag;
-import com.sk89q.jnbt.ByteTag;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.DoubleTag;
-import com.sk89q.jnbt.EndTag;
-import com.sk89q.jnbt.FloatTag;
-import com.sk89q.jnbt.IntArrayTag;
-import com.sk89q.jnbt.IntTag;
-import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.LongTag;
-import com.sk89q.jnbt.NBTConstants;
-import com.sk89q.jnbt.ShortTag;
-import com.sk89q.jnbt.StringTag;
-import com.sk89q.jnbt.Tag;
+import com.sk89q.jnbt.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.bukkit.adapter.BukkitImplAdapter;
 import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.internal.Constants;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.annotation.Nullable;
-import net.minecraft.server.v1_12_R1.BiomeBase;
-import net.minecraft.server.v1_12_R1.BlockPosition;
-import net.minecraft.server.v1_12_R1.Entity;
-import net.minecraft.server.v1_12_R1.EntityTypes;
-import net.minecraft.server.v1_12_R1.MinecraftKey;
-import net.minecraft.server.v1_12_R1.NBTBase;
-import net.minecraft.server.v1_12_R1.NBTTagByte;
-import net.minecraft.server.v1_12_R1.NBTTagByteArray;
-import net.minecraft.server.v1_12_R1.NBTTagCompound;
-import net.minecraft.server.v1_12_R1.NBTTagDouble;
-import net.minecraft.server.v1_12_R1.NBTTagEnd;
-import net.minecraft.server.v1_12_R1.NBTTagFloat;
-import net.minecraft.server.v1_12_R1.NBTTagInt;
-import net.minecraft.server.v1_12_R1.NBTTagIntArray;
-import net.minecraft.server.v1_12_R1.NBTTagList;
-import net.minecraft.server.v1_12_R1.NBTTagLong;
-import net.minecraft.server.v1_12_R1.NBTTagShort;
-import net.minecraft.server.v1_12_R1.NBTTagString;
-import net.minecraft.server.v1_12_R1.TileEntity;
-import net.minecraft.server.v1_12_R1.World;
-import net.minecraft.server.v1_12_R1.WorldServer;
+import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -59,27 +16,33 @@ import org.bukkit.craftbukkit.v1_12_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
-public final class FaweAdapter_1_12 implements BukkitImplAdapter
-{
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public final class FaweAdapter_1_12 implements BukkitImplAdapter {
+    protected static Method methodTileEntityLoad;
     private final Logger logger = Logger.getLogger(getClass().getCanonicalName());
     private final Field nbtListTagListField;
     private final Method nbtCreateTagMethod;
-    protected static Method methodTileEntityLoad;
 
     public FaweAdapter_1_12() throws NoSuchFieldException, NoSuchMethodException {
         this.nbtListTagListField = NBTTagList.class.getDeclaredField("list");
         this.nbtListTagListField.setAccessible(true);
 
-        this.nbtCreateTagMethod = NBTBase.class.getDeclaredMethod("createTag", new Class[] { Byte.TYPE });
+        this.nbtCreateTagMethod = NBTBase.class.getDeclaredMethod("createTag", new Class[]{Byte.TYPE});
         this.nbtCreateTagMethod.setAccessible(true);
         try {
             methodTileEntityLoad = TileEntity.class.getDeclaredMethod("a", NBTTagCompound.class);
             methodTileEntityLoad.setAccessible(true);
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
     }
 
-    private static void readTagIntoTileEntity(NBTTagCompound tag, TileEntity tileEntity)
-    {
+    private static void readTagIntoTileEntity(NBTTagCompound tag, TileEntity tileEntity) {
         if (methodTileEntityLoad != null) {
             try {
                 methodTileEntityLoad.invoke(tileEntity, tag);  // ReadTagIntoTile
@@ -91,60 +54,50 @@ public final class FaweAdapter_1_12 implements BukkitImplAdapter
         }
     }
 
-    private static void readTileEntityIntoTag(TileEntity tileEntity, NBTTagCompound tag)
-    {
+    private static void readTileEntityIntoTag(TileEntity tileEntity, NBTTagCompound tag) {
         tileEntity.save(tag);
     }
 
     @Nullable
-    private static String getEntityId(Entity entity)
-    {
+    private static String getEntityId(Entity entity) {
         return EntityTypes.b(entity);
     }
 
     @Nullable
-    private static Entity createEntityFromId(String id, World world)
-    {
+    private static Entity createEntityFromId(String id, World world) {
         return EntityTypes.a(new MinecraftKey(id), world);
     }
 
-    private static void readTagIntoEntity(NBTTagCompound tag, Entity entity)
-    {
+    private static void readTagIntoEntity(NBTTagCompound tag, Entity entity) {
         entity.f(tag);
     }
 
-    private static void readEntityIntoTag(Entity entity, NBTTagCompound tag)
-    {
+    private static void readEntityIntoTag(Entity entity, NBTTagCompound tag) {
         entity.save(tag);
     }
 
-    public int getBlockId(Material material)
-    {
+    public int getBlockId(Material material) {
         return material.getId();
     }
 
-    public Material getMaterial(int id)
-    {
+    public Material getMaterial(int id) {
         return Material.getMaterial(id);
     }
 
-    public int getBiomeId(Biome biome)
-    {
+    public int getBiomeId(Biome biome) {
         BiomeBase mcBiome = CraftBlock.biomeToBiomeBase(biome);
         return mcBiome != null ? BiomeBase.a(mcBiome) : 0;
     }
 
-    public Biome getBiome(int id)
-    {
+    public Biome getBiome(int id) {
         BiomeBase mcBiome = BiomeBase.getBiome(id);
         return CraftBlock.biomeBaseToBiome(mcBiome);
     }
 
-    public BaseBlock getBlock(Location location)
-    {
+    public BaseBlock getBlock(Location location) {
         Preconditions.checkNotNull(location);
 
-        CraftWorld craftWorld = (CraftWorld)location.getWorld();
+        CraftWorld craftWorld = (CraftWorld) location.getWorld();
         int x = location.getBlockX();
         int y = location.getBlockY();
         int z = location.getBlockZ();
@@ -153,34 +106,30 @@ public final class FaweAdapter_1_12 implements BukkitImplAdapter
         BaseBlock block = new BaseBlock(bukkitBlock.getTypeId(), bukkitBlock.getData());
 
         TileEntity te = craftWorld.getHandle().getTileEntity(new BlockPosition(x, y, z));
-        if (te != null)
-        {
+        if (te != null) {
             NBTTagCompound tag = new NBTTagCompound();
             readTileEntityIntoTag(te, tag);
-            block.setNbtData((CompoundTag)toNative(tag));
+            block.setNbtData((CompoundTag) toNative(tag));
         }
         return block;
     }
 
-    public boolean setBlock(Location location, BaseBlock block, boolean notifyAndLight)
-    {
+    public boolean setBlock(Location location, BaseBlock block, boolean notifyAndLight) {
         Preconditions.checkNotNull(location);
         Preconditions.checkNotNull(block);
 
-        CraftWorld craftWorld = (CraftWorld)location.getWorld();
+        CraftWorld craftWorld = (CraftWorld) location.getWorld();
         int x = location.getBlockX();
         int y = location.getBlockY();
         int z = location.getBlockZ();
 
-        boolean changed = location.getBlock().setTypeIdAndData(block.getId(), (byte)block.getData(), notifyAndLight);
+        boolean changed = location.getBlock().setTypeIdAndData(block.getId(), (byte) block.getData(), notifyAndLight);
 
         CompoundTag nativeTag = block.getNbtData();
-        if (nativeTag != null)
-        {
+        if (nativeTag != null) {
             TileEntity tileEntity = craftWorld.getHandle().getTileEntity(new BlockPosition(x, y, z));
-            if (tileEntity != null)
-            {
-                NBTTagCompound tag = (NBTTagCompound)fromNative(nativeTag);
+            if (tileEntity != null) {
+                NBTTagCompound tag = (NBTTagCompound) fromNative(nativeTag);
                 tag.set("x", new NBTTagInt(x));
                 tag.set("y", new NBTTagInt(y));
                 tag.set("z", new NBTTagInt(z));
@@ -190,11 +139,10 @@ public final class FaweAdapter_1_12 implements BukkitImplAdapter
         return changed;
     }
 
-    public BaseEntity getEntity(org.bukkit.entity.Entity entity)
-    {
+    public BaseEntity getEntity(org.bukkit.entity.Entity entity) {
         Preconditions.checkNotNull(entity);
 
-        CraftEntity craftEntity = (CraftEntity)entity;
+        CraftEntity craftEntity = (CraftEntity) entity;
         Entity mcEntity = craftEntity.getHandle();
 
         String id = getEntityId(mcEntity);
@@ -208,21 +156,18 @@ public final class FaweAdapter_1_12 implements BukkitImplAdapter
     }
 
     @Nullable
-    public org.bukkit.entity.Entity createEntity(Location location, BaseEntity state)
-    {
+    public org.bukkit.entity.Entity createEntity(Location location, BaseEntity state) {
         Preconditions.checkNotNull(location);
         Preconditions.checkNotNull(state);
 
-        CraftWorld craftWorld = (CraftWorld)location.getWorld();
+        CraftWorld craftWorld = (CraftWorld) location.getWorld();
         WorldServer worldServer = craftWorld.getHandle();
 
         Entity createdEntity = createEntityFromId(state.getTypeId(), craftWorld.getHandle());
-        if (createdEntity != null)
-        {
+        if (createdEntity != null) {
             CompoundTag nativeTag = state.getNbtData();
-            if (nativeTag != null)
-            {
-                NBTTagCompound tag = (NBTTagCompound)fromNative(nativeTag);
+            if (nativeTag != null) {
+                NBTTagCompound tag = (NBTTagCompound) fromNative(nativeTag);
                 for (String name : Constants.NO_COPY_ENTITY_NBT_FIELDS) {
                     tag.remove(name);
                 }

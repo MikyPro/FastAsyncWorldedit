@@ -1,10 +1,11 @@
 package com.boydti.fawe.util.gui;
 
 import com.boydti.fawe.object.FawePlayer;
+
+import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.Map;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public interface FormBuilder<T> {
     FormBuilder setTitle(String text);

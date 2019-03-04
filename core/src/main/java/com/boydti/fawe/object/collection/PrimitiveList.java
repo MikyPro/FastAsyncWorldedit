@@ -10,17 +10,6 @@ public class PrimitiveList<T> extends AbstractList<T> {
     private int totalLength;
     private Object arr;
 
-    private enum Type {
-        Byte,
-        Boolean,
-        Short,
-        Character,
-        Integer,
-        Float,
-        Long,
-        Double
-    }
-
     public PrimitiveList(Class<T> type) {
         try {
             Class<T> boxed;
@@ -241,7 +230,6 @@ public class PrimitiveList<T> extends AbstractList<T> {
         }
     }
 
-
     @Override
     public void add(int index, T element) {
         if (index == length) {
@@ -334,5 +322,16 @@ public class PrimitiveList<T> extends AbstractList<T> {
             this.arr = Array.newInstance(primitive, 0);
         }
         length = 0;
+    }
+
+    private enum Type {
+        Byte,
+        Boolean,
+        Short,
+        Character,
+        Integer,
+        Float,
+        Long,
+        Double
     }
 }

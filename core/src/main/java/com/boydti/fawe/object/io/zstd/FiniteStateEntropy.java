@@ -18,20 +18,17 @@ import static com.boydti.fawe.object.io.zstd.FseTableReader.FSE_MAX_SYMBOL_VALUE
 import static com.boydti.fawe.object.io.zstd.UnsafeUtil.UNSAFE;
 import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
 
-class FiniteStateEntropy
-{
+class FiniteStateEntropy {
     private static final int MAX_TABLE_LOG = 12;
 
     private final FiniteStateEntropy.Table table;
     private final FseTableReader reader = new FseTableReader();
 
-    public FiniteStateEntropy(int maxLog)
-    {
+    public FiniteStateEntropy(int maxLog) {
         table = new FiniteStateEntropy.Table(maxLog);
     }
 
-    public int decompress(final Object inputBase, final long inputAddress, final long inputLimit, byte[] weights)
-    {
+    public int decompress(final Object inputBase, final long inputAddress, final long inputLimit, byte[] weights) {
         long input = inputAddress;
         input += reader.readFseTable(table, inputBase, input, inputLimit, FSE_MAX_SYMBOL_VALUE, MAX_TABLE_LOG);
 
@@ -145,23 +142,20 @@ class FiniteStateEntropy
         return (int) (output - outputAddress);
     }
 
-    public static final class Table
-    {
-        int log2Size;
+    public static final class Table {
         final int[] newState;
         final byte[] symbol;
         final byte[] numberOfBits;
+        int log2Size;
 
-        public Table(int log2Size)
-        {
+        public Table(int log2Size) {
             int size = 1 << log2Size;
             newState = new int[size];
             symbol = new byte[size];
             numberOfBits = new byte[size];
         }
 
-        public Table(int log2Size, int[] newState, byte[] symbol, byte[] numberOfBits)
-        {
+        public Table(int log2Size, int[] newState, byte[] symbol, byte[] numberOfBits) {
             int size = 1 << log2Size;
             if (newState.length != size || symbol.length != size || numberOfBits.length != size) {
                 throw new IllegalArgumentException("Expected arrays to match provided size");

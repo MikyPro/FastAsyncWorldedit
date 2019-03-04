@@ -32,8 +32,8 @@ import com.sk89q.worldedit.internal.helper.MCDirections;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.util.Direction;
 import com.sk89q.worldedit.util.Direction.Flag;
-import java.util.Map;
 
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -68,6 +68,10 @@ public class ExtentBlockCopy implements RegionFunction {
         this.destination = destination;
         this.to = to;
         this.transform = transform;
+    }
+
+    public static Class<?> inject() {
+        return ExtentBlockCopy.class;
     }
 
     @Override
@@ -115,10 +119,6 @@ public class ExtentBlockCopy implements RegionFunction {
             }
         }
         return state;
-    }
-
-    public static Class<?> inject() {
-        return ExtentBlockCopy.class;
     }
 
 }

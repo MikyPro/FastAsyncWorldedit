@@ -25,11 +25,7 @@ import com.boydti.fawe.object.clipboard.FaweClipboard;
 import com.boydti.fawe.object.clipboard.MemoryOptimizedClipboard;
 import com.boydti.fawe.object.extent.LightingExtent;
 import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.MutableBlockVector;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockMaterial;
 import com.sk89q.worldedit.entity.BaseEntity;
@@ -39,13 +35,13 @@ import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.BundledBlockData;
+
+import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -55,8 +51,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class BlockArrayClipboard implements Clipboard, LightingExtent, Closeable {
 
-    private Region region;
     public FaweClipboard IMP;
+    private Region region;
     private Vector size;
     private int mx;
     private int my;
@@ -102,6 +98,10 @@ public class BlockArrayClipboard implements Clipboard, LightingExtent, Closeable
         this.my = origin.getBlockY();
         this.mz = origin.getBlockZ();
         this.IMP = clipboard;
+    }
+
+    public static Class<?> inject() {
+        return BlockArrayClipboard.class;
     }
 
     public void init(Region region, FaweClipboard fc) {
@@ -243,10 +243,6 @@ public class BlockArrayClipboard implements Clipboard, LightingExtent, Closeable
     @Override
     public Operation commit() {
         return null;
-    }
-
-    public static Class<?> inject() {
-        return BlockArrayClipboard.class;
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.boydti.fawe.forge.ForgePlayer;
 import com.boydti.fawe.object.FaweChunk;
 import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.object.brush.visualization.VisualChunk;
-import java.util.concurrent.atomic.LongAdder;
 import com.boydti.fawe.object.visitor.FaweChunkVisitor;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.MathMan;
@@ -18,16 +17,6 @@ import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -53,6 +42,13 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.atomic.LongAdder;
+
 public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlockStorage[], ExtendedBlockStorage> {
 
     protected final static Method methodFromNative;
@@ -77,6 +73,9 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             throw new RuntimeException(e);
         }
     }
+
+    protected BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, 0, 0);
+    protected WorldServer nmsWorld;
 
     public ForgeQueue_All(com.sk89q.worldedit.world.World world) {
         super(world);
@@ -115,7 +114,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
 
     @Override
     public ExtendedBlockStorage[] getCachedSections(World world, int cx, int cz) {
-        Chunk chunk = ((ChunkProviderServer)world.getChunkProvider()).id2ChunkMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(cx, cz));
+        Chunk chunk = ((ChunkProviderServer) world.getChunkProvider()).id2ChunkMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(cx, cz));
         if (chunk != null) {
             return chunk.getBlockStorageArray();
         }
@@ -124,7 +123,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
 
     @Override
     public Chunk getCachedChunk(World world, int cx, int cz) {
-        return ((ChunkProviderServer)world.getChunkProvider()).id2ChunkMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(cx, cz));
+        return ((ChunkProviderServer) world.getChunkProvider()).id2ChunkMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(cx, cz));
     }
 
     @Override
@@ -146,8 +145,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             }
         }
     }
-
-    protected BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, 0, 0);
 
     @Override
     public CompoundTag getTileEntity(Chunk chunk, int x, int y, int z) {
@@ -255,7 +252,8 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             });
             packet.readPacketData(buffer);
             for (int i = 0; i < players.length; i++) {
-                if (watchingArr[i]) ((EntityPlayerMP) ((ForgePlayer) players[i]).parent).playerNetServerHandler.sendPacket(packet);
+                if (watchingArr[i])
+                    ((EntityPlayerMP) ((ForgePlayer) players[i]).parent).playerNetServerHandler.sendPacket(packet);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -406,7 +404,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
         return false;
     }
 
-
     @Override
     public FaweChunk<Chunk> getFaweChunk(int x, int z) {
         return new ForgeChunk_All(this, x, z);
@@ -466,8 +463,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
         pos.set(x, y, z);
         nmsWorld.checkLight(pos);
     }
-
-    protected WorldServer nmsWorld;
 
     @Override
     public World getImpWorld() {

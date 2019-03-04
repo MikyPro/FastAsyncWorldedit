@@ -20,6 +20,7 @@
 package com.sk89q.worldedit.blocks;
 
 import com.sk89q.jnbt.CompoundTag;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,10 +32,10 @@ import java.util.Map;
  */
 public class BaseItem {
 
+    private final Map<Integer, Integer> enchantments = new HashMap<Integer, Integer>();
     private int id;
     private short data;
     private CompoundTag nbt;
-    private final Map<Integer, Integer> enchantments = new HashMap<Integer, Integer>();
 
     /**
      * Construct the object.
@@ -49,12 +50,16 @@ public class BaseItem {
     /**
      * Construct the object.
      *
-     * @param id ID of the item
+     * @param id   ID of the item
      * @param data data value of the item
      */
     public BaseItem(int id, short data) {
         this.id = id;
         this.data = data;
+    }
+
+    public static Class<?> inject() {
+        return BaseItem.class;
     }
 
     /**
@@ -86,15 +91,6 @@ public class BaseItem {
     }
 
     /**
-     * Get the data value.
-     *
-     * @return the data
-     */
-    public short getData() {
-        return data;
-    }
-
-    /**
      * Set the data value.
      *
      * @param data the damage to set
@@ -102,6 +98,15 @@ public class BaseItem {
     @Deprecated
     public void setDamage(short data) {
         this.data = data;
+    }
+
+    /**
+     * Get the data value.
+     *
+     * @return the data
+     */
+    public short getData() {
+        return data;
     }
 
     /**
@@ -132,9 +137,5 @@ public class BaseItem {
      */
     public Map<Integer, Integer> getEnchantments() {
         return enchantments;
-    }
-
-    public static Class<?> inject() {
-        return BaseItem.class;
     }
 }

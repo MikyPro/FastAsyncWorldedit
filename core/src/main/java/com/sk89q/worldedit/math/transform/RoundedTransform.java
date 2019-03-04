@@ -3,7 +3,7 @@ package com.sk89q.worldedit.math.transform;
 import com.sk89q.worldedit.MutableBlockVector;
 import com.sk89q.worldedit.Vector;
 
-public class RoundedTransform implements Transform{
+public class RoundedTransform implements Transform {
     private final Transform transform;
     private MutableBlockVector mutable = new MutableBlockVector();
 

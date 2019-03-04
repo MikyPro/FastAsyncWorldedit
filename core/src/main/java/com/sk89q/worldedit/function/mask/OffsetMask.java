@@ -2,8 +2,8 @@ package com.sk89q.worldedit.function.mask;
 
 import com.sk89q.worldedit.MutableBlockVector;
 import com.sk89q.worldedit.Vector;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -28,6 +28,10 @@ public class OffsetMask extends AbstractMask {
         checkNotNull(offset);
         this.mask = mask;
         this.offset = offset;
+    }
+
+    public static Class<?> inject() {
+        return OffsetMask.class;
     }
 
     /**
@@ -85,9 +89,5 @@ public class OffsetMask extends AbstractMask {
         } else {
             return null;
         }
-    }
-
-    public static Class<?> inject() {
-        return OffsetMask.class;
     }
 }

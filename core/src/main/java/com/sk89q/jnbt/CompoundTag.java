@@ -1,6 +1,5 @@
 package com.sk89q.jnbt;
 
-import com.sk89q.worldedit.function.entity.ExtentEntityCopy;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.Map;
 public final class CompoundTag extends Tag {
 
     private final Map<String, Tag> value;
+
     /**
      * Creates the tag with an empty name.
      *
@@ -20,6 +20,10 @@ public final class CompoundTag extends Tag {
     public CompoundTag(Map<String, Tag> value) {
         super();
         this.value = value;
+    }
+
+    public static Class<?> inject() {
+        return CompoundTag.class;
     }
 
     @Override
@@ -287,10 +291,10 @@ public final class CompoundTag extends Tag {
      * a list but the list of of a different type, then an empty
      * list will also be returned.</p>
      *
-     * @param key the key
+     * @param key      the key
      * @param listType the class of the contained type
+     * @param <T>      the type of list
      * @return a list of tags
-     * @param <T> the type of list
      */
     @SuppressWarnings("unchecked")
     public <T extends Tag> List<T> getList(String key, Class<T> listType) {
@@ -405,9 +409,5 @@ public final class CompoundTag extends Tag {
         }
         bldr.append("}");
         return bldr.toString();
-    }
-
-    public static Class<?> inject() {
-        return CompoundTag.class;
     }
 }

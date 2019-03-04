@@ -23,8 +23,8 @@ import com.boydti.fawe.object.HasFaweQueue;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.function.RegionFunction;
 import com.sk89q.worldedit.function.mask.Mask;
-import java.util.Collection;
 
+import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -63,13 +63,13 @@ public class DownwardVisitor extends RecursiveVisitor {
         directions.add(new Vector(0, -1, 0));
     }
 
+    public static Class<?> inject() {
+        return DownwardVisitor.class;
+    }
+
     @Override
     public boolean isVisitable(final Vector from, final Vector to) {
         final int fromY = from.getBlockY();
         return ((fromY == this.baseY) || (to.getBlockY() - from.getBlockY() < 0)) && super.isVisitable(from, to);
-    }
-
-    public static Class<?> inject() {
-        return DownwardVisitor.class;
     }
 }

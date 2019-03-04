@@ -33,11 +33,13 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ClipboardFormats {
+    private ClipboardFormats() {
+    }
+
     /**
      * Find the clipboard format named by the given alias.
      *
-     * @param alias
-     *            the alias
+     * @param alias the alias
      * @return the format, otherwise null if none is matched
      */
     @Nullable
@@ -48,8 +50,7 @@ public class ClipboardFormats {
     /**
      * Detect the format of given a file.
      *
-     * @param file
-     *            the file
+     * @param file the file
      * @return the format, otherwise null if one cannot be detected
      */
     @Nullable
@@ -92,6 +93,4 @@ public class ClipboardFormats {
         }
         return exts.toArray(new String[exts.size()]);
     }
-
-    private ClipboardFormats() {}
 }

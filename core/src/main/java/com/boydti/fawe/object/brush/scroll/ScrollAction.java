@@ -12,10 +12,15 @@ import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.pattern.Pattern;
+
 import java.io.IOException;
 
 public abstract class ScrollAction implements ScrollTool {
     private BrushTool tool;
+
+    public ScrollAction(BrushTool tool) {
+        this.tool = tool;
+    }
 
     public static ScrollAction fromArguments(BrushTool tool, Player player, LocalSession session, String arguments, boolean message) throws InputParseException {
         ParserContext parserContext = new ParserContext();
@@ -78,15 +83,11 @@ public abstract class ScrollAction implements ScrollTool {
         }
     }
 
-    public ScrollAction(BrushTool tool) {
-        this.tool = tool;
+    public BrushTool getTool() {
+        return tool;
     }
 
     public void setTool(BrushTool tool) {
         this.tool = tool;
-    }
-
-    public BrushTool getTool() {
-        return tool;
     }
 }

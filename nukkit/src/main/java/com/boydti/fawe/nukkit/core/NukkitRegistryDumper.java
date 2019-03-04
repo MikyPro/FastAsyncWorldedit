@@ -9,21 +9,23 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class NukkitRegistryDumper {
 
     private File file;
     private Gson gson;
+
+    public NukkitRegistryDumper(File file) {
+        this.file = file;
+        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
+        builder.registerTypeAdapter(Vector3.class, new Vec3iAdapter());
+        this.gson = builder.create();
+    }
 
     public static void main(String[] args) {
         try {
@@ -31,14 +33,6 @@ public class NukkitRegistryDumper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-
-    public NukkitRegistryDumper(File file) {
-        this.file = file;
-        GsonBuilder builder = new GsonBuilder().setPrettyPrinting();
-        builder.registerTypeAdapter(Vector3.class, new Vec3iAdapter());
-        this.gson = builder.create();
     }
 
     public void run() throws Exception {
@@ -127,7 +121,7 @@ public class NukkitRegistryDumper {
 
     private String rgb(int i) {
         int r = (i >> 16) & 0xFF;
-        int g = (i >>  8) & 0xFF;
+        int g = (i >> 8) & 0xFF;
         int b = i & 0xFF;
         return String.format("#%02x%02x%02x", r, g, b);
     }
@@ -147,6 +141,7 @@ public class NukkitRegistryDumper {
         public Vector3 read(final JsonReader in) throws IOException {
             throw new UnsupportedOperationException();
         }
+
         @Override
         public void write(final JsonWriter out, final Vector3 vec) throws IOException {
             out.beginArray();

@@ -20,11 +20,7 @@
 package com.sk89q.worldedit.regions.selector;
 
 import com.boydti.fawe.config.BBC;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.IncompleteRegionException;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.internal.cui.CUIRegion;
 import com.sk89q.worldedit.internal.cui.SelectionCylinderEvent;
@@ -35,11 +31,11 @@ import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.regions.selector.limit.SelectorLimits;
 import com.sk89q.worldedit.world.World;
+
+import javax.annotation.Nullable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -49,12 +45,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class CylinderRegionSelector extends com.sk89q.worldedit.regions.CylinderRegionSelector implements RegionSelector, CUIRegion {
 
     protected static transient final NumberFormat NUMBER_FORMAT;
-    protected transient CylinderRegion region;
 
     static {
         NUMBER_FORMAT = (NumberFormat) NumberFormat.getInstance().clone();
         NUMBER_FORMAT.setMaximumFractionDigits(3);
     }
+
+    protected transient CylinderRegion region;
 
     /**
      * Create a new region selector with a {@code null} world.
@@ -112,11 +109,11 @@ public class CylinderRegionSelector extends com.sk89q.worldedit.regions.Cylinder
     /**
      * Create a new selector.
      *
-     * @param world the world
+     * @param world  the world
      * @param center the center
      * @param radius the radius
-     * @param minY the minimum Y
-     * @param maxY the maximum Y
+     * @param minY   the minimum Y
+     * @param maxY   the maximum Y
      */
     public CylinderRegionSelector(@Nullable World world, Vector2D center, Vector2D radius, int minY, int maxY) {
         this(world);
@@ -126,6 +123,10 @@ public class CylinderRegionSelector extends com.sk89q.worldedit.regions.Cylinder
 
         region.setMinimumY(Math.min(minY, maxY));
         region.setMaximumY(Math.max(minY, maxY));
+    }
+
+    public static Class<?> inject() {
+        return CylinderRegionSelector.class;
     }
 
     @Nullable
@@ -282,9 +283,5 @@ public class CylinderRegionSelector extends com.sk89q.worldedit.regions.Cylinder
     @Override
     public String getLegacyTypeID() {
         return "cuboid";
-    }
-
-    public static Class<?> inject() {
-        return CylinderRegionSelector.class;
     }
 }

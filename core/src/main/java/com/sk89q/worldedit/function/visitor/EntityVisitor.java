@@ -26,9 +26,9 @@ import com.sk89q.worldedit.function.EntityFunction;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.function.operation.RunContext;
+
 import java.util.Iterator;
 import java.util.List;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -38,8 +38,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class EntityVisitor implements Operation {
 
     private final EntityFunction function;
-    private int affected = 0;
     private final Iterator<? extends Entity> iterator;
+    private int affected = 0;
 
     /**
      * Create a new instance.
@@ -53,6 +53,10 @@ public class EntityVisitor implements Operation {
 
         this.function = function;
         this.iterator = iterator;
+    }
+
+    public static Class<?> inject() {
+        return Operations.class;
     }
 
     /**
@@ -81,9 +85,5 @@ public class EntityVisitor implements Operation {
     @Override
     public void addStatusMessages(final List<String> messages) {
         messages.add(BBC.VISITOR_ENTITY.format(getAffected()));
-    }
-
-    public static Class<?> inject() {
-        return Operations.class;
     }
 }

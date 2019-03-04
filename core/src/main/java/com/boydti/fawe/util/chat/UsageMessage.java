@@ -7,20 +7,15 @@ import com.boydti.fawe.util.StringMan;
 import com.sk89q.minecraft.util.commands.CommandLocals;
 import com.sk89q.minecraft.util.commands.Link;
 import com.sk89q.worldedit.extension.platform.CommandManager;
-import com.sk89q.worldedit.util.command.CommandCallable;
-import com.sk89q.worldedit.util.command.CommandMapping;
-import com.sk89q.worldedit.util.command.Description;
-import com.sk89q.worldedit.util.command.Dispatcher;
-import com.sk89q.worldedit.util.command.Parameter;
-import com.sk89q.worldedit.util.command.PrimaryAliasComparator;
+import com.sk89q.worldedit.util.command.*;
 import com.sk89q.worldedit.util.command.binding.Range;
 import com.sk89q.worldedit.util.command.parametric.ParameterData;
+
+import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

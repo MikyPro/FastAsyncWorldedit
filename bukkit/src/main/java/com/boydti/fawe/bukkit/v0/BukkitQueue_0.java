@@ -26,6 +26,15 @@ import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.adapter.BukkitImplAdapter;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+import org.bukkit.*;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.WorldInitEvent;
+import org.bukkit.plugin.Plugin;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -35,28 +44,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.event.world.WorldInitEvent;
-import org.bukkit.plugin.Plugin;
 
 public abstract class BukkitQueue_0<CHUNK, CHUNKSECTIONS, SECTION> extends NMSMappedFaweQueue<World, CHUNK, CHUNKSECTIONS, SECTION> implements Listener {
 
+    public static ConcurrentHashMap<Long, Long> keepLoaded = new ConcurrentHashMap<>(8, 0.9f, 1);
     protected static boolean PAPER = true;
+    protected static boolean registered = false;
+    protected static boolean disableChunkLoad = false;
     private static BukkitImplAdapter adapter;
     private static FaweAdapter_All backupAdaper;
     private static Method methodToNative;
     private static Method methodFromNative;
     private static boolean setupAdapter = false;
     private static Method methodGetHandle;
+    private static boolean alertTimingsChange = true;
+    private static Field fieldTimingsEnabled;
+    private static Field fieldAsyncCatcherEnabled;
+    private static Method methodCheck;
 
     static {
         Class<?> classCraftChunk = BukkitReflectionUtils.getCbClass("CraftChunk");
@@ -66,6 +70,23 @@ public abstract class BukkitQueue_0<CHUNK, CHUNKSECTIONS, SECTION> extends NMSMa
             e.printStackTrace();
         }
     }
+
+    static {
+        try {
+            fieldAsyncCatcherEnabled = Class.forName("org.spigotmc.AsyncCatcher").getField("enabled");
+            fieldAsyncCatcherEnabled.setAccessible(true);
+        } catch (Throwable ignore) {
+        }
+        try {
+            fieldTimingsEnabled = Class.forName("co.aikar.timings.Timings").getDeclaredField("timingsEnabled");
+            fieldTimingsEnabled.setAccessible(true);
+            methodCheck = Class.forName("co.aikar.timings.TimingsManager").getDeclaredMethod("recheckEnabled");
+            methodCheck.setAccessible(true);
+        } catch (Throwable ignore) {
+        }
+    }
+
+    private volatile boolean timingsEnabled;
 
     public BukkitQueue_0(final com.sk89q.worldedit.world.World world) {
         super(world);
@@ -82,6 +103,114 @@ public abstract class BukkitQueue_0<CHUNK, CHUNKSECTIONS, SECTION> extends NMSMa
         if (!registered) {
             registered = true;
             Bukkit.getServer().getPluginManager().registerEvents(this, ((FaweBukkit) Fawe.imp()).getPlugin());
+        }
+    }
+
+    public static BukkitImplAdapter getAdapter() {
+        if (adapter == null) setupAdapter(null);
+        if (adapter == null) return backupAdaper;
+        return adapter;
+    }
+
+    public static Tag toNative(Object tag) {
+        BukkitImplAdapter adapter = getAdapter();
+        if (adapter == null) {
+            if (backupAdaper != null) return backupAdaper.toNative(tag);
+            return null;
+        }
+        try {
+            return (Tag) methodToNative.invoke(adapter, tag);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Object fromNative(Tag tag) {
+        BukkitImplAdapter adapter = getAdapter();
+        if (adapter == null) {
+            if (backupAdaper != null) return backupAdaper.fromNative(tag);
+            return null;
+        }
+        try {
+            return methodFromNative.invoke(adapter, tag);
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void checkVersion(String supported) {
+        String version = Bukkit.getServer().getClass().getPackage().getName();
+        if (!version.contains(supported)) {
+            throw new IllegalStateException("Unsupported version: " + version + " (supports: " + supported + ")");
+        }
+    }
+
+    @EventHandler
+    public static void onWorldLoad(WorldInitEvent event) {
+        if (disableChunkLoad) {
+            World world = event.getWorld();
+            world.setKeepSpawnInMemory(false);
+        }
+    }
+
+    @EventHandler
+    public static void onChunkLoad(ChunkLoadEvent event) {
+        Chunk chunk = event.getChunk();
+        long pair = MathMan.pairInt(chunk.getX(), chunk.getZ());
+        keepLoaded.putIfAbsent(pair, Fawe.get().getTimer().getTickStart());
+    }
+
+    @EventHandler
+    public static void onChunkUnload(ChunkUnloadEvent event) {
+        Chunk chunk = event.getChunk();
+        long pair = MathMan.pairInt(chunk.getX(), chunk.getZ());
+        Long lastLoad = keepLoaded.get(pair);
+        if (lastLoad != null) {
+            if (Fawe.get().getTimer().getTickStart() - lastLoad < 10000) {
+                event.setCancelled(true);
+            } else {
+                keepLoaded.remove(pair);
+            }
+        }
+    }
+
+    public static void setupAdapter(BukkitImplAdapter adapter) {
+        try {
+            if (adapter == null && setupAdapter == (setupAdapter = true)) {
+                return;
+            }
+            WorldEditPlugin instance = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
+            Field fieldAdapter = WorldEditPlugin.class.getDeclaredField("bukkitAdapter");
+            fieldAdapter.setAccessible(true);
+            if (adapter != null) {
+                BukkitQueue_0.adapter = adapter;
+                fieldAdapter.set(instance, adapter);
+            } else {
+                BukkitQueue_0.adapter = adapter = (BukkitImplAdapter) fieldAdapter.get(instance);
+                if (adapter == null) {
+                    BukkitQueue_0.adapter = adapter = new FaweAdapter_All();
+                    fieldAdapter.set(instance, adapter);
+                }
+            }
+            if (adapter != null) {
+                for (Method method : adapter.getClass().getDeclaredMethods()) {
+                    switch (method.getName()) {
+                        case "toNative":
+                            methodToNative = method;
+                            methodToNative.setAccessible(true);
+                            break;
+                        case "fromNative":
+                            methodFromNative = method;
+                            methodFromNative.setAccessible(true);
+                            break;
+                    }
+                }
+            }
+            return;
+        } catch (Throwable ignore) {
+            ignore.printStackTrace();
         }
     }
 
@@ -177,102 +306,30 @@ public abstract class BukkitQueue_0<CHUNK, CHUNKSECTIONS, SECTION> extends NMSMa
         return super.queueChunkLoad(cx, cz);
     }
 
-    public static BukkitImplAdapter getAdapter() {
-        if (adapter == null) setupAdapter(null);
-        if (adapter == null) return backupAdaper;
-        return adapter;
-    }
-
-    public static Tag toNative(Object tag) {
-        BukkitImplAdapter adapter = getAdapter();
-        if (adapter == null) {
-            if (backupAdaper != null) return backupAdaper.toNative(tag);
-            return null;
-        }
-        try {
-            return (Tag) methodToNative.invoke(adapter, tag);
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static Object fromNative(Tag tag) {
-        BukkitImplAdapter adapter = getAdapter();
-        if (adapter == null) {
-            if (backupAdaper != null) return backupAdaper.fromNative(tag);
-            return null;
-        }
-        try {
-            return methodFromNative.invoke(adapter, tag);
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     @Override
     public File getSaveFolder() {
         return new File(Bukkit.getWorldContainer(), getWorldName() + File.separator + "region");
     }
 
     @Override
-    public void setFullbright(CHUNKSECTIONS sections) {}
+    public void setFullbright(CHUNKSECTIONS sections) {
+    }
 
     @Override
-    public void relight(int x, int y, int z) {}
+    public void relight(int x, int y, int z) {
+    }
 
     @Override
-    public void relightBlock(int x, int y, int z) {}
+    public void relightBlock(int x, int y, int z) {
+    }
 
     @Override
-    public void relightSky(int x, int y, int z) {}
+    public void relightSky(int x, int y, int z) {
+    }
 
     @Override
     public boolean removeSectionLighting(SECTION sections, int layer, boolean hasSky) {
         return false;
-    }
-
-    public static void checkVersion(String supported) {
-        String version = Bukkit.getServer().getClass().getPackage().getName();
-        if (!version.contains(supported)) {
-            throw new IllegalStateException("Unsupported version: " + version + " (supports: " + supported + ")");
-        }
-    }
-
-    protected static boolean registered = false;
-    protected static boolean disableChunkLoad = false;
-
-    @EventHandler
-    public static void onWorldLoad(WorldInitEvent event) {
-        if (disableChunkLoad) {
-            World world = event.getWorld();
-            world.setKeepSpawnInMemory(false);
-        }
-    }
-
-    public static ConcurrentHashMap<Long, Long> keepLoaded = new ConcurrentHashMap<>(8, 0.9f, 1);
-
-
-    @EventHandler
-    public static void onChunkLoad(ChunkLoadEvent event) {
-        Chunk chunk = event.getChunk();
-        long pair = MathMan.pairInt(chunk.getX(), chunk.getZ());
-        keepLoaded.putIfAbsent(pair, Fawe.get().getTimer().getTickStart());
-    }
-
-    @EventHandler
-    public static void onChunkUnload(ChunkUnloadEvent event) {
-        Chunk chunk = event.getChunk();
-        long pair = MathMan.pairInt(chunk.getX(), chunk.getZ());
-        Long lastLoad = keepLoaded.get(pair);
-        if (lastLoad != null) {
-            if (Fawe.get().getTimer().getTickStart() - lastLoad < 10000) {
-                event.setCancelled(true);
-            } else {
-                keepLoaded.remove(pair);
-            }
-        }
     }
 
     @Override
@@ -296,54 +353,18 @@ public abstract class BukkitQueue_0<CHUNK, CHUNKSECTIONS, SECTION> extends NMSMa
         return world;
     }
 
-    public static void setupAdapter(BukkitImplAdapter adapter) {
-        try {
-            if (adapter == null && setupAdapter == (setupAdapter = true)) {
-                return;
-            }
-            WorldEditPlugin instance = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
-            Field fieldAdapter = WorldEditPlugin.class.getDeclaredField("bukkitAdapter");
-            fieldAdapter.setAccessible(true);
-            if (adapter != null) {
-                BukkitQueue_0.adapter = adapter;
-                fieldAdapter.set(instance, adapter);
-            } else {
-                BukkitQueue_0.adapter = adapter = (BukkitImplAdapter) fieldAdapter.get(instance);
-                if (adapter == null) {
-                    BukkitQueue_0.adapter = adapter = new FaweAdapter_All();
-                    fieldAdapter.set(instance, adapter);
-                }
-            }
-            if (adapter != null) {
-                for (Method method : adapter.getClass().getDeclaredMethods()) {
-                    switch (method.getName()) {
-                        case "toNative":
-                            methodToNative = method;
-                            methodToNative.setAccessible(true);
-                            break;
-                        case "fromNative":
-                            methodFromNative = method;
-                            methodFromNative.setAccessible(true);
-                            break;
-                    }
-                }
-            }
-            return;
-        } catch (Throwable ignore) {
-            ignore.printStackTrace();
-        }
-    }
-
     @Override
     public World getImpWorld() {
         return getWorldName() != null ? Bukkit.getWorld(getWorldName()) : null;
     }
 
     @Override
-    public void sendChunk(int x, int z, int bitMask) {}
+    public void sendChunk(int x, int z, int bitMask) {
+    }
 
     @Override
-    public void refreshChunk(FaweChunk fs) {}
+    public void refreshChunk(FaweChunk fs) {
+    }
 
     @Override
     public boolean regenerateChunk(World world, int x, int z, BaseBiome biome, Long seed) {
@@ -361,25 +382,6 @@ public abstract class BukkitQueue_0<CHUNK, CHUNKSECTIONS, SECTION> extends NMSMa
     public boolean hasSky() {
         World world = getWorld();
         return world == null || world.getEnvironment() == World.Environment.NORMAL;
-    }
-
-    private volatile boolean timingsEnabled;
-    private static boolean alertTimingsChange = true;
-
-    private static Field fieldTimingsEnabled;
-    private static Field fieldAsyncCatcherEnabled;
-    private static Method methodCheck;
-    static {
-        try {
-            fieldAsyncCatcherEnabled = Class.forName("org.spigotmc.AsyncCatcher").getField("enabled");
-            fieldAsyncCatcherEnabled.setAccessible(true);
-        } catch (Throwable ignore) {}
-        try {
-            fieldTimingsEnabled = Class.forName("co.aikar.timings.Timings").getDeclaredField("timingsEnabled");
-            fieldTimingsEnabled.setAccessible(true);
-            methodCheck = Class.forName("co.aikar.timings.TimingsManager").getDeclaredMethod("recheckEnabled");
-            methodCheck.setAccessible(true);
-        } catch (Throwable ignore){}
     }
 
     @Override

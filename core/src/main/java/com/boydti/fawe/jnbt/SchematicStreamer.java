@@ -14,12 +14,23 @@ import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.regions.CuboidRegion;
+
 import java.io.IOException;
 import java.util.UUID;
 
 public class SchematicStreamer extends NBTStreamer {
     private final UUID uuid;
-
+    private int height;
+    private int width;
+    private int length;
+    private int originX;
+    private int originY;
+    private int originZ;
+    private int offsetX;
+    private int offsetY;
+    private int offsetZ;
+    private BlockArrayClipboard clipboard;
+    private FaweClipboard fc;
     public SchematicStreamer(NBTInputStream stream, UUID uuid) {
         super(stream);
         this.uuid = uuid;
@@ -36,7 +47,7 @@ public class SchematicStreamer extends NBTStreamer {
         NBTStreamReader initializer2 = new NBTStreamReader<Integer, Integer>() {
             @Override
             public void run(Integer length, Integer type) {
-                setupClipboard(length*2);
+                setupClipboard(length * 2);
             }
         };
         addReader("Schematic.Blocks.?", initializer);
@@ -172,21 +183,6 @@ public class SchematicStreamer extends NBTStreamer {
         });
     }
 
-    private int height;
-    private int width;
-    private int length;
-
-    private int originX;
-    private int originY;
-    private int originZ;
-
-    private int offsetX;
-    private int offsetY;
-    private int offsetZ;
-
-    private BlockArrayClipboard clipboard;
-    private FaweClipboard fc;
-
     private FaweClipboard setupClipboard(int size) {
         if (fc != null) {
             if (fc.getDimensions().getX() == 0) {
@@ -215,10 +211,6 @@ public class SchematicStreamer extends NBTStreamer {
         return new Vector(width, height, length);
     }
 
-    public void setClipboard(FaweClipboard clipboard) {
-        this.fc = clipboard;
-    }
-
     public Clipboard getClipboard() throws IOException {
         try {
             addDimensionReaders();
@@ -239,5 +231,9 @@ public class SchematicStreamer extends NBTStreamer {
             }
             throw e;
         }
+    }
+
+    public void setClipboard(FaweClipboard clipboard) {
+        this.fc = clipboard;
     }
 }

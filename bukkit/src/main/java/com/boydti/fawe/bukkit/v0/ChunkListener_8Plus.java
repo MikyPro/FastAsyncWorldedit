@@ -11,6 +11,7 @@ public class ChunkListener_8Plus implements Listener {
     public ChunkListener_8Plus(ChunkListener listener) {
         this.listener = listener;
     }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void event(BlockExplodeEvent event) {
         listener.reset();

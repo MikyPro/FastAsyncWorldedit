@@ -15,6 +15,7 @@ package net.jpountz.util;
  */
 
 import com.boydti.fawe.Fawe;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,16 +27,7 @@ import java.io.InputStream;
 public enum Native {
     ;
 
-    private enum OS {
-        // Even on Windows, the default compiler from cpptasks (gcc) uses .so as a shared lib extension
-        WINDOWS("win32", "so"), LINUX("linux", "so"), MAC("darwin", "dylib"), SOLARIS("solaris", "so");
-        public final String name, libExtension;
-
-        OS(String name, String libExtension) {
-            this.name = name;
-            this.libExtension = libExtension;
-        }
-    }
+    private static boolean loaded = false;
 
     private static String arch() {
         return System.getProperty("os.arch");
@@ -61,8 +53,6 @@ public enum Native {
         OS os = os();
         return "/" + os.name + "/" + arch() + "/liblz4-java." + os.libExtension;
     }
-
-    private static boolean loaded = false;
 
     public static synchronized boolean isLoaded() {
         return loaded;
@@ -118,6 +108,17 @@ public enum Native {
             }
         } catch (IOException e) {
             throw new ExceptionInInitializerError("Cannot unpack liblz4-java");
+        }
+    }
+
+    private enum OS {
+        // Even on Windows, the default compiler from cpptasks (gcc) uses .so as a shared lib extension
+        WINDOWS("win32", "so"), LINUX("linux", "so"), MAC("darwin", "dylib"), SOLARIS("solaris", "so");
+        public final String name, libExtension;
+
+        OS(String name, String libExtension) {
+            this.name = name;
+            this.libExtension = libExtension;
         }
     }
 

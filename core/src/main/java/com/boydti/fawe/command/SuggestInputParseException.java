@@ -1,16 +1,8 @@
 package com.boydti.fawe.command;
 
-import com.boydti.fawe.util.MainUtil;
-import com.boydti.fawe.util.StringMan;
-import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.extension.input.InputParseException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,17 +16,6 @@ public class SuggestInputParseException extends InputParseException {
         this(new InputParseException(msg), prefix, getSuggestions);
     }
 
-    public static SuggestInputParseException of(Throwable other, String prefix, SuggestSupplier<List<String>> getSuggestions) {
-        InputParseException e = find(other);
-        if (e != null) return of(e, prefix, getSuggestions);
-        return of(new InputParseException(other.getMessage()), prefix, getSuggestions);
-    }
-
-    public static SuggestInputParseException of(InputParseException other, String prefix, SuggestSupplier<List<String>> getSuggestions) {
-        if (other instanceof SuggestInputParseException) return (SuggestInputParseException) other;
-        return new SuggestInputParseException(other, prefix, getSuggestions);
-    }
-
     public SuggestInputParseException(InputParseException other, String prefix, SuggestSupplier<List<String>> getSuggestions) {
         super(other.getMessage());
         checkNotNull(getSuggestions);
@@ -44,8 +25,15 @@ public class SuggestInputParseException extends InputParseException {
         this.prefix = prefix;
     }
 
-    public interface SuggestSupplier<T> {
-        T get() throws InputParseException;
+    public static SuggestInputParseException of(Throwable other, String prefix, SuggestSupplier<List<String>> getSuggestions) {
+        InputParseException e = find(other);
+        if (e != null) return of(e, prefix, getSuggestions);
+        return of(new InputParseException(other.getMessage()), prefix, getSuggestions);
+    }
+
+    public static SuggestInputParseException of(InputParseException other, String prefix, SuggestSupplier<List<String>> getSuggestions) {
+        if (other instanceof SuggestInputParseException) return (SuggestInputParseException) other;
+        return new SuggestInputParseException(other, prefix, getSuggestions);
     }
 
     public static InputParseException find(Throwable e) {
@@ -76,7 +64,6 @@ public class SuggestInputParseException extends InputParseException {
         return cause.getMessage();
     }
 
-
     public List<String> getSuggestions() throws InputParseException {
         return getSuggestions.get();
     }
@@ -84,5 +71,9 @@ public class SuggestInputParseException extends InputParseException {
     public SuggestInputParseException prepend(String input) {
         this.prefix = input + prefix;
         return this;
+    }
+
+    public interface SuggestSupplier<T> {
+        T get() throws InputParseException;
     }
 }

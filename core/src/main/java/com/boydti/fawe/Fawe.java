@@ -13,8 +13,8 @@ import com.boydti.fawe.util.chat.PlainChatManager;
 import com.boydti.fawe.util.cui.CUI;
 import com.boydti.fawe.util.metrics.BStats;
 import com.sk89q.jnbt.*;
-import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BaseItem;
 import com.sk89q.worldedit.blocks.BlockData;
@@ -76,6 +76,12 @@ import com.sk89q.worldedit.util.formatting.component.CommandUsageBox;
 import com.sk89q.worldedit.util.formatting.component.MessageBox;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.BundledBlockData;
+
+import javax.annotation.Nullable;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.Notification;
+import javax.management.NotificationEmitter;
+import javax.management.NotificationListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -87,12 +93,6 @@ import java.lang.management.MemoryUsage;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.Notification;
-import javax.management.NotificationEmitter;
-import javax.management.NotificationListener;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -143,81 +143,20 @@ public class Fawe {
      * TPS timer
      */
     private final FaweTimer timer;
+    /**
+     * The platform specific implementation
+     */
+    private final IFawe IMP;
     private FaweVersion version;
     private VisualQueue visualQueue;
     private Updater updater;
     private TextureUtil textures;
     private DefaultTransformParser transformParser;
     private ChatManager chatManager = new PlainChatManager();
-
     private BStats stats;
-
-    /**
-     * Get the implementation specific class
-     *
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static <T extends IFawe> T imp() {
-        return INSTANCE != null ? (T) INSTANCE.IMP : null;
-    }
-
-    /**
-     * Get the implementation independent class
-     *
-     * @return
-     */
-    public static Fawe get() {
-        return INSTANCE;
-    }
-
-    /**
-     * Setup Fawe
-     *
-     * @param implementation
-     * @throws InstanceAlreadyExistsException
-     */
-    public static void set(final IFawe implementation) throws InstanceAlreadyExistsException, IllegalArgumentException {
-        if (INSTANCE != null) {
-            throw new InstanceAlreadyExistsException("FAWE has already been initialized with: " + INSTANCE.IMP);
-        }
-        if (implementation == null) {
-            throw new IllegalArgumentException("Implementation may not be null.");
-        }
-        INSTANCE = new Fawe(implementation);
-    }
-
-    public static void debugPlain(String s) {
-        if (INSTANCE != null) {
-            INSTANCE.IMP.debug(s);
-        } else {
-            System.out.println(BBC.stripColor(BBC.color(s)));
-        }
-    }
-
-    /**
-     * Write something to the console
-     *
-     * @param s
-     */
-    public static void debug(Object s) {
-        if (INSTANCE != null) // Fix of issue 1123 - Didn't check the whole code, but WorldEdit should be loaded when an INSTANCE of FAWE is set. (Since this is a core class, I didn't use the Bukkit API)
-        {
-            Actor actor = Request.request().getActor();
-            if (actor != null && actor.isPlayer()) {
-                actor.print(BBC.color(BBC.PREFIX.original() + " " + s));
-                return;
-            }
-        }
-
-        debugPlain(BBC.PREFIX.original() + " " + s);
-    }
-
-    /**
-     * The platform specific implementation
-     */
-    private final IFawe IMP;
     private Thread thread = Thread.currentThread();
+    private ConcurrentHashMap<String, FawePlayer> players = new ConcurrentHashMap<>(8, 0.9f, 1);
+    private ConcurrentHashMap<UUID, FawePlayer> playersUUID = new ConcurrentHashMap<>(8, 0.9f, 1);
 
     private Fawe(final IFawe implementation) {
         this.INSTANCE = this;
@@ -282,7 +221,8 @@ public class Fawe {
                 WEManager.IMP.managers.addAll(Fawe.this.IMP.getMaskManagers());
                 WEManager.IMP.managers.add(new PlotSquaredFeature());
                 Fawe.debug("Plugin 'PlotSquared' found. Using it now.");
-            } catch (Throwable e) {}
+            } catch (Throwable e) {
+            }
         }, 0);
 
         TaskManager.IMP.repeat(timer, 1);
@@ -295,167 +235,65 @@ public class Fawe {
         }
     }
 
-    public void onDisable() {
-        if (stats != null) {
-            stats.close();
-        }
-    }
-
-    private boolean update() {
-        if (updater != null) {
-            updater.getUpdate(IMP.getPlatform(), getVersion());
-            return true;
-        }
-        return false;
-    }
-
-    public CUI getCUI(Actor actor) {
-        FawePlayer<Object> fp = FawePlayer.wrap(actor);
-        CUI cui = fp.getMeta("CUI");
-        if (cui == null) {
-            cui = Fawe.imp().getCUI(fp);
-            if (cui != null) {
-                synchronized (fp) {
-                    CUI tmp = fp.getMeta("CUI");
-                    if (tmp == null) {
-                        fp.setMeta("CUI", cui);
-                    } else {
-                        cui = tmp;
-                    }
-                }
-            }
-        }
-        return cui;
-    }
-
-    public ChatManager getChatManager() {
-        return chatManager;
-    }
-
-    public void setChatManager(ChatManager chatManager) {
-        checkNotNull(chatManager);
-        this.chatManager = chatManager;
-    }
-
-    //    @Deprecated
-//    public boolean isJava8() {
-//        return isJava8;
-//    }
-
-    public DefaultTransformParser getTransformParser() {
-        return transformParser;
-    }
-
     /**
-     * The FAWE updater class
-     * - Use to get basic update information (changelog/version etc)
+     * Get the implementation specific class
      *
      * @return
      */
-    public Updater getUpdater() {
-        return updater;
-    }
-
-    public TextureUtil getCachedTextureUtil(boolean randomize, int min, int max) {
-        TextureUtil tu = getTextureUtil();
-        try {
-            tu = min == 0 && max == 100 ? tu : new CleanTextureUtil(tu, min, max);
-            tu = randomize ? new RandomTextureUtil(tu) : new CachedTextureUtil(tu);
-        } catch (FileNotFoundException neverHappens) {
-            neverHappens.printStackTrace();
-        }
-        return tu;
-    }
-
-    public TextureUtil getTextureUtil() {
-        TextureUtil tmp = textures;
-        if (tmp == null) {
-            synchronized (this) {
-                tmp = textures;
-                if (tmp == null) {
-                    try {
-                        textures = tmp = new TextureUtil();
-                        tmp.loadModTextures();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }
-        return tmp;
+    @SuppressWarnings("unchecked")
+    public static <T extends IFawe> T imp() {
+        return INSTANCE != null ? (T) INSTANCE.IMP : null;
     }
 
     /**
-     * The FaweTimer is a useful class for monitoring TPS
-     *
-     * @return FaweTimer
-     */
-    public FaweTimer getTimer() {
-        return timer;
-    }
-
-    /**
-     * The visual queue is used to queue visualizations
+     * Get the implementation independent class
      *
      * @return
      */
-    public VisualQueue getVisualQueue() {
-        return visualQueue;
+    public static Fawe get() {
+        return INSTANCE;
     }
 
     /**
-     * The FAWE version
-     * - Unofficial jars may be lacking version information
+     * Setup Fawe
      *
-     * @return FaweVersion
+     * @param implementation
+     * @throws InstanceAlreadyExistsException
      */
-    public
-    @Nullable
-    FaweVersion getVersion() {
-        return version;
+    public static void set(final IFawe implementation) throws InstanceAlreadyExistsException, IllegalArgumentException {
+        if (INSTANCE != null) {
+            throw new InstanceAlreadyExistsException("FAWE has already been initialized with: " + INSTANCE.IMP);
+        }
+        if (implementation == null) {
+            throw new IllegalArgumentException("Implementation may not be null.");
+        }
+        INSTANCE = new Fawe(implementation);
     }
 
-    public double getTPS() {
-        return timer.getTPS();
+    public static void debugPlain(String s) {
+        if (INSTANCE != null) {
+            INSTANCE.IMP.debug(s);
+        } else {
+            System.out.println(BBC.stripColor(BBC.color(s)));
+        }
     }
 
-    private void setupCommands() {
-        this.IMP.setupCommand("fcancel", new Cancel());
-    }
+    /**
+     * Write something to the console
+     *
+     * @param s
+     */
+    public static void debug(Object s) {
+        if (INSTANCE != null) // Fix of issue 1123 - Didn't check the whole code, but WorldEdit should be loaded when an INSTANCE of FAWE is set. (Since this is a core class, I didn't use the Bukkit API)
+        {
+            Actor actor = Request.request().getActor();
+            if (actor != null && actor.isPlayer()) {
+                actor.print(BBC.color(BBC.PREFIX.original() + " " + s));
+                return;
+            }
+        }
 
-    public void setupConfigs() {
-        MainUtil.copyFile(MainUtil.getJarFile(), "de/message.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "ru/message.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "ru/commands.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "tr/message.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "es/message.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "es/commands.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "nl/message.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "fr/message.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "cn/message.yml", null);
-        MainUtil.copyFile(MainUtil.getJarFile(), "it/message.yml", null);
-        // Setting up config.yml
-        File file = new File(this.IMP.getDirectory(), "config.yml");
-        Settings.IMP.PLATFORM = IMP.getPlatform().replace("\"", "");
-        try {
-            InputStream stream = getClass().getResourceAsStream("/fawe.properties");
-            java.util.Scanner scanner = new java.util.Scanner(stream).useDelimiter("\\A");
-            String versionString = scanner.next().trim();
-            scanner.close();
-            this.version = new FaweVersion(versionString);
-            Settings.IMP.DATE = new Date(100 + version.year, version.month, version.day).toGMTString();
-            Settings.IMP.BUILD = "https://ci.athion.net/job/FastAsyncWorldEdit/" + version.build;
-            Settings.IMP.COMMIT = "https://github.com/boy0001/FastAsyncWorldedit/commit/" + Integer.toHexString(version.hash);
-        } catch (Throwable ignore) {}
-        Settings.IMP.reload(file);
-        // Setting up message.yml
-        String lang = Objects.toString(Settings.IMP.LANGUAGE);
-        BBC.load(new File(this.IMP.getDirectory(), (lang.isEmpty() ? "" : lang + File.separator) + "message.yml"));
-    }
-
-
-    public WorldEdit getWorldEdit() {
-        return WorldEdit.getInstance();
+        debugPlain(BBC.PREFIX.original() + " " + s);
     }
 
     public static void setupInjector() {
@@ -684,7 +522,175 @@ public class Fawe {
                 debug(" - This is only a recommendation");
                 debug("====================================");
             }
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
+    }
+
+    public static boolean isMainThread() {
+        return INSTANCE != null ? imp().isMainThread() : true;
+    }
+
+    public void onDisable() {
+        if (stats != null) {
+            stats.close();
+        }
+    }
+
+    //    @Deprecated
+//    public boolean isJava8() {
+//        return isJava8;
+//    }
+
+    private boolean update() {
+        if (updater != null) {
+            updater.getUpdate(IMP.getPlatform(), getVersion());
+            return true;
+        }
+        return false;
+    }
+
+    public CUI getCUI(Actor actor) {
+        FawePlayer<Object> fp = FawePlayer.wrap(actor);
+        CUI cui = fp.getMeta("CUI");
+        if (cui == null) {
+            cui = Fawe.imp().getCUI(fp);
+            if (cui != null) {
+                synchronized (fp) {
+                    CUI tmp = fp.getMeta("CUI");
+                    if (tmp == null) {
+                        fp.setMeta("CUI", cui);
+                    } else {
+                        cui = tmp;
+                    }
+                }
+            }
+        }
+        return cui;
+    }
+
+    public ChatManager getChatManager() {
+        return chatManager;
+    }
+
+    public void setChatManager(ChatManager chatManager) {
+        checkNotNull(chatManager);
+        this.chatManager = chatManager;
+    }
+
+    public DefaultTransformParser getTransformParser() {
+        return transformParser;
+    }
+
+    /**
+     * The FAWE updater class
+     * - Use to get basic update information (changelog/version etc)
+     *
+     * @return
+     */
+    public Updater getUpdater() {
+        return updater;
+    }
+
+    public TextureUtil getCachedTextureUtil(boolean randomize, int min, int max) {
+        TextureUtil tu = getTextureUtil();
+        try {
+            tu = min == 0 && max == 100 ? tu : new CleanTextureUtil(tu, min, max);
+            tu = randomize ? new RandomTextureUtil(tu) : new CachedTextureUtil(tu);
+        } catch (FileNotFoundException neverHappens) {
+            neverHappens.printStackTrace();
+        }
+        return tu;
+    }
+
+    public TextureUtil getTextureUtil() {
+        TextureUtil tmp = textures;
+        if (tmp == null) {
+            synchronized (this) {
+                tmp = textures;
+                if (tmp == null) {
+                    try {
+                        textures = tmp = new TextureUtil();
+                        tmp.loadModTextures();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return tmp;
+    }
+
+    /**
+     * The FaweTimer is a useful class for monitoring TPS
+     *
+     * @return FaweTimer
+     */
+    public FaweTimer getTimer() {
+        return timer;
+    }
+
+    /**
+     * The visual queue is used to queue visualizations
+     *
+     * @return
+     */
+    public VisualQueue getVisualQueue() {
+        return visualQueue;
+    }
+
+    /**
+     * The FAWE version
+     * - Unofficial jars may be lacking version information
+     *
+     * @return FaweVersion
+     */
+    public
+    @Nullable
+    FaweVersion getVersion() {
+        return version;
+    }
+
+    public double getTPS() {
+        return timer.getTPS();
+    }
+
+    private void setupCommands() {
+        this.IMP.setupCommand("fcancel", new Cancel());
+    }
+
+    public void setupConfigs() {
+        MainUtil.copyFile(MainUtil.getJarFile(), "de/message.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "ru/message.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "ru/commands.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "tr/message.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "es/message.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "es/commands.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "nl/message.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "fr/message.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "cn/message.yml", null);
+        MainUtil.copyFile(MainUtil.getJarFile(), "it/message.yml", null);
+        // Setting up config.yml
+        File file = new File(this.IMP.getDirectory(), "config.yml");
+        Settings.IMP.PLATFORM = IMP.getPlatform().replace("\"", "");
+        try {
+            InputStream stream = getClass().getResourceAsStream("/fawe.properties");
+            java.util.Scanner scanner = new java.util.Scanner(stream).useDelimiter("\\A");
+            String versionString = scanner.next().trim();
+            scanner.close();
+            this.version = new FaweVersion(versionString);
+            Settings.IMP.DATE = new Date(100 + version.year, version.month, version.day).toGMTString();
+            Settings.IMP.BUILD = "https://ci.athion.net/job/FastAsyncWorldEdit/" + version.build;
+            Settings.IMP.COMMIT = "https://github.com/boy0001/FastAsyncWorldedit/commit/" + Integer.toHexString(version.hash);
+        } catch (Throwable ignore) {
+        }
+        Settings.IMP.reload(file);
+        // Setting up message.yml
+        String lang = Objects.toString(Settings.IMP.LANGUAGE);
+        BBC.load(new File(this.IMP.getDirectory(), (lang.isEmpty() ? "" : lang + File.separator) + "message.yml"));
+    }
+
+    public WorldEdit getWorldEdit() {
+        return WorldEdit.getInstance();
     }
 
     private void setupMemoryListener() {
@@ -739,10 +745,6 @@ public class Fawe {
         return this.thread;
     }
 
-    public static boolean isMainThread() {
-        return INSTANCE != null ? imp().isMainThread() : true;
-    }
-
     /**
      * Sets the main thread to the current thread
      *
@@ -751,9 +753,6 @@ public class Fawe {
     public Thread setMainThread() {
         return this.thread = Thread.currentThread();
     }
-
-    private ConcurrentHashMap<String, FawePlayer> players = new ConcurrentHashMap<>(8, 0.9f, 1);
-    private ConcurrentHashMap<UUID, FawePlayer> playersUUID = new ConcurrentHashMap<>(8, 0.9f, 1);
 
     public <T> void register(FawePlayer<T> player) {
         players.put(player.getName(), player);

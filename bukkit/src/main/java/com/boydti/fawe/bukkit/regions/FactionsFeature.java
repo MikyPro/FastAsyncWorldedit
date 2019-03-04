@@ -43,8 +43,7 @@ public class FactionsFeature extends BukkitMaskManager implements Listener {
                         }
                     };
                 }
-            }
-            else if (fac.getOnlinePlayers().contains(player)) {
+            } else if (fac.getOnlinePlayers().contains(player)) {
                 if (fac.getComparisonName().equals("wilderness") == false) {
                     final Chunk chunk = loc.getChunk();
                     final Location pos1 = new Location(loc.getWorld(), chunk.getX() * 16, 0, chunk.getZ() * 16);

@@ -23,22 +23,17 @@ import com.boydti.fawe.util.MathMan;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class NukkitQueue extends NMSMappedFaweQueue<Level, BaseFullChunk, BaseFullChunk, BaseFullChunk> {
-    private FaweNukkit faweNukkit;
-    private Level world;
-
     public static int ALLOCATE;
     private static int LIGHT_MASK = 0x739C0;
+    private FaweNukkit faweNukkit;
+    private Level world;
+    private int skip;
+    private Vector3 mutable = new Vector3();
 
     public NukkitQueue(FaweNukkit fn, World world) {
         super(world);
@@ -127,8 +122,6 @@ public class NukkitQueue extends NMSMappedFaweQueue<Level, BaseFullChunk, BaseFu
     public CharFaweChunk getPrevious(CharFaweChunk fs, BaseFullChunk sections, Map<?, ?> tiles, Collection<?>[] entities, Set<UUID> createdEntities, boolean all) throws Exception {
         return fs;
     }
-
-    private int skip;
 
     @Override
     public File getSaveFolder() {
@@ -221,7 +214,6 @@ public class NukkitQueue extends NMSMappedFaweQueue<Level, BaseFullChunk, BaseFu
         return true;
     }
 
-    private Vector3 mutable = new Vector3();
     private Vector3 getMutable(int x, int y, int z) {
         mutable.x = x;
         mutable.y = y;

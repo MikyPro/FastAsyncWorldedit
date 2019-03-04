@@ -35,6 +35,10 @@ public class GravityBrush implements Brush {
         this.fullHeight = fullHeight;
     }
 
+    public static Class<?> inject() {
+        return GravityBrush.class;
+    }
+
     @Override
     public void build(EditSession editSession, Vector position, Pattern pattern, double sizeDouble) throws MaxChangedBlocksException {
         Mask mask = editSession.getMask();
@@ -61,10 +65,6 @@ public class GravityBrush implements Brush {
                 }
             }
         }
-    }
-
-    public static Class<?> inject() {
-        return GravityBrush.class;
     }
 
 }

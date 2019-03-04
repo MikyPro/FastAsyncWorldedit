@@ -32,13 +32,14 @@ import com.sk89q.worldedit.internal.LocalWorldAdapter;
 import com.sk89q.worldedit.internal.cui.CUIEvent;
 import com.sk89q.worldedit.session.SessionKey;
 import com.sk89q.worldedit.util.Location;
-import java.util.UUID;
-import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S3FPacketCustomPayload;
 import net.minecraft.util.ChatComponentText;
+
+import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class ForgePlayer extends AbstractPlayerActor {
 
@@ -49,6 +50,10 @@ public class ForgePlayer extends AbstractPlayerActor {
         this.platform = platform;
         this.player = player;
         ThreadSafeCache.getInstance().getOnlineIds().add(getUniqueId());
+    }
+
+    public static Class<ForgePlayer> inject() {
+        return ForgePlayer.class;
     }
 
     @Override
@@ -67,7 +72,6 @@ public class ForgePlayer extends AbstractPlayerActor {
         ItemStack is = this.player.getCurrentEquippedItem();
         return is == null ? EditSession.nullBlock : new BaseBlock(Item.getIdFromItem(is.getItem()), is.isItemStackDamageable() ? 0 : is.getItemDamage());
     }
-
 
     @Override
     public String getName() {
@@ -218,9 +222,5 @@ public class ForgePlayer extends AbstractPlayerActor {
             return true;
         }
 
-    }
-
-    public static Class<ForgePlayer> inject() {
-        return ForgePlayer.class;
     }
 }

@@ -31,8 +31,9 @@ import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.internal.cui.CUIEvent;
 import com.sk89q.worldedit.session.SessionKey;
-import java.util.UUID;
+
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class NukkitPlayer extends LocalPlayer {
 
@@ -127,7 +128,7 @@ public class NukkitPlayer extends LocalPlayer {
     }
 
     @Override
-        public String[] getGroups() {
+    public String[] getGroups() {
         // Is this ever used?
         return new String[0];
     }

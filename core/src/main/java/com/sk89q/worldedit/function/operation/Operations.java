@@ -27,10 +27,10 @@ import com.sk89q.worldedit.WorldEditException;
  */
 public final class Operations {
 
+    private static RunContext context = new RunContext();
+
     private Operations() {
     }
-
-    private static RunContext context = new RunContext();
 
     /**
      * Complete a given operation synchronously until it completes.

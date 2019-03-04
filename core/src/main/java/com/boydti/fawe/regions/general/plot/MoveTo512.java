@@ -17,18 +17,12 @@ import com.intellectualcrafters.plot.config.C;
 import com.intellectualcrafters.plot.database.DBFunc;
 import com.intellectualcrafters.plot.database.SQLManager;
 import com.intellectualcrafters.plot.generator.HybridPlotWorld;
-import com.intellectualcrafters.plot.object.Location;
-import com.intellectualcrafters.plot.object.Plot;
-import com.intellectualcrafters.plot.object.PlotArea;
-import com.intellectualcrafters.plot.object.PlotId;
-import com.intellectualcrafters.plot.object.PlotPlayer;
-import com.intellectualcrafters.plot.object.RunnableVal2;
-import com.intellectualcrafters.plot.object.RunnableVal3;
-import com.intellectualcrafters.plot.object.SetupObject;
+import com.intellectualcrafters.plot.object.*;
 import com.intellectualcrafters.plot.util.SetupUtils;
 import com.intellectualcrafters.plot.util.WorldUtil;
 import com.plotsquared.general.commands.Command;
 import com.plotsquared.general.commands.CommandDeclaration;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -91,7 +85,7 @@ public class MoveTo512 extends Command {
                 if (yMax != 15) {
                     Arrays.fill(ids, yMax158 + 256, 4096, (byte) 0);
                 }
-            } else if (layer == 0){
+            } else if (layer == 0) {
                 Arrays.fill(ids, 256, 4096, (byte) 3);
                 Arrays.fill(ids, 0, 256, (byte) 7);
             } else {
@@ -142,7 +136,7 @@ public class MoveTo512 extends Command {
                     int yMax158 = yMax15 << 8;
                     Arrays.fill(ids, yMax158 + 256, 4096, (byte) 0);
                 }
-            } else if (layer == 0){
+            } else if (layer == 0) {
                 Arrays.fill(ids, 256, 4096, (byte) hpw.ROAD_BLOCK.id);
                 Arrays.fill(ids, 0, 256, (byte) 7);
             } else {

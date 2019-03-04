@@ -31,13 +31,8 @@ import com.sk89q.worldedit.internal.expression.Expression;
 import com.sk89q.worldedit.util.command.binding.Range;
 import com.sk89q.worldedit.util.command.binding.Switch;
 import com.sk89q.worldedit.util.command.parametric.Optional;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+
+import java.io.*;
 import java.nio.file.FileSystems;
 import java.util.zip.GZIPInputStream;
 
@@ -50,6 +45,10 @@ public class BrushOptionsCommands extends MethodCommands {
 
     public BrushOptionsCommands(WorldEdit we) {
         super(we);
+    }
+
+    public static Class<?> inject() {
+        return BrushOptionsCommands.class;
     }
 
     @Command(
@@ -242,7 +241,7 @@ public class BrushOptionsCommands extends MethodCommands {
             min = 0,
             max = 1
     )
-    public void visual(Player player, LocalSession session, @Range(min = 0, max = 2)int mode) throws WorldEditException {
+    public void visual(Player player, LocalSession session, @Range(min = 0, max = 2) int mode) throws WorldEditException {
         BrushTool tool = session.getBrushTool(player, false);
         if (tool == null) {
             BBC.BRUSH_NONE.send(player);
@@ -500,9 +499,5 @@ public class BrushOptionsCommands extends MethodCommands {
         settings.setSize(radius);
         tool.update();
         BBC.BRUSH_SIZE.send(player);
-    }
-
-    public static Class<?> inject() {
-        return BrushOptionsCommands.class;
     }
 }

@@ -4,11 +4,7 @@ import com.boydti.fawe.config.Settings;
 import com.boydti.fawe.example.Relighter;
 import com.boydti.fawe.jnbt.anvil.generator.GenBase;
 import com.boydti.fawe.jnbt.anvil.generator.Resource;
-import com.boydti.fawe.object.FaweChunk;
-import com.boydti.fawe.object.FawePlayer;
-import com.boydti.fawe.object.FaweQueue;
-import com.boydti.fawe.object.RegionWrapper;
-import com.boydti.fawe.object.RunnableVal2;
+import com.boydti.fawe.object.*;
 import com.boydti.fawe.object.exception.FaweException;
 import com.boydti.fawe.util.SetQueue;
 import com.sk89q.jnbt.CompoundTag;
@@ -29,11 +25,12 @@ import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.WorldData;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public interface IDelegateFaweQueue extends FaweQueue {
 
@@ -230,13 +227,13 @@ public interface IDelegateFaweQueue extends FaweQueue {
     }
 
     @Override
-    default void setChangeTask(RunnableVal2<FaweChunk, FaweChunk> changeTask) {
-        getQueue().setChangeTask(changeTask);
+    default RunnableVal2<FaweChunk, FaweChunk> getChangeTask() {
+        return getQueue().getChangeTask();
     }
 
     @Override
-    default RunnableVal2<FaweChunk, FaweChunk> getChangeTask() {
-        return getQueue().getChangeTask();
+    default void setChangeTask(RunnableVal2<FaweChunk, FaweChunk> changeTask) {
+        getQueue().setChangeTask(changeTask);
     }
 
     @Override

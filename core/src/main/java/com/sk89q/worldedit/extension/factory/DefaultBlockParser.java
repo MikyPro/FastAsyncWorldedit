@@ -25,19 +25,8 @@ import com.boydti.fawe.util.MathMan;
 import com.boydti.fawe.util.StringMan;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.Tag;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.IncompleteRegionException;
-import com.sk89q.worldedit.NotABlockException;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.blocks.BaseBlock;
-import com.sk89q.worldedit.blocks.BaseItem;
-import com.sk89q.worldedit.blocks.BlockType;
-import com.sk89q.worldedit.blocks.ClothColor;
-import com.sk89q.worldedit.blocks.MobSpawnerBlock;
-import com.sk89q.worldedit.blocks.NoteBlock;
-import com.sk89q.worldedit.blocks.SignBlock;
-import com.sk89q.worldedit.blocks.SkullBlock;
+import com.sk89q.worldedit.*;
+import com.sk89q.worldedit.blocks.*;
 import com.sk89q.worldedit.blocks.metadata.MobType;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.extension.input.DisallowedUsageException;
@@ -50,6 +39,7 @@ import com.sk89q.worldedit.extent.inventory.SlottableBlockBag;
 import com.sk89q.worldedit.internal.registry.InputParser;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.registry.BundledBlockData;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +70,10 @@ public class DefaultBlockParser extends InputParser<BaseBlock> {
         } else {
             throw new InputParseException("The user is not a player!");
         }
+    }
+
+    public static Class<DefaultBlockParser> inject() {
+        return DefaultBlockParser.class;
     }
 
     @Override
@@ -183,7 +177,8 @@ public class DefaultBlockParser extends InputParser<BaseBlock> {
                     data = item.getData();
                     nbt = item.getNbtData();
                     break;
-                } catch (NumberFormatException ignore) {}
+                } catch (NumberFormatException ignore) {
+                }
             }
             default: {
                 // Attempt to parse the item ID or otherwise resolve an item/block
@@ -461,9 +456,5 @@ public class DefaultBlockParser extends InputParser<BaseBlock> {
             default:
                 return new BaseBlock(blockId, data);
         }
-    }
-
-    public static Class<DefaultBlockParser> inject() {
-        return DefaultBlockParser.class;
     }
 }

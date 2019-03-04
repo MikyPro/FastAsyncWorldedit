@@ -17,32 +17,6 @@ public class DefaultProgressTracker extends RunnableVal2<FaweQueue.ProgressType,
     private final long start;
     private int delay = Settings.IMP.QUEUE.PROGRESS.DELAY;
     private int interval = Settings.IMP.QUEUE.PROGRESS.INTERVAL;
-
-    public DefaultProgressTracker(FawePlayer player) {
-        this.start = System.currentTimeMillis();
-        this.player = player;
-    }
-
-    public void setInterval(int interval) {
-        this.interval = interval;
-    }
-
-    public void setDelay(int delay) {
-        this.delay = delay;
-    }
-
-    public int getInterval() {
-        return interval;
-    }
-
-    public int getDelay() {
-        return delay;
-    }
-
-    public FawePlayer getPlayer() {
-        return player;
-    }
-
     // Number of times a chunk was queued
     private int totalQueue = 0;
     // Current size of the queue
@@ -53,6 +27,32 @@ public class DefaultProgressTracker extends RunnableVal2<FaweQueue.ProgressType,
     private int lastSize = 0;
     // If the task is finished
     private boolean done = false;
+    private long lastTick = 0;
+
+    public DefaultProgressTracker(FawePlayer player) {
+        this.start = System.currentTimeMillis();
+        this.player = player;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
+    public FawePlayer getPlayer() {
+        return player;
+    }
 
     @Override
     public void run(FaweQueue.ProgressType type, Integer amount) {
@@ -91,8 +91,6 @@ public class DefaultProgressTracker extends RunnableVal2<FaweQueue.ProgressType,
             }
         });
     }
-
-    private long lastTick = 0;
 
     private final void send() {
         TaskManager.IMP.task(new Runnable() { // Run on main thread

@@ -10,16 +10,16 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.pattern.AbstractPattern;
 import com.sk89q.worldedit.function.pattern.Pattern;
+
 import java.io.IOException;
 import java.util.UUID;
 
 public class BufferedPattern extends AbstractPattern implements ResettablePattern {
+    protected final Pattern pattern;
+    protected final UUID uuid;
     protected transient LocalBlockVectorSet set = new LocalBlockVectorSet();
     protected transient FaweTimer timer;
     protected transient long[] actionTime;
-
-    protected final Pattern pattern;
-    protected final UUID uuid;
 
     public BufferedPattern(FawePlayer fp, Pattern parent) {
         this.uuid = fp.getUUID();

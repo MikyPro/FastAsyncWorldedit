@@ -5,6 +5,7 @@ import com.boydti.fawe.FaweVersion;
 import com.boydti.fawe.config.Settings;
 import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.util.chat.Message;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,13 +47,13 @@ public class Updater {
             Fawe.debug("Updated FAWE to " + versionString + " @ " + pendingFile);
             String url = "https://empcraft.com/fawe/cl?" + Integer.toHexString(Fawe.get().getVersion().hash);
             new Message().prefix().text("A FAWE update is available:")
-            .text("\n&8 - &a/fawe update &8 - &7Updates the plugin and restarts the server to apply the changes")
-                .cmdTip("fawe update")
-            .text("\n&8 - &a/fawe changelog")
+                    .text("\n&8 - &a/fawe update &8 - &7Updates the plugin and restarts the server to apply the changes")
+                    .cmdTip("fawe update")
+                    .text("\n&8 - &a/fawe changelog")
                     .cmdTip("fawe changelog")
-            .text("&8 - &7( &9&o" + url + " &7)")
+                    .text("&8 - &7( &9&o" + url + " &7)")
                     .link(url)
-            .send(fp);
+                    .send(fp);
         }
     }
 
@@ -106,7 +107,7 @@ public class Updater {
                             pending = true;
                             pendingFile = finalFile;
                             destFile = new File(jarFile.getParent(), "update" + File.separator + jarFile.getName());
-                            
+
                             installUpdate(null);
                             Fawe.debug("Updated FAWE to " + versionString + " @ " + pendingFile);
                             MainUtil.sendAdmin("&a/restart&7 to update FAWE with these changes: &c/fawe changelog &7or&c " + "https://empcraft.com/fawe/cl?" + Integer.toHexString(currentVersion.hash));

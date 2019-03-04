@@ -20,17 +20,11 @@
 package com.sk89q.worldedit.function.mask;
 
 import com.sk89q.worldedit.Vector;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Nullable;
-
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -55,14 +49,6 @@ public class MaskIntersection extends AbstractMask implements Serializable {
         formArray();
     }
 
-    private void formArray() {
-        if (masks.isEmpty()) {
-            masksArray = new Mask[]{Masks.alwaysFalse()};
-        } else {
-            masksArray = masks.toArray(new Mask[masks.size()]);
-        }
-    }
-
     /**
      * Create a new intersection.
      *
@@ -70,6 +56,14 @@ public class MaskIntersection extends AbstractMask implements Serializable {
      */
     public MaskIntersection(Mask... mask) {
         this(Arrays.asList(checkNotNull(mask)));
+    }
+
+    private void formArray() {
+        if (masks.isEmpty()) {
+            masksArray = new Mask[]{Masks.alwaysFalse()};
+        } else {
+            masksArray = masks.toArray(new Mask[masks.size()]);
+        }
     }
 
     /**

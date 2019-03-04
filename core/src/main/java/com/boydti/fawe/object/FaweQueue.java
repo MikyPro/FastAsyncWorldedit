@@ -12,11 +12,7 @@ import com.boydti.fawe.util.MathMan;
 import com.boydti.fawe.util.MemUtil;
 import com.boydti.fawe.util.SetQueue;
 import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.MutableBlockVector;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockMaterial;
 import com.sk89q.worldedit.extent.Extent;
@@ -24,36 +20,17 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.BundledBlockData;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 /**
  * A queue based Extent capable of queing chunk and region changes
  */
 public interface FaweQueue extends HasFaweQueue, Extent {
-
-    enum ProgressType {
-        QUEUE,
-        DISPATCH,
-        DONE,
-    }
-
-    enum RelightMode {
-        NONE,
-        OPTIMAL,
-        ALL,
-    }
-
-    enum Capability {
-        // If history can be recorded in an async task by the dispatcher
-        CHANGE_TASKS,
-        // If custom chunk packets can be sent
-        CHUNK_PACKETS
-        //
-    }
 
     default Relighter getRelighter() {
         return NullRelighter.INSTANCE;
@@ -119,8 +96,6 @@ public interface FaweQueue extends HasFaweQueue, Extent {
         return this;
     }
 
-
-
     default void addEditSession(EditSession session) {
         if (session == null) {
             return;
@@ -148,7 +123,8 @@ public interface FaweQueue extends HasFaweQueue, Extent {
         return false;
     }
 
-    default void optimize() {}
+    default void optimize() {
+    }
 
     default int setBlocks(CuboidRegion cuboid, final int id, final int data) {
         RegionWrapper current = new RegionWrapper(cuboid.getMinimumPoint(), cuboid.getMaximumPoint());
@@ -259,9 +235,9 @@ public interface FaweQueue extends HasFaweQueue, Extent {
 
     void setProgressTask(RunnableVal2<ProgressType, Integer> progressTask);
 
-    void setChangeTask(RunnableVal2<FaweChunk, FaweChunk> changeTask);
-
     RunnableVal2<FaweChunk, FaweChunk> getChangeTask();
+
+    void setChangeTask(RunnableVal2<FaweChunk, FaweChunk> changeTask);
 
     SetQueue.QueueStage getStage();
 
@@ -533,5 +509,25 @@ public interface FaweQueue extends HasFaweQueue, Extent {
 
     default void dequeue() {
         SetQueue.IMP.dequeue(this);
+    }
+
+    enum ProgressType {
+        QUEUE,
+        DISPATCH,
+        DONE,
+    }
+
+    enum RelightMode {
+        NONE,
+        OPTIMAL,
+        ALL,
+    }
+
+    enum Capability {
+        // If history can be recorded in an async task by the dispatcher
+        CHANGE_TASKS,
+        // If custom chunk packets can be sent
+        CHUNK_PACKETS
+        //
     }
 }

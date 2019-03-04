@@ -21,6 +21,7 @@ package com.sk89q.worldedit;
 
 import com.boydti.fawe.util.MathMan;
 import com.sk89q.worldedit.math.transform.AffineTransform;
+
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -89,21 +90,44 @@ public class Vector2D implements Serializable {
     }
 
     /**
+     * Gets the minimum components of two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return minimum
+     */
+    public static Vector2D getMinimum(Vector2D v1, Vector2D v2) {
+        return new Vector2D(
+                Math.min(v1.getX(), v2.getX()),
+                Math.min(v1.getZ(), v2.getZ())
+        );
+    }
+
+    /**
+     * Gets the maximum components of two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return maximum
+     */
+    public static Vector2D getMaximum(Vector2D v1, Vector2D v2) {
+        return new Vector2D(
+                Math.max(v1.getX(), v2.getX()),
+                Math.max(v1.getZ(), v2.getZ())
+        );
+    }
+
+    public static Class<?> inject() {
+        return Vector2D.class;
+    }
+
+    /**
      * Get the X coordinate.
      *
      * @return the x coordinate
      */
     public double getX() {
         return x;
-    }
-
-    /**
-     * Get the X coordinate rounded.
-     *
-     * @return the x coordinate
-     */
-    public int getBlockX() {
-        return MathMan.roundInt(getX());
     }
 
     /**
@@ -127,21 +151,21 @@ public class Vector2D implements Serializable {
     }
 
     /**
+     * Get the X coordinate rounded.
+     *
+     * @return the x coordinate
+     */
+    public int getBlockX() {
+        return MathMan.roundInt(getX());
+    }
+
+    /**
      * Get the Z coordinate.
      *
      * @return the z coordinate
      */
     public double getZ() {
         return z;
-    }
-
-    /**
-     * Get the Z coordinate rounded.
-     *
-     * @return the z coordinate
-     */
-    public int getBlockZ() {
-        return MathMan.roundInt(getZ());
     }
 
     /**
@@ -162,6 +186,15 @@ public class Vector2D implements Serializable {
      */
     public Vector2D setZ(int z) {
         return new Vector2D(getX(), z);
+    }
+
+    /**
+     * Get the Z coordinate rounded.
+     *
+     * @return the z coordinate
+     */
+    public int getBlockZ() {
+        return MathMan.roundInt(getZ());
     }
 
     /**
@@ -639,34 +672,6 @@ public class Vector2D implements Serializable {
         return "(" + getX() + ", " + getZ() + ")";
     }
 
-    /**
-     * Gets the minimum components of two vectors.
-     *
-     * @param v1 the first vector
-     * @param v2 the second vector
-     * @return minimum
-     */
-    public static Vector2D getMinimum(Vector2D v1, Vector2D v2) {
-        return new Vector2D(
-                Math.min(v1.getX(), v2.getX()),
-                Math.min(v1.getZ(), v2.getZ())
-        );
-    }
-
-    /**
-     * Gets the maximum components of two vectors.
-     *
-     * @param v1 the first vector
-     * @param v2 the second vector
-     * @return maximum
-     */
-    public static Vector2D getMaximum(Vector2D v1, Vector2D v2) {
-        return new Vector2D(
-                Math.max(v1.getX(), v2.getX()),
-                Math.max(v1.getZ(), v2.getZ())
-        );
-    }
-
     private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
         if (this instanceof MutableBlockVector2D) return;
         stream.writeDouble(x);
@@ -677,9 +682,5 @@ public class Vector2D implements Serializable {
         if (this instanceof MutableBlockVector2D) return;
         this.x = stream.readDouble();
         this.z = stream.readDouble();
-    }
-
-    public static Class<?> inject() {
-        return Vector2D.class;
     }
 }

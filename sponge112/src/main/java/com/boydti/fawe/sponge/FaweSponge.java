@@ -12,16 +12,16 @@ import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.TaskManager;
 import com.sk89q.worldedit.sponge.chat.SpongeChatManager;
 import com.sk89q.worldedit.world.World;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.UUID;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.profile.GameProfileManager;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
 
 import static org.spongepowered.api.Sponge.getGame;
 

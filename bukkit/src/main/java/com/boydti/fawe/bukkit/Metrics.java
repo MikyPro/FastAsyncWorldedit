@@ -4,6 +4,12 @@ import com.boydti.fawe.Fawe;
 import com.boydti.fawe.object.io.FastByteArrayOutputStream;
 import com.boydti.fawe.object.io.PGZIPOutputStream;
 import com.boydti.fawe.util.MainUtil;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.scheduler.BukkitTask;
+
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Proxy;
@@ -12,11 +18,6 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.logging.Level;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.scheduler.BukkitTask;
 
 public class Metrics {
 
@@ -70,7 +71,6 @@ public class Metrics {
      * GZip compress a string of bytes.
      *
      * @param input
-     *
      * @return byte[] the file as a byte array
      */
     public static byte[] gzip(String input) {
@@ -98,7 +98,6 @@ public class Metrics {
      * @param json
      * @param key
      * @param value
-     *
      */
     private static void appendJSONPair(StringBuilder json, String key, String value) {
         boolean isValueNumeric = false;
@@ -126,7 +125,6 @@ public class Metrics {
      * Escape a string to create a valid JSON string
      *
      * @param text
-     *
      * @return String
      */
     private static String escapeJSON(String text) {
@@ -170,7 +168,6 @@ public class Metrics {
      * Encode text as UTF-8
      *
      * @param text the text to encode
-     *
      * @return the encoded text, as UTF-8
      */
     private static String urlEncode(String text) throws UnsupportedEncodingException {
@@ -182,7 +179,6 @@ public class Metrics {
      * website. Plotters can be added to the graph object returned.
      *
      * @param name The name of the graph
-     *
      * @return Graph object created. Will never return NULL under normal circumstances unless bad parameters are given
      */
     public Graph createGraph(String name) {
@@ -258,7 +254,6 @@ public class Metrics {
 
     /**
      * Disables metrics for the server by setting "opt-out" to true in the config file and canceling the metrics task.
-     *
      */
     public void disable() {
         // Disable Task, if it is running

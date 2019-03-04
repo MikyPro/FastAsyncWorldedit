@@ -11,12 +11,15 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.history.UndoContext;
 import com.sk89q.worldedit.history.change.Change;
+
 import java.util.Map;
 
 public class MutableTileChange implements Change {
 
     public CompoundTag tag;
     public boolean create;
+    private FaweQueue queue;
+    private boolean checkedQueue;
 
     public MutableTileChange(CompoundTag tag, boolean create) {
         this.tag = tag;
@@ -36,9 +39,6 @@ public class MutableTileChange implements Change {
             create(context);
         }
     }
-
-    private FaweQueue queue;
-    private boolean checkedQueue;
 
     public void create(UndoContext context) {
         if (queue != null) {

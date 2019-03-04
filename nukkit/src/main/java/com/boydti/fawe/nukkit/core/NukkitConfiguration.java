@@ -2,12 +2,13 @@ package com.boydti.fawe.nukkit.core;
 
 import com.sk89q.util.yaml.YAMLProcessor;
 import com.sk89q.worldedit.util.YAMLConfiguration;
+
 import java.io.File;
 
 public class NukkitConfiguration extends YAMLConfiguration {
 
-    public boolean noOpPermissions = false;
     private final NukkitWorldEdit plugin;
+    public boolean noOpPermissions = false;
 
     public NukkitConfiguration(YAMLProcessor config, NukkitWorldEdit plugin) {
         super(config, plugin.getWELogger());

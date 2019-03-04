@@ -35,6 +35,10 @@ public class EditSessionBlockChangeDelegate implements BlockChangeDelegate {
         this.editSession = editSession;
     }
 
+    public static Class<?> inject() {
+        return EditSessionBlockChangeDelegate.class;
+    }
+
     @Override
     public boolean setRawTypeId(int x, int y, int z, int typeId) {
         return editSession.setBlock(x, y, z, FaweCache.getBlock(typeId, 0));
@@ -68,10 +72,6 @@ public class EditSessionBlockChangeDelegate implements BlockChangeDelegate {
     @Override
     public boolean isEmpty(int x, int y, int z) {
         return editSession.getBlock(x, y, z).getId() == BlockID.AIR;
-    }
-
-    public static Class<?> inject() {
-        return EditSessionBlockChangeDelegate.class;
     }
 
 }

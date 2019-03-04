@@ -16,20 +16,28 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.command.tool.BrushHolder;
 import com.sk89q.worldedit.command.tool.BrushTool;
 import com.sk89q.worldedit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.bukkit.inventory.ItemStack;
 
 public class BrushBoundBaseBlock extends BaseBlock implements BrushHolder {
+    private static final ThreadLocal<Boolean> RECURSION = new ThreadLocal<>();
     private static WeakHashMap<Object, BrushTool> brushCache = new WeakHashMap<>();
     private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
     private final LocalSession session;
     private final Player player;
-
     private ItemStack item;
     private BrushTool tool;
+
+    public BrushBoundBaseBlock(Player player, LocalSession session, ItemStack item) {
+        super(item.getTypeId(), item.getType().getMaxDurability() != 0 || item.getDurability() > 15 ? 0 : Math.max(0, item.getDurability()), getNBT(item));
+        this.item = item;
+        this.tool = brushCache.get(getKey(item));
+        this.player = player;
+        this.session = session;
+    }
 
     private static CompoundTag getNBT(ItemStack item) {
         ItemUtil util = Fawe.<FaweBukkit>imp().getItemUtil();
@@ -40,16 +48,6 @@ public class BrushBoundBaseBlock extends BaseBlock implements BrushHolder {
         ItemUtil util = Fawe.<FaweBukkit>imp().getItemUtil();
         return util != null ? util.getNMSItem(item) : item;
     }
-
-    public BrushBoundBaseBlock(Player player, LocalSession session, ItemStack item) {
-        super(item.getTypeId(), item.getType().getMaxDurability() != 0 || item.getDurability() > 15 ? 0 : Math.max(0, item.getDurability()), getNBT(item));
-        this.item = item;
-        this.tool = brushCache.get(getKey(item));
-        this.player = player;
-        this.session = session;
-    }
-
-    private static final ThreadLocal<Boolean> RECURSION = new ThreadLocal<>();
 
     @Override
     public BrushTool getTool() {

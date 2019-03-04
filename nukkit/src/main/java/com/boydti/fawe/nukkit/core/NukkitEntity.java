@@ -27,9 +27,9 @@ import com.sk89q.worldedit.entity.metadata.EntityType;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.NullWorld;
-import java.lang.ref.WeakReference;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

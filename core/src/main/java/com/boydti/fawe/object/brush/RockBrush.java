@@ -6,6 +6,7 @@ import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RockBrush implements Brush {
@@ -31,9 +32,9 @@ public class RockBrush implements Brush {
 
         double distort = this.frequency / size;
 
-        double modX = 1d/radius.getX();
-        double modY = 1d/radius.getY();
-        double modZ = 1d/radius.getZ();
+        double modX = 1d / radius.getX();
+        double modY = 1d / radius.getY();
+        double modZ = 1d / radius.getZ();
 
         int radiusSqr = (int) (size * size);
         int sizeInt = (int) size * 2;

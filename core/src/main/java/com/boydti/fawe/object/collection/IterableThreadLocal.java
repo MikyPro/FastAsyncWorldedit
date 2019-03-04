@@ -1,6 +1,7 @@
 package com.boydti.fawe.object.collection;
 
 import com.boydti.fawe.util.MainUtil;
+
 import java.lang.ref.Reference;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -15,28 +16,6 @@ public abstract class IterableThreadLocal<T> extends ThreadLocal<T> implements I
     private ConcurrentLinkedDeque<T> allValues = new ConcurrentLinkedDeque<T>();
 
     public IterableThreadLocal() {
-    }
-
-    @Override
-    protected final T initialValue() {
-        T value = init();
-        if (value != null) {
-            allValues.add(value);
-        }
-        return value;
-    }
-
-    @Override
-    public final Iterator<T> iterator() {
-        return getAll().iterator();
-    }
-
-    public T init() {
-        return null;
-    }
-
-    public void clean() {
-        IterableThreadLocal.clean(this);
     }
 
     public static void clean(ThreadLocal instance) {
@@ -56,7 +35,8 @@ public abstract class IterableThreadLocal<T> extends ThreadLocal<T> implements I
                         if (methodRemove != null) {
                             try {
                                 methodRemove.invoke(tlm, instance);
-                            } catch (Throwable ignore) {}
+                            } catch (Throwable ignore) {
+                            }
                         }
                     }
                 }
@@ -92,14 +72,36 @@ public abstract class IterableThreadLocal<T> extends ThreadLocal<T> implements I
                 Object entry = Array.get(table, i);
                 if (entry != null) {
                     // Get a reference to the thread local object and remove it from the table
-                    ThreadLocal threadLocal = (ThreadLocal)referentField.get(entry);
+                    ThreadLocal threadLocal = (ThreadLocal) referentField.get(entry);
                     clean(threadLocal);
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             // We will tolerate an exception here and just log it
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    protected final T initialValue() {
+        T value = init();
+        if (value != null) {
+            allValues.add(value);
+        }
+        return value;
+    }
+
+    @Override
+    public final Iterator<T> iterator() {
+        return getAll().iterator();
+    }
+
+    public T init() {
+        return null;
+    }
+
+    public void clean() {
+        IterableThreadLocal.clean(this);
     }
 
     public final Collection<T> getAll() {

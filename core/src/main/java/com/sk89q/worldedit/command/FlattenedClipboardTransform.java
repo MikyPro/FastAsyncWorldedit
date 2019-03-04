@@ -32,7 +32,6 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.world.registry.WorldData;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -63,6 +62,22 @@ public class FlattenedClipboardTransform {
         this.original = original;
         this.transform = transform;
         this.worldData = worldData;
+    }
+
+    /**
+     * Create a new instance to bake the transform with.
+     *
+     * @param original  the original clipboard
+     * @param transform the transform
+     * @param worldData the world data instance
+     * @return a builder
+     */
+    public static FlattenedClipboardTransform transform(Clipboard original, Transform transform, WorldData worldData) {
+        return new FlattenedClipboardTransform(original, transform, worldData);
+    }
+
+    public static Class<?> inject() {
+        return FlattenedClipboardTransform.class;
     }
 
     /**
@@ -125,21 +140,5 @@ public class FlattenedClipboardTransform {
         ForwardExtentCopy copy = new ForwardExtentCopy(extent, original.getRegion(), original.getOrigin(), target, original.getOrigin());
         copy.setTransform(transform);
         return copy;
-    }
-
-    /**
-     * Create a new instance to bake the transform with.
-     *
-     * @param original  the original clipboard
-     * @param transform the transform
-     * @param worldData the world data instance
-     * @return a builder
-     */
-    public static FlattenedClipboardTransform transform(Clipboard original, Transform transform, WorldData worldData) {
-        return new FlattenedClipboardTransform(original, transform, worldData);
-    }
-
-    public static Class<?> inject() {
-        return FlattenedClipboardTransform.class;
     }
 }

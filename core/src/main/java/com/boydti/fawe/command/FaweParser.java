@@ -14,34 +14,6 @@ public abstract class FaweParser<T> extends InputParser<T> {
         super(worldEdit);
     }
 
-    public T catchSuggestion(String currentInput, String nextInput, ParserContext context) throws InputParseException {
-        try {
-            return parseFromInput(nextInput, context);
-        } catch (SuggestInputParseException e) {
-            e.prepend(currentInput.substring(0, currentInput.length() - nextInput.length()));
-            throw e;
-        }
-    }
-
-    public abstract Dispatcher getDispatcher();
-
-    protected static class ParseEntry {
-        public boolean and;
-        public String input;
-        public String full;
-
-        public ParseEntry(String full, String input, boolean type) {
-            this.full = full;
-            this.input = input;
-            this.and = type;
-        }
-
-        @Override
-        public String toString() {
-            return input + " | " + and;
-        }
-    }
-
     public static List<Map.Entry<ParseEntry, List<String>>> parse(String toParse) throws InputParseException {
         List<Map.Entry<ParseEntry, List<String>>> keys = new ArrayList<>();
         List<String> inputs = new ArrayList<>();
@@ -92,5 +64,33 @@ public abstract class FaweParser<T> extends InputParser<T> {
             keys.add(new AbstractMap.SimpleEntry<>(entry, args));
         }
         return keys;
+    }
+
+    public T catchSuggestion(String currentInput, String nextInput, ParserContext context) throws InputParseException {
+        try {
+            return parseFromInput(nextInput, context);
+        } catch (SuggestInputParseException e) {
+            e.prepend(currentInput.substring(0, currentInput.length() - nextInput.length()));
+            throw e;
+        }
+    }
+
+    public abstract Dispatcher getDispatcher();
+
+    protected static class ParseEntry {
+        public boolean and;
+        public String input;
+        public String full;
+
+        public ParseEntry(String full, String input, boolean type) {
+            this.full = full;
+            this.input = input;
+            this.and = type;
+        }
+
+        @Override
+        public String toString() {
+            return input + " | " + and;
+        }
     }
 }

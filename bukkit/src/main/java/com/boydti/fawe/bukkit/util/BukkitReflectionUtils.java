@@ -2,9 +2,10 @@ package com.boydti.fawe.bukkit.util;
 
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.ReflectionUtils;
-import java.lang.reflect.Method;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+
+import java.lang.reflect.Method;
 
 public class BukkitReflectionUtils {
     /**

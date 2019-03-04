@@ -7,8 +7,9 @@ import com.boydti.fawe.util.ReflectionUtils;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.StringTag;
 import com.sk89q.jnbt.Tag;
-import java.util.Map;
 import org.bukkit.block.Sign;
+
+import java.util.Map;
 
 public class AsyncSign extends AsyncBlockState implements Sign {
     public AsyncSign(AsyncBlock block, int combined) {

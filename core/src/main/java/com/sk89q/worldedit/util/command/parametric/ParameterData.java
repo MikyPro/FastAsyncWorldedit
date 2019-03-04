@@ -24,11 +24,9 @@ import com.sk89q.worldedit.util.command.binding.PrimitiveBindings;
 import com.sk89q.worldedit.util.command.binding.Range;
 import com.sk89q.worldedit.util.command.binding.Text;
 
-import javax.xml.ws.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 /**
@@ -40,6 +38,10 @@ public class ParameterData extends SimpleParameter {
     private Annotation classifier;
     private Annotation[] modifiers;
     private Type type;
+
+    public static Class<?> inject() {
+        return ParameterData.class;
+    }
 
     /**
      * Get the binding associated with this parameter.
@@ -196,9 +198,5 @@ public class ParameterData extends SimpleParameter {
                             "\nfor parameter #" + parameterIndex + " of \n" +
                             method.get());
         }
-    }
-
-    public static Class<?> inject() {
-        return ParameterData.class;
     }
 }

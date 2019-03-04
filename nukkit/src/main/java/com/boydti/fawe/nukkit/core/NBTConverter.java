@@ -1,25 +1,10 @@
 package com.boydti.fawe.nukkit.core;
 
 
-import com.sk89q.jnbt.ByteArrayTag;
-import com.sk89q.jnbt.ByteTag;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.DoubleTag;
-import com.sk89q.jnbt.EndTag;
-import com.sk89q.jnbt.FloatTag;
-import com.sk89q.jnbt.IntArrayTag;
-import com.sk89q.jnbt.IntTag;
-import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.LongTag;
-import com.sk89q.jnbt.ShortTag;
-import com.sk89q.jnbt.StringTag;
-import com.sk89q.jnbt.Tag;
+import com.sk89q.jnbt.*;
+
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -29,9 +14,6 @@ public final class NBTConverter {
 
     private static Field tagsField;
 
-    private NBTConverter() {
-    }
-
     static {
         try {
             tagsField = cn.nukkit.nbt.tag.CompoundTag.class.getDeclaredField("tags");
@@ -39,6 +21,9 @@ public final class NBTConverter {
         } catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+
+    private NBTConverter() {
     }
 
     public static Map<String, cn.nukkit.nbt.tag.Tag> getMap(cn.nukkit.nbt.tag.CompoundTag other) {

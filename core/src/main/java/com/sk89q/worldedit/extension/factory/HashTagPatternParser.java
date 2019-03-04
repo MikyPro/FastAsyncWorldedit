@@ -37,6 +37,10 @@ public class HashTagPatternParser extends FaweParser<Pattern> {
         this.register(new PatternCommands(worldEdit));
     }
 
+    public static Class<HashTagPatternParser> inject() {
+        return HashTagPatternParser.class;
+    }
+
     @Override
     public Dispatcher getDispatcher() {
         return dispatcher;
@@ -179,10 +183,5 @@ public class HashTagPatternParser extends FaweParser<Pattern> {
             }
             return random;
         }
-    }
-
-
-    public static Class<HashTagPatternParser> inject() {
-        return HashTagPatternParser.class;
     }
 }

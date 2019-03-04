@@ -17,6 +17,7 @@ import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.function.visitor.RecursiveVisitor;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.util.Location;
+
 import java.io.InputStream;
 import java.util.Arrays;
 
@@ -54,7 +55,6 @@ public class StencilBrush extends HeightBrush {
         Vector pos = player.getPosition();
 
 
-
         Location loc = editSession.getPlayer().getPlayer().getLocation();
         float yaw = loc.getYaw();
         float pitch = loc.getPitch();
@@ -63,6 +63,7 @@ public class StencilBrush extends HeightBrush {
 
         RecursiveVisitor visitor = new RecursiveVisitor(new Mask() {
             private final MutableBlockVector mutable = new MutableBlockVector();
+
             @Override
             public boolean test(Vector vector) {
                 if (solid.test(vector)) {

@@ -22,13 +22,8 @@ package com.sk89q.worldedit.internal.expression;
 import com.sk89q.worldedit.internal.expression.lexer.Lexer;
 import com.sk89q.worldedit.internal.expression.lexer.tokens.Token;
 import com.sk89q.worldedit.internal.expression.parser.Parser;
-import com.sk89q.worldedit.internal.expression.runtime.Constant;
-import com.sk89q.worldedit.internal.expression.runtime.EvaluationException;
-import com.sk89q.worldedit.internal.expression.runtime.ExpressionEnvironment;
-import com.sk89q.worldedit.internal.expression.runtime.Functions;
-import com.sk89q.worldedit.internal.expression.runtime.RValue;
-import com.sk89q.worldedit.internal.expression.runtime.ReturnException;
-import com.sk89q.worldedit.internal.expression.runtime.Variable;
+import com.sk89q.worldedit.internal.expression.runtime.*;
+
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
@@ -76,18 +71,14 @@ public class Expression {
 
     private final Map<String, RValue> variables = new HashMap<String, RValue>();
     private final String[] variableNames;
+    private final Functions functions = new Functions();
     private Variable[] variableArray;
     private RValue root;
-    private final Functions functions = new Functions();
     private ExpressionEnvironment environment;
 
     public Expression(double constant) {
         variableNames = null;
         root = new Constant(0, constant);
-    }
-
-    public static Expression compile(String expression, String... variableNames) throws ExpressionException {
-        return new Expression(expression, variableNames);
     }
 
     private Expression(String expression, String... variableNames) throws ExpressionException {
@@ -113,6 +104,18 @@ public class Expression {
         }
 
         root = Parser.parse(tokens, this);
+    }
+
+    public static Expression compile(String expression, String... variableNames) throws ExpressionException {
+        return new Expression(expression, variableNames);
+    }
+
+    public static Expression getInstance() {
+        return instance.get().peek();
+    }
+
+    public static Class<?> inject() {
+        return Expression.class;
     }
 
     public double evaluate(double... values) throws EvaluationException {
@@ -155,10 +158,6 @@ public class Expression {
         return variable;
     }
 
-    public static Expression getInstance() {
-        return instance.get().peek();
-    }
-
     private void pushInstance() {
         ArrayDeque<Expression> foo = instance.get();
         foo.push(this);
@@ -180,10 +179,6 @@ public class Expression {
 
     public void setEnvironment(ExpressionEnvironment environment) {
         this.environment = environment;
-    }
-
-    public static Class<?> inject() {
-        return Expression.class;
     }
 
 }

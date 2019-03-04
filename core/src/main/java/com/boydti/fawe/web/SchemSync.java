@@ -6,6 +6,7 @@ import com.boydti.fawe.util.MainUtil;
 import com.sk89q.worldedit.LocalConfiguration;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.command.UtilityCommands;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -81,10 +82,10 @@ public class SchemSync implements Runnable {
                                 String input = dis.readUTF();
                                 File file = new File(dir, input);
                                 if (!MainUtil.isInSubDirectory(working, file)) {
-                                    
+
                                 }
                                 if (MainUtil.isInSubDirectory(working, file) && file.exists())
-                                break;
+                                    break;
                             }
                         }
                     }

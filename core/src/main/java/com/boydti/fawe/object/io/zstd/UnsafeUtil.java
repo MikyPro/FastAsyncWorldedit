@@ -32,20 +32,16 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 
-final class UnsafeUtil
-{
+final class UnsafeUtil {
     public static final Unsafe UNSAFE;
     private static final Field ADDRESS_ACCESSOR;
-
-    private UnsafeUtil() {}
 
     static {
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -53,18 +49,18 @@ final class UnsafeUtil
             Field field = Buffer.class.getDeclaredField("address");
             field.setAccessible(true);
             ADDRESS_ACCESSOR = field;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static long getAddress(Buffer buffer)
-    {
+    private UnsafeUtil() {
+    }
+
+    public static long getAddress(Buffer buffer) {
         try {
             return (long) ADDRESS_ACCESSOR.get(buffer);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

@@ -5,11 +5,8 @@ import com.boydti.fawe.object.collection.SparseBitSet;
 import com.boydti.fawe.object.visitor.FaweChunkVisitor;
 import com.boydti.fawe.util.MathMan;
 import com.sk89q.jnbt.CompoundTag;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
 
 /**
  * FAWE visualizations display glass (20) as a placeholder

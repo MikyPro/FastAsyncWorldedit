@@ -70,20 +70,20 @@ public class FreeBuildRegion extends BukkitMaskManager {
 
             @Override
             public boolean isValid(FawePlayer player, MaskType type) {
-                return bukkitWorld == ((FawePlayer<Player>)player).parent.getWorld() && type == MaskType.MEMBER;
+                return bukkitWorld == ((FawePlayer<Player>) player).parent.getWorld() && type == MaskType.MEMBER;
             }
 
             @Override
             public Region getRegion() {
                 return new CuboidRegion(vec1, vec2) {
 
+                    private int lastX = Integer.MIN_VALUE, lastZ = Integer.MIN_VALUE;
+                    private boolean lastResult;
+
                     @Override
                     public boolean contains(int x, int z) {
                         return contains(x, 127, z);
                     }
-
-                    private int lastX = Integer.MIN_VALUE, lastZ = Integer.MIN_VALUE;
-                    private boolean lastResult;
 
                     @Override
                     public boolean contains(int x, int y, int z) {

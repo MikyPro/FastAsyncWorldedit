@@ -1,13 +1,14 @@
 package com.boydti.fawe.installer;
 
 import com.boydti.fawe.config.BBC;
+
+import javax.swing.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.swing.JTextArea;
 
 public class TextAreaOutputStream extends PrintStream {
 

@@ -23,29 +23,14 @@ import com.sk89q.worldedit.internal.expression.runtime.EvaluationException;
 import com.sk89q.worldedit.util.command.CommandCallable;
 import com.sk89q.worldedit.util.command.Dispatcher;
 import com.sk89q.worldedit.util.command.ProcessedCallable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class BrushSettings {
-    public enum SettingType {
-        BRUSH,
-        SIZE,
-        MASK,
-        SOURCE_MASK,
-        TRANSFORM,
-        FILL,
-        PERMISSIONS,
-        SCROLL_ACTION,
-    }
-
     private final Map<SettingType, Object> constructor = new ConcurrentHashMap<>();
-
     private Brush brush = null;
     private Mask mask = null;
     private Mask sourceMask = null;
@@ -55,7 +40,6 @@ public class BrushSettings {
     private Set<String> permissions;
     private ScrollAction scrollAction;
     private String lastWorld;
-
     public BrushSettings() {
         this.permissions = new HashSet<>();
         this.constructor.put(SettingType.PERMISSIONS, permissions);
@@ -132,18 +116,6 @@ public class BrushSettings {
         return bs;
     }
 
-    public BrushSettings setBrush(Brush brush) {
-        Brush tmp = this.brush;
-        if (tmp != brush) {
-            if (brush == null || (tmp != null && tmp.getClass() != brush.getClass())) {
-                // clear
-                clear();
-            }
-            this.brush = brush;
-        }
-        return this;
-    }
-
     public BrushSettings clear() {
         brush = null;
         mask = null;
@@ -171,10 +143,65 @@ public class BrushSettings {
         return (constructor);
     }
 
+    public BrushSettings setFill(Pattern pattern) {
+        if (pattern == null) constructor.remove(SettingType.FILL);
+        this.material = pattern;
+        return this;
+    }
+
+    public BrushSettings addPermission(String permission) {
+        this.permissions.add(permission);
+        return this;
+    }
+
+    public BrushSettings addPermissions(String... perms) {
+        for (String perm : perms) permissions.add(perm);
+        return this;
+    }
+
+    /**
+     * Set the world the brush is being used in
+     *
+     * @param world
+     * @return true if the world differs from the last used world
+     */
+    public boolean setWorld(String world) {
+        boolean result = false;
+        if (this.lastWorld != null && !this.lastWorld.equalsIgnoreCase(world)) {
+            result = true;
+        }
+        this.lastWorld = world;
+        return result;
+    }
+
+    public Brush getBrush() {
+        return brush;
+    }
+
+    public BrushSettings setBrush(Brush brush) {
+        Brush tmp = this.brush;
+        if (tmp != brush) {
+            if (brush == null || (tmp != null && tmp.getClass() != brush.getClass())) {
+                // clear
+                clear();
+            }
+            this.brush = brush;
+        }
+        return this;
+    }
+
+    public Mask getMask() {
+        return mask;
+    }
+
     public BrushSettings setMask(Mask mask) {
         if (mask == null) constructor.remove(SettingType.MASK);
         this.mask = mask;
         return this;
+    }
+
+    public Mask getSourceMask() {
+        return sourceMask;
     }
 
     public BrushSettings setSourceMask(Mask mask) {
@@ -183,16 +210,26 @@ public class BrushSettings {
         return this;
     }
 
+    public ResettableExtent getTransform() {
+        return transform;
+    }
+
     public BrushSettings setTransform(ResettableExtent transform) {
         if (transform == null) constructor.remove(SettingType.TRANSFORM);
         this.transform = transform;
         return this;
     }
 
-    public BrushSettings setFill(Pattern pattern) {
-        if (pattern == null) constructor.remove(SettingType.FILL);
-        this.material = pattern;
-        return this;
+    public Pattern getMaterial() {
+        return material;
+    }
+
+    public double getSize() {
+        try {
+            return size.evaluate();
+        } catch (EvaluationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public BrushSettings setSize(Expression size) {
@@ -210,64 +247,6 @@ public class BrushSettings {
         return setSize(new Expression(size));
     }
 
-    public BrushSettings setScrollAction(ScrollAction scrollAction) {
-        if (scrollAction == null) constructor.remove(SettingType.SCROLL_ACTION);
-        this.scrollAction = scrollAction;
-        return this;
-    }
-
-    public BrushSettings addPermission(String permission) {
-        this.permissions.add(permission);
-        return this;
-    }
-
-    public BrushSettings addPermissions(String... perms) {
-        for (String perm : perms) permissions.add(perm);
-        return this;
-    }
-
-    /**
-     * Set the world the brush is being used in
-     * @param world
-     * @return true if the world differs from the last used world
-     */
-    public boolean setWorld(String world) {
-        boolean result = false;
-        if (this.lastWorld != null && !this.lastWorld.equalsIgnoreCase(world)) {
-            result = true;
-        }
-        this.lastWorld = world;
-        return result;
-    }
-
-    public Brush getBrush() {
-        return brush;
-    }
-
-    public Mask getMask() {
-        return mask;
-    }
-
-    public Mask getSourceMask() {
-        return sourceMask;
-    }
-
-    public ResettableExtent getTransform() {
-        return transform;
-    }
-
-    public Pattern getMaterial() {
-        return material;
-    }
-
-    public double getSize() {
-        try {
-            return size.evaluate();
-        } catch (EvaluationException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public Expression getSizeExpression() {
         return this.size;
     }
@@ -280,12 +259,29 @@ public class BrushSettings {
         return scrollAction;
     }
 
+    public BrushSettings setScrollAction(ScrollAction scrollAction) {
+        if (scrollAction == null) constructor.remove(SettingType.SCROLL_ACTION);
+        this.scrollAction = scrollAction;
+        return this;
+    }
+
     public boolean canUse(Actor actor) {
         Set<String> perms = getPermissions();
         for (String perm : perms) {
             if (actor.hasPermission(perm)) return true;
         }
         return perms.isEmpty();
+    }
+
+    public enum SettingType {
+        BRUSH,
+        SIZE,
+        MASK,
+        SOURCE_MASK,
+        TRANSFORM,
+        FILL,
+        PERMISSIONS,
+        SCROLL_ACTION,
     }
 
 }

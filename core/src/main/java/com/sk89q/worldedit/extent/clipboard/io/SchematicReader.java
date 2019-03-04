@@ -27,13 +27,13 @@ import com.sk89q.jnbt.NBTInputStream;
 import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.world.registry.WorldData;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -54,25 +54,6 @@ public class SchematicReader implements ClipboardReader {
     public SchematicReader(NBTInputStream inputStream) {
         checkNotNull(inputStream);
         this.inputStream = inputStream;
-    }
-
-    public void setUnderlyingStream(InputStream in) {
-        this.rootStream = in;
-    }
-
-    @Override
-    public Clipboard read(WorldData data) throws IOException {
-        return read(data, UUID.randomUUID());
-    }
-
-    public Clipboard read(WorldData data, final UUID clipboardId) throws IOException {
-        try {
-            return new SchematicStreamer(inputStream, clipboardId).getClipboard();
-        } catch (Exception e) {
-            Fawe.debug("Input is corrupt!");
-            e.printStackTrace();
-            return new CorruptSchematicStreamer(rootStream, clipboardId).recover();
-        }
     }
 
     private static <T extends Tag> T requireTag(Map<String, Tag> items, String key, Class<T> expected) throws IOException {
@@ -106,5 +87,24 @@ public class SchematicReader implements ClipboardReader {
 
     public static Class<?> inject() {
         return SchematicReader.class;
+    }
+
+    public void setUnderlyingStream(InputStream in) {
+        this.rootStream = in;
+    }
+
+    @Override
+    public Clipboard read(WorldData data) throws IOException {
+        return read(data, UUID.randomUUID());
+    }
+
+    public Clipboard read(WorldData data, final UUID clipboardId) throws IOException {
+        try {
+            return new SchematicStreamer(inputStream, clipboardId).getClipboard();
+        } catch (Exception e) {
+            Fawe.debug("Input is corrupt!");
+            e.printStackTrace();
+            return new CorruptSchematicStreamer(rootStream, clipboardId).recover();
+        }
     }
 }

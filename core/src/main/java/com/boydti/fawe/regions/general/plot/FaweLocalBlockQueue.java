@@ -12,11 +12,15 @@ import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.biome.Biomes;
 import com.sk89q.worldedit.world.registry.BiomeRegistry;
+
 import java.util.List;
 
 public class FaweLocalBlockQueue extends LocalBlockQueue {
 
     public final FaweQueue IMP;
+    private BaseBiome biome;
+    private String lastBiome;
+    private BiomeRegistry reg;
 
     public FaweLocalBlockQueue(String world) {
         super(world);
@@ -49,13 +53,13 @@ public class FaweLocalBlockQueue extends LocalBlockQueue {
     }
 
     @Override
-    public void setModified(long l) {
-        IMP.setModified(l);
+    public long getModified() {
+        return IMP.getModified();
     }
 
     @Override
-    public long getModified() {
-        return IMP.getModified();
+    public void setModified(long l) {
+        IMP.setModified(l);
     }
 
     @Override
@@ -68,10 +72,6 @@ public class FaweLocalBlockQueue extends LocalBlockQueue {
         int combined = IMP.getCombinedId4Data(x, y, z);
         return PlotBlock.get(FaweCache.getId(combined), FaweCache.getData(combined));
     }
-
-    private BaseBiome biome;
-    private String lastBiome;
-    private BiomeRegistry reg;
 
     @Override
     public boolean setBiome(int x, int z, String biome) {

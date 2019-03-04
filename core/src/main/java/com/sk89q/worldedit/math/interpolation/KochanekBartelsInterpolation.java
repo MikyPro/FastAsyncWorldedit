@@ -22,9 +22,9 @@
 package com.sk89q.worldedit.math.interpolation;
 
 import com.sk89q.worldedit.Vector;
+
 import java.util.Collections;
 import java.util.List;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -42,9 +42,14 @@ public class KochanekBartelsInterpolation implements Interpolation {
     private Vector[] coeffC;
     private Vector[] coeffD;
     private double scaling;
+    private Vector mutable = new Vector();
 
     public KochanekBartelsInterpolation() {
         setNodes(Collections.<Node>emptyList());
+    }
+
+    public static Class<?> inject() {
+        return KochanekBartelsInterpolation.class;
     }
 
     @Override
@@ -120,7 +125,7 @@ public class KochanekBartelsInterpolation implements Interpolation {
      * Retrieves a node. Indexes are clamped to the valid range.
      *
      * @param index node index to retrieve
-     * @return nodes[clamp(0, nodes.length-1)]
+     * @return nodes[clamp(0, nodes.length - 1)]
      */
     private Vector retrieve(int index) {
         if (index < 0)
@@ -135,8 +140,6 @@ public class KochanekBartelsInterpolation implements Interpolation {
     private Vector fastRetrieve(int index) {
         return nodes.get(index).getPosition();
     }
-
-    private Vector mutable = new Vector();
 
     @Override
     public Vector getPosition(double position) {
@@ -254,9 +257,5 @@ public class KochanekBartelsInterpolation implements Interpolation {
         position *= scaling;
 
         return (int) Math.floor(position);
-    }
-
-    public static Class<?> inject() {
-        return KochanekBartelsInterpolation.class;
     }
 }

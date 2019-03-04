@@ -25,9 +25,9 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.math.transform.Identity;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.world.registry.WorldData;
+
 import java.util.Collections;
 import java.util.List;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -56,6 +56,10 @@ public class ClipboardHolder {
         worldData = null;
     }
 
+    public static Class<?> inject() {
+        return ClipboardHolder.class;
+    }
+
     /**
      * Get the mapping used for blocks, entities, and so on.
      *
@@ -71,8 +75,8 @@ public class ClipboardHolder {
      * If there is a transformation applied, the returned clipboard will
      * not contain its effect.
      *
-     * @deprecated FAWE supports multiple loaded schematics {@link #getClipboards()}
      * @return the clipboard
+     * @deprecated FAWE supports multiple loaded schematics {@link #getClipboards()}
      */
     @Deprecated
     public Clipboard getClipboard() {
@@ -81,6 +85,7 @@ public class ClipboardHolder {
 
     /**
      * Get all currently held clipboards
+     *
      * @return
      */
     public List<Clipboard> getClipboards() {
@@ -93,12 +98,22 @@ public class ClipboardHolder {
 
     /**
      * Get all end ClipboardHolders<br/>
-     *  - Usually this will return itself.<br/>
-     *  - If this is a multi clipboard, it will return the children
+     * - Usually this will return itself.<br/>
+     * - If this is a multi clipboard, it will return the children
+     *
      * @return Set of end ClipboardHolders
      */
     public List<ClipboardHolder> getHolders() {
         return Collections.singletonList(this);
+    }
+
+    /**
+     * Get the transform.
+     *
+     * @return the transform
+     */
+    public Transform getTransform() {
+        return transform;
     }
 
     /**
@@ -109,15 +124,6 @@ public class ClipboardHolder {
     public void setTransform(Transform transform) {
         checkNotNull(transform);
         this.transform = transform;
-    }
-
-    /**
-     * Get the transform.
-     *
-     * @return the transform
-     */
-    public Transform getTransform() {
-        return transform;
     }
 
     /**
@@ -134,10 +140,6 @@ public class ClipboardHolder {
             ((BlockArrayClipboard) clipboard).close();
         }
         clipboard = null;
-    }
-
-    public static Class<?> inject() {
-        return ClipboardHolder.class;
     }
 
 }

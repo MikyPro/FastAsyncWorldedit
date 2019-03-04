@@ -5,34 +5,21 @@ import com.boydti.fawe.FaweCache;
 import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.object.changeset.AbstractDelegateChangeSet;
 import com.boydti.fawe.object.changeset.FaweChangeSet;
-import java.lang.reflect.Constructor;
 import org.primesoft.blockshub.IBlocksHubApi;
 import org.primesoft.blockshub.api.IPlayer;
 import org.primesoft.blockshub.api.IWorld;
 
+import java.lang.reflect.Constructor;
+
 public class LoggingChangeSet extends AbstractDelegateChangeSet {
 
-    private static boolean initialized = false;
-
-    public static FaweChangeSet wrap(FawePlayer player, FaweChangeSet parent) {
-        if (!initialized) {
-            initialized = true;
-            api = (IBlocksHubApi) Fawe.imp().getBlocksHubApi();
-        }
-        if (api == null) {
-            return parent;
-        }
-        return new LoggingChangeSet(player, parent);
-    }
-
     public static IBlocksHubApi api;
-
+    private static boolean initialized = false;
     private final MutableVector loc;
     private final IPlayer player;
-    private IWorld world;
     private final MutableBlockData oldBlock;
     private final MutableBlockData newBlock;
-
+    private IWorld world;
     private LoggingChangeSet(FawePlayer player, FaweChangeSet parent) {
         super(parent);
         String world = player.getLocation().world;
@@ -50,6 +37,17 @@ public class LoggingChangeSet extends AbstractDelegateChangeSet {
         this.oldBlock = new MutableBlockData();
         this.newBlock = new MutableBlockData();
         this.player = api.getPlayer(player.getUUID());
+    }
+
+    public static FaweChangeSet wrap(FawePlayer player, FaweChangeSet parent) {
+        if (!initialized) {
+            initialized = true;
+            api = (IBlocksHubApi) Fawe.imp().getBlocksHubApi();
+        }
+        if (api == null) {
+            return parent;
+        }
+        return new LoggingChangeSet(player, parent);
     }
 
     @Override

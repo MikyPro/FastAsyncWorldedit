@@ -1,9 +1,9 @@
 package com.boydti.fawe.nukkit.core.gui;
 
 import cn.nukkit.form.window.FormWindow;
+
 import java.util.Map;
 import java.util.function.Consumer;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

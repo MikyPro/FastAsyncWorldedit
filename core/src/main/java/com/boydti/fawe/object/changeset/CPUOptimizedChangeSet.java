@@ -9,16 +9,17 @@ import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.history.change.Change;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class CPUOptimizedChangeSet extends FaweChangeSet {
 
+    private ArrayList<Change> changes = new ArrayList<>();
+
     public CPUOptimizedChangeSet(World world) {
         super(world);
     }
-
-    private ArrayList<Change> changes = new ArrayList<>();
 
     public void addChangeTask(FaweQueue queue) {
         queue.setChangeTask(new RunnableVal2<FaweChunk, FaweChunk>() {

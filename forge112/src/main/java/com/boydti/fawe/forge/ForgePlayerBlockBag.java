@@ -54,7 +54,7 @@ public class ForgePlayerBlockBag extends BlockBag {
         final int id = item.getType();
         final int damage = item.getData();
         int amount = (item instanceof BaseItemStack) ? ((BaseItemStack) item).getAmount() : 1;
-        assert(amount == 1);
+        assert (amount == 1);
         boolean usesDamageValue = ItemType.usesDamageValue(id);
 
         if (id == BlockID.AIR) {
@@ -91,7 +91,8 @@ public class ForgePlayerBlockBag extends BlockBag {
             changed = true;
 
             if (currentAmount > 1) {
-                forgeItem.setCount(forgeItem.getCount() - 1);;
+                forgeItem.setCount(forgeItem.getCount() - 1);
+                ;
                 found = true;
             } else {
                 items[slot] = null;
@@ -111,7 +112,7 @@ public class ForgePlayerBlockBag extends BlockBag {
         final int id = item.getType();
         final int damage = item.getData();
         int amount = (item instanceof BaseItemStack) ? ((BaseItemStack) item).getAmount() : 1;
-        assert(amount <= 64);
+        assert (amount <= 64);
         boolean usesDamageValue = ItemType.usesDamageValue(id);
 
         if (id == BlockID.AIR) {

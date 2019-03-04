@@ -25,10 +25,10 @@ import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.internal.cui.CUIEvent;
 import com.sk89q.worldedit.session.SessionKey;
 import com.sk89q.worldedit.util.auth.AuthorizationException;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.UUID;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;

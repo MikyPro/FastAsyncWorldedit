@@ -9,8 +9,9 @@ import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extent.AbstractDelegateExtent;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.biome.BaseBiome;
-import java.util.Collection;
+
 import javax.annotation.Nullable;
+import java.util.Collection;
 
 public class MultiTransform extends RandomTransform {
     private ResettableExtent[] extents;

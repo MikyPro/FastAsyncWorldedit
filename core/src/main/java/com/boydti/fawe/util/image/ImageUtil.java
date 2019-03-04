@@ -3,11 +3,9 @@ package com.boydti.fawe.util.image;
 import com.boydti.fawe.Fawe;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.MathMan;
-import com.boydti.fawe.util.StringMan;
 import com.sk89q.worldedit.util.command.parametric.ParameterException;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.Transparency;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
@@ -17,21 +15,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class ImageUtil {
     public static BufferedImage getScaledInstance(BufferedImage img,
                                                   int targetWidth,
                                                   int targetHeight,
                                                   Object hint,
-                                                  boolean higherQuality)
-    {
+                                                  boolean higherQuality) {
         if (img.getHeight() == targetHeight && img.getWidth() == targetWidth) {
             return img;
         }

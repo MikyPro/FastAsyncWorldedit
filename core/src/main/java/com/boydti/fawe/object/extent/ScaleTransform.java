@@ -10,14 +10,14 @@ import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import javax.annotation.Nullable;
 
 public class ScaleTransform extends ResettableExtent {
+    private final double dx, dy, dz;
     private transient MutableBlockVector mutable = new MutableBlockVector();
     private transient int maxy;
     private transient Vector min;
-
-    private final double dx, dy, dz;
 
 
     public ScaleTransform(Extent parent, double dx, double dy, double dz) {

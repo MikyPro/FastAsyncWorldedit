@@ -4,6 +4,7 @@ import com.boydti.fawe.FaweCache;
 import com.boydti.fawe.jnbt.anvil.MCAChunk;
 import com.boydti.fawe.object.FaweOutputStream;
 import com.boydti.fawe.object.io.FastByteArrayOutputStream;
+
 import java.util.function.Function;
 
 public class MCAChunkPacket implements Function<byte[], byte[]> {

@@ -1,6 +1,7 @@
 package com.boydti.fawe.util;
 
 import com.boydti.fawe.Fawe;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -28,12 +29,9 @@ public enum Jars {
     public final String digest;
 
     /**
-     * @param url
-     *            Where this jar can be found and downloaded
-     * @param digest
-     *            The SHA-256 hexadecimal digest
-     * @param filesize
-     *            Size of this jar in bytes
+     * @param url      Where this jar can be found and downloaded
+     * @param digest   The SHA-256 hexadecimal digest
+     * @param filesize Size of this jar in bytes
      */
     Jars(String url, String digest, int filesize) {
         this.url = url;
@@ -41,7 +39,9 @@ public enum Jars {
         this.filesize = filesize;
     }
 
-    /** download a jar, verify hash, return byte[] containing the jar */
+    /**
+     * download a jar, verify hash, return byte[] containing the jar
+     */
     public byte[] download() throws IOException {
         byte[] jarBytes = new byte[this.filesize];
         URL url = new URL(this.url);

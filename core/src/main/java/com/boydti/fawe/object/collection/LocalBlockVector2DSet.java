@@ -4,6 +4,7 @@ import com.boydti.fawe.util.MathMan;
 import com.sk89q.worldedit.BlockVector2D;
 import com.sk89q.worldedit.MutableBlockVector2D;
 import com.sk89q.worldedit.Vector2D;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -265,12 +266,12 @@ public class LocalBlockVector2DSet implements Set<Vector2D> {
         }
     }
 
-    public static abstract class BlockVector2DSetVisitor {
-        public abstract void run(int x, int y, int index);
-    }
-
     @Override
     public void clear() {
         set.clear();
+    }
+
+    public static abstract class BlockVector2DSetVisitor {
+        public abstract void run(int x, int y, int index);
     }
 }

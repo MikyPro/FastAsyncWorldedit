@@ -19,8 +19,9 @@ import com.sk89q.worldedit.session.SessionKey;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.NullWorld;
 import com.sk89q.worldedit.world.World;
-import java.util.UUID;
+
 import javax.annotation.Nullable;
+import java.util.UUID;
 
 /**
  * Only really useful for executing commands from console<br>
@@ -28,31 +29,13 @@ import javax.annotation.Nullable;
  */
 public class FakePlayer extends LocalPlayer {
     private static FakePlayer CONSOLE;
-
-    public static FakePlayer getConsole() {
-        if (CONSOLE == null) {
-            CONSOLE = new FakePlayer("#CONSOLE", null, null) {
-                @Override
-                public boolean hasPermission(String permission) {
-                    return true;
-                }
-            };
-        }
-        return CONSOLE;
-    }
-
     private final Actor parent;
     private final String name;
     private final UUID uuid;
     private World world;
     private Location pos;
-
-    public static FakePlayer wrap(String name, UUID uuid, Actor parent) {
-        if (parent != null && parent.getUniqueId().toString().equals("a233eb4b-4cab-42cd-9fd9-7e7b9a3f74be")) {
-            return getConsole();
-        }
-        return new FakePlayer(name, uuid, parent);
-    }
+    private FawePlayer fp = null;
+    private FakeSessionKey key;
 
     public FakePlayer(String name, UUID uuid, Actor parent) {
         this.name = name;
@@ -66,7 +49,24 @@ public class FakePlayer extends LocalPlayer {
         this.parent = parent;
     }
 
-    private FawePlayer fp = null;
+    public static FakePlayer getConsole() {
+        if (CONSOLE == null) {
+            CONSOLE = new FakePlayer("#CONSOLE", null, null) {
+                @Override
+                public boolean hasPermission(String permission) {
+                    return true;
+                }
+            };
+        }
+        return CONSOLE;
+    }
+
+    public static FakePlayer wrap(String name, UUID uuid, Actor parent) {
+        if (parent != null && parent.getUniqueId().toString().equals("a233eb4b-4cab-42cd-9fd9-7e7b9a3f74be")) {
+            return getConsole();
+        }
+        return new FakePlayer(name, uuid, parent);
+    }
 
     public FawePlayer toFawePlayer() {
         if (fp != null) {
@@ -232,8 +232,6 @@ public class FakePlayer extends LocalPlayer {
         }
         Fawe.get().debugPlain(msg);
     }
-
-    private FakeSessionKey key;
 
     @Override
     public SessionKey getSessionKey() {

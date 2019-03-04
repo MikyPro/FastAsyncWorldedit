@@ -1,8 +1,9 @@
 package com.boydti.fawe.sponge.v1_12;
 
-import java.util.Arrays;
 import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
+
+import java.util.Arrays;
 
 public class MutableGenLayer extends GenLayer {
 

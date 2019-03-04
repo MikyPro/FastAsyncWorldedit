@@ -5,11 +5,12 @@ import com.boydti.fawe.util.ReflectionUtils;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.Tag;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.bukkit.inventory.ItemStack;
+
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import org.bukkit.inventory.ItemStack;
 
 public class ItemUtil {
 

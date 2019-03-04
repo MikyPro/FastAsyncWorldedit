@@ -29,6 +29,10 @@ public class Fragment {
     public Fragment() {
     }
 
+    public static Class<?> inject() {
+        return Fragment.class;
+    }
+
     public Fragment append(String str) {
         builder.append(str);
         return this;
@@ -87,9 +91,5 @@ public class Fragment {
     @Override
     public String toString() {
         return builder.toString();
-    }
-
-    public static Class<?> inject() {
-        return Fragment.class;
     }
 }

@@ -9,6 +9,7 @@ import com.boydti.fawe.util.cui.CUI;
 import com.boydti.fawe.util.gui.FormBuilder;
 import com.boydti.fawe.util.image.ImageViewer;
 import com.sk89q.worldedit.world.World;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
@@ -36,11 +37,16 @@ public interface IFawe {
 
     public void startMetrics();
 
-    default CUI getCUI(FawePlayer player) { return null; }
+    default CUI getCUI(FawePlayer player) {
+        return null;
+    }
 
-    default ImageViewer getImageViewer(FawePlayer player) { return null; }
+    default ImageViewer getImageViewer(FawePlayer player) {
+        return null;
+    }
 
-    public default void registerPacketListener() {}
+    public default void registerPacketListener() {
+    }
 
     default int getPlayerCount() {
         return Fawe.get().getCachedPlayers().size();

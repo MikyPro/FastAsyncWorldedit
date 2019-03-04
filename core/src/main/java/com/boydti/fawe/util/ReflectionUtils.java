@@ -1,17 +1,11 @@
 package com.boydti.fawe.util;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.*;
-
 import sun.reflect.ConstructorAccessor;
 import sun.reflect.FieldAccessor;
 import sun.reflect.ReflectionFactory;
+
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * @author DPOH-VAR
@@ -19,13 +13,15 @@ import sun.reflect.ReflectionFactory;
  */
 @SuppressWarnings({"UnusedDeclaration", "rawtypes"})
 public class ReflectionUtils {
+    private static Class<?> UNMODIFIABLE_MAP = Collections.unmodifiableMap(Collections.EMPTY_MAP).getClass();
+
     public static <T> T as(Class<T> t, Object o) {
         return t.isInstance(o) ? t.cast(o) : null;
     }
 
     @SuppressWarnings("unchecked")
     public static <T extends Enum<?>> T addEnum(Class<T> enumType, String enumName) {
-        return addEnum(enumType, enumName, new Class<?>[]{} , new Object[]{});
+        return addEnum(enumType, enumName, new Class<?>[]{}, new Object[]{});
     }
 
     public static <T extends Enum<?>> T addEnum(Class<T> enumType, String enumName, Class<?>[] additionalTypes, Object[] additionalValues) {
@@ -159,8 +155,6 @@ public class ReflectionUtils {
         blankField(enumClass, "enumConstantDirectory"); // Sun (Oracle?!?) JDK 1.5/6
         blankField(enumClass, "enumConstants"); // IBM JDK
     }
-
-    private static Class<?> UNMODIFIABLE_MAP = Collections.unmodifiableMap(Collections.EMPTY_MAP).getClass();
 
     public static <T, V> Map<T, V> getMap(Map<T, V> map) {
         try {

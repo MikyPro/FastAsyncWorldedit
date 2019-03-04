@@ -6,13 +6,8 @@ import com.sk89q.worldedit.Vector;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * The BlockVectorSet is a Memory optimized Set for storing BlockVectors

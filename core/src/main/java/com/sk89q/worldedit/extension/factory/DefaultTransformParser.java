@@ -19,6 +19,7 @@ import com.sk89q.worldedit.internal.expression.Expression;
 import com.sk89q.worldedit.util.command.Dispatcher;
 import com.sk89q.worldedit.util.command.SimpleDispatcher;
 import com.sk89q.worldedit.util.command.parametric.ParametricBuilder;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,10 @@ public class DefaultTransformParser extends FaweParser<ResettableExtent> {
         super(worldEdit);
         this.dispatcher = new SimpleDispatcher();
         this.register(new TransformCommands(worldEdit));
+    }
+
+    public static Class<?> inject() {
+        return HashTagPatternParser.class;
     }
 
     @Override
@@ -144,9 +149,5 @@ public class DefaultTransformParser extends FaweParser<ResettableExtent> {
             }
             return random;
         }
-    }
-
-    public static Class<?> inject() {
-        return HashTagPatternParser.class;
     }
 }

@@ -19,6 +19,7 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.command.MethodCommands;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.util.command.binding.Switch;
+
 import java.io.IOException;
 
 public class ConvertCommands extends MethodCommands {

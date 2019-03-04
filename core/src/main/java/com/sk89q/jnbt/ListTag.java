@@ -1,7 +1,7 @@
 package com.sk89q.jnbt;
 
-import java.util.ArrayList;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -19,7 +19,7 @@ public final class ListTag<T extends Tag> extends Tag {
     /**
      * Creates the tag with an empty name.
      *
-     * @param type the type of tag
+     * @param type  the type of tag
      * @param value the value of the tag
      */
     public ListTag(Class<T> type, List<T> value) {
@@ -27,6 +27,10 @@ public final class ListTag<T extends Tag> extends Tag {
         checkNotNull(value);
         this.type = type;
         this.value = value;
+    }
+
+    public static Class<?> inject() {
+        return ListTag.class;
     }
 
     @Override
@@ -299,10 +303,10 @@ public final class ListTag<T extends Tag> extends Tag {
      * a list but the list of of a different type, then an empty
      * list will also be returned.</p>
      *
-     * @param index the index
+     * @param index    the index
      * @param listType the class of the contained type
+     * @param <T>      the NBT type
      * @return a list of tags
-     * @param <T> the NBT type
      */
     @SuppressWarnings("unchecked")
     public <T extends Tag> List<T> getList(int index, Class<T> listType) {
@@ -417,10 +421,6 @@ public final class ListTag<T extends Tag> extends Tag {
         }
         bldr.append("}");
         return bldr.toString();
-    }
-
-    public static Class<?> inject() {
-        return ListTag.class;
     }
 
 }

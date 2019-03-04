@@ -3,13 +3,14 @@ package com.boydti.fawe.object.extent;
 import com.boydti.fawe.object.FaweLimit;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.regions.Region;
+
 import java.util.Arrays;
 import java.util.Collection;
 
 public class MultiRegionExtent extends FaweRegionExtent {
 
-    private Region region;
     private final Region[] regions;
+    private Region region;
     private int index;
 
     /**

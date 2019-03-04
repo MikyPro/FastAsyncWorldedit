@@ -8,14 +8,7 @@ import com.boydti.fawe.object.io.FastByteArrayInputStream;
 import com.boydti.fawe.object.io.FastByteArrayOutputStream;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.ReflectionUtils;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.DoubleTag;
-import com.sk89q.jnbt.FloatTag;
-import com.sk89q.jnbt.IntTag;
-import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.NamedTag;
-import com.sk89q.jnbt.StringTag;
-import com.sk89q.jnbt.Tag;
+import com.sk89q.jnbt.*;
 import com.sk89q.worldedit.MutableBlockVector;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
@@ -31,13 +24,10 @@ import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.registry.WorldData;
 import com.sk89q.worldedit.world.storage.NBTConversions;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class FaweFormat implements ClipboardReader, ClipboardWriter {
     private static final int MAX_SIZE = Short.MAX_VALUE - Short.MIN_VALUE;
@@ -45,6 +35,7 @@ public class FaweFormat implements ClipboardReader, ClipboardWriter {
     private FaweInputStream in;
     private FaweOutputStream out;
     private int mode;
+    private boolean compressed = false;
 
     public FaweFormat(FaweInputStream in) {
         this.in = in;
@@ -53,8 +44,6 @@ public class FaweFormat implements ClipboardReader, ClipboardWriter {
     public FaweFormat(FaweOutputStream out) {
         this.out = out;
     }
-
-    private boolean compressed = false;
 
     public boolean compress(int i) throws IOException {
         if (compressed) {

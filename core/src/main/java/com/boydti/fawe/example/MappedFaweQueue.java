@@ -4,11 +4,7 @@ import com.boydti.fawe.Fawe;
 import com.boydti.fawe.FaweAPI;
 import com.boydti.fawe.FaweCache;
 import com.boydti.fawe.config.Settings;
-import com.boydti.fawe.object.FaweChunk;
-import com.boydti.fawe.object.FaweQueue;
-import com.boydti.fawe.object.IntegerPair;
-import com.boydti.fawe.object.RunnableVal;
-import com.boydti.fawe.object.RunnableVal2;
+import com.boydti.fawe.object.*;
 import com.boydti.fawe.object.exception.FaweException;
 import com.boydti.fawe.object.extent.LightingExtent;
 import com.boydti.fawe.util.MainUtil;
@@ -22,17 +18,15 @@ import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.BundledBlockData;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 public abstract class MappedFaweQueue<WORLD, CHUNK, CHUNKSECTIONS, SECTION> implements LightingExtent, FaweQueue {
-
-    private WORLD impWorld;
-
-    private IFaweQueueMap map;
 
     public int lastSectionX = Integer.MIN_VALUE;
     public int lastSectionZ = Integer.MIN_VALUE;
@@ -40,8 +34,9 @@ public abstract class MappedFaweQueue<WORLD, CHUNK, CHUNKSECTIONS, SECTION> impl
     public CHUNK lastChunk;
     public CHUNKSECTIONS lastChunkSections;
     public SECTION lastSection;
-
-
+    public ConcurrentLinkedDeque<Runnable> tasks = new ConcurrentLinkedDeque<>();
+    private WORLD impWorld;
+    private IFaweQueueMap map;
     private World weWorld;
     private String world;
     private ConcurrentLinkedDeque<EditSession> sessions;
@@ -50,8 +45,6 @@ public abstract class MappedFaweQueue<WORLD, CHUNK, CHUNKSECTIONS, SECTION> impl
     private RunnableVal2<ProgressType, Integer> progressTask;
     private SetQueue.QueueStage stage;
     private Settings settings = Settings.IMP;
-    public ConcurrentLinkedDeque<Runnable> tasks = new ConcurrentLinkedDeque<>();
-
     private CHUNK cachedLoadChunk;
     public final RunnableVal<IntegerPair> loadChunk = new RunnableVal<IntegerPair>() {
 
@@ -142,6 +135,11 @@ public abstract class MappedFaweQueue<WORLD, CHUNK, CHUNKSECTIONS, SECTION> impl
             return impWorld;
         }
         return impWorld = getImpWorld();
+    }
+
+    public void setWorld(String world) {
+        this.world = world;
+        this.weWorld = null;
     }
 
     @Override
@@ -279,11 +277,6 @@ public abstract class MappedFaweQueue<WORLD, CHUNK, CHUNKSECTIONS, SECTION> impl
         this.settings = settings == null ? Settings.IMP : settings;
     }
 
-    public void setWorld(String world) {
-        this.world = world;
-        this.weWorld = null;
-    }
-
     public World getWEWorld() {
         return weWorld != null ? weWorld : (weWorld = FaweAPI.getWorld(world));
     }
@@ -310,7 +303,8 @@ public abstract class MappedFaweQueue<WORLD, CHUNK, CHUNKSECTIONS, SECTION> impl
     @Override
     public boolean supports(Capability capability) {
         switch (capability) {
-            case CHANGE_TASKS: return true;
+            case CHANGE_TASKS:
+                return true;
         }
         return false;
     }
@@ -335,12 +329,12 @@ public abstract class MappedFaweQueue<WORLD, CHUNK, CHUNKSECTIONS, SECTION> impl
         this.progressTask = progressTask;
     }
 
-    public void setChangeTask(RunnableVal2<FaweChunk, FaweChunk> changeTask) {
-        this.changeTask = changeTask;
-    }
-
     public RunnableVal2<FaweChunk, FaweChunk> getChangeTask() {
         return changeTask;
+    }
+
+    public void setChangeTask(RunnableVal2<FaweChunk, FaweChunk> changeTask) {
+        this.changeTask = changeTask;
     }
 
     public SetQueue.QueueStage getStage() {

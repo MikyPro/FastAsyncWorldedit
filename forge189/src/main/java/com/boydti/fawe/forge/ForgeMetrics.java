@@ -33,12 +33,6 @@ package com.boydti.fawe.forge;
 import com.boydti.fawe.object.io.FastByteArrayOutputStream;
 import com.boydti.fawe.object.io.PGZIPOutputStream;
 import com.boydti.fawe.util.MainUtil;
-import java.io.*;
-import java.net.Proxy;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -46,6 +40,13 @@ import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+
+import java.io.*;
+import java.net.Proxy;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.UUID;
 
 public class ForgeMetrics {
 
@@ -95,10 +96,9 @@ public class ForgeMetrics {
      * Debug mode
      */
     private final boolean debug;
-
+    int tickCount;
     private Thread thread = null;
     private boolean firstPost = true;
-    int tickCount;
 
     public ForgeMetrics(final String modName, final String modVersion) throws IOException {
         if (modName == null || modVersion == null) {
@@ -117,6 +117,121 @@ public class ForgeMetrics {
         guid = configuration.get(Configuration.CATEGORY_GENERAL, "guid", UUID.randomUUID().toString(), "Server unique ID").getString();
         debug = configuration.get(Configuration.CATEGORY_GENERAL, "debug", false, "Set to true for verbose debug").getBoolean(false);
         configuration.save();
+    }
+
+    /**
+     * GZip compress a string of bytes
+     *
+     * @param input
+     * @return
+     */
+    public static byte[] gzip(String input) {
+        FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
+        PGZIPOutputStream gzos = null;
+
+        try {
+            gzos = new PGZIPOutputStream(baos);
+            gzos.write(input.getBytes("UTF-8"));
+        } catch (IOException e) {
+            MainUtil.handleError(e);
+        } finally {
+            if (gzos != null) try {
+                gzos.close();
+            } catch (IOException ignore) {
+            }
+        }
+
+        return baos.toByteArray();
+    }
+
+    /**
+     * Appends a json encoded key/value pair to the given string builder.
+     *
+     * @param json
+     * @param key
+     * @param value
+     * @throws java.io.UnsupportedEncodingException
+     */
+    private static void appendJSONPair(StringBuilder json, String key, String value) throws UnsupportedEncodingException {
+        boolean isValueNumeric = false;
+
+        try {
+            if (value.equals("0") || !value.endsWith("0")) {
+                Double.parseDouble(value);
+                isValueNumeric = true;
+            }
+        } catch (NumberFormatException e) {
+            isValueNumeric = false;
+        }
+
+        if (json.charAt(json.length() - 1) != '{') {
+            json.append(',');
+        }
+
+        json.append(escapeJSON(key));
+        json.append(':');
+
+        if (isValueNumeric) {
+            json.append(value);
+        } else {
+            json.append(escapeJSON(value));
+        }
+    }
+
+    /**
+     * Escape a string to create a valid JSON string
+     *
+     * @param text
+     * @return
+     */
+    private static String escapeJSON(String text) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append('"');
+        for (int index = 0; index < text.length(); index++) {
+            char chr = text.charAt(index);
+
+            switch (chr) {
+                case '"':
+                case '\\':
+                    builder.append('\\');
+                    builder.append(chr);
+                    break;
+                case '\b':
+                    builder.append("\\b");
+                    break;
+                case '\t':
+                    builder.append("\\t");
+                    break;
+                case '\n':
+                    builder.append("\\n");
+                    break;
+                case '\r':
+                    builder.append("\\r");
+                    break;
+                default:
+                    if (chr < ' ') {
+                        String t = "000" + Integer.toHexString(chr);
+                        builder.append("\\u" + t.substring(t.length() - 4));
+                    } else {
+                        builder.append(chr);
+                    }
+                    break;
+            }
+        }
+        builder.append('"');
+
+        return builder.toString();
+    }
+
+    /**
+     * Encode text as UTF-8
+     *
+     * @param text the text to encode
+     * @return the encoded text, as UTF-8
+     */
+    private static String urlEncode(final String text) throws UnsupportedEncodingException {
+        return URLEncoder.encode(text, "UTF-8");
     }
 
     /**
@@ -344,31 +459,6 @@ public class ForgeMetrics {
     }
 
     /**
-     * GZip compress a string of bytes
-     *
-     * @param input
-     * @return
-     */
-    public static byte[] gzip(String input) {
-        FastByteArrayOutputStream baos = new FastByteArrayOutputStream();
-        PGZIPOutputStream gzos = null;
-
-        try {
-            gzos = new PGZIPOutputStream(baos);
-            gzos.write(input.getBytes("UTF-8"));
-        } catch (IOException e) {
-            MainUtil.handleError(e);
-        } finally {
-            if (gzos != null) try {
-                gzos.close();
-            } catch (IOException ignore) {
-            }
-        }
-
-        return baos.toByteArray();
-    }
-
-    /**
      * Check if mineshafter is present. If it is, we need to bypass it to send POST requests
      *
      * @return true if mineshafter is installed on the server
@@ -380,96 +470,6 @@ public class ForgeMetrics {
         } catch (Exception e) {
             return false;
         }
-    }
-
-    /**
-     * Appends a json encoded key/value pair to the given string builder.
-     *
-     * @param json
-     * @param key
-     * @param value
-     * @throws java.io.UnsupportedEncodingException
-     */
-    private static void appendJSONPair(StringBuilder json, String key, String value) throws UnsupportedEncodingException {
-        boolean isValueNumeric = false;
-
-        try {
-            if (value.equals("0") || !value.endsWith("0")) {
-                Double.parseDouble(value);
-                isValueNumeric = true;
-            }
-        } catch (NumberFormatException e) {
-            isValueNumeric = false;
-        }
-
-        if (json.charAt(json.length() - 1) != '{') {
-            json.append(',');
-        }
-
-        json.append(escapeJSON(key));
-        json.append(':');
-
-        if (isValueNumeric) {
-            json.append(value);
-        } else {
-            json.append(escapeJSON(value));
-        }
-    }
-
-    /**
-     * Escape a string to create a valid JSON string
-     *
-     * @param text
-     * @return
-     */
-    private static String escapeJSON(String text) {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append('"');
-        for (int index = 0; index < text.length(); index++) {
-            char chr = text.charAt(index);
-
-            switch (chr) {
-                case '"':
-                case '\\':
-                    builder.append('\\');
-                    builder.append(chr);
-                    break;
-                case '\b':
-                    builder.append("\\b");
-                    break;
-                case '\t':
-                    builder.append("\\t");
-                    break;
-                case '\n':
-                    builder.append("\\n");
-                    break;
-                case '\r':
-                    builder.append("\\r");
-                    break;
-                default:
-                    if (chr < ' ') {
-                        String t = "000" + Integer.toHexString(chr);
-                        builder.append("\\u" + t.substring(t.length() - 4));
-                    } else {
-                        builder.append(chr);
-                    }
-                    break;
-            }
-        }
-        builder.append('"');
-
-        return builder.toString();
-    }
-
-    /**
-     * Encode text as UTF-8
-     *
-     * @param text the text to encode
-     * @return the encoded text, as UTF-8
-     */
-    private static String urlEncode(final String text) throws UnsupportedEncodingException {
-        return URLEncoder.encode(text, "UTF-8");
     }
 
 }

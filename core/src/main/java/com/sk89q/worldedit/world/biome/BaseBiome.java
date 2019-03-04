@@ -22,7 +22,6 @@ package com.sk89q.worldedit.world.biome;
 import com.sk89q.minecraft.util.commands.Link;
 import com.sk89q.worldedit.command.BiomeCommands;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -50,6 +49,10 @@ public class BaseBiome {
     public BaseBiome(BaseBiome biome) {
         checkNotNull(biome);
         this.id = biome.getId();
+    }
+
+    public static Class<?> inject() {
+        return BaseBiome.class;
     }
 
     /**
@@ -83,10 +86,5 @@ public class BaseBiome {
     @Override
     public int hashCode() {
         return id;
-    }
-
-
-    public static Class<?> inject() {
-        return BaseBiome.class;
     }
 }

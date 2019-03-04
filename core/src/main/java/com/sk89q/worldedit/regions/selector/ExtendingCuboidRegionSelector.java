@@ -27,6 +27,7 @@ import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.regions.selector.limit.SelectorLimits;
 import com.sk89q.worldedit.world.World;
+
 import javax.annotation.Nullable;
 
 /**
@@ -72,7 +73,7 @@ public class ExtendingCuboidRegionSelector extends CuboidRegionSelector {
     /**
      * Create a new selector.
      *
-     * @param world the world
+     * @param world     the world
      * @param position1 the first position
      * @param position2 the second position
      */
@@ -82,6 +83,10 @@ public class ExtendingCuboidRegionSelector extends CuboidRegionSelector {
         position2 = Vector.getMaximum(position1, position2);
         region.setPos1(position1);
         region.setPos2(position2);
+    }
+
+    public static Class<?> inject() {
+        return ExtendingCuboidRegionSelector.class;
     }
 
     @Override
@@ -121,9 +126,9 @@ public class ExtendingCuboidRegionSelector extends CuboidRegionSelector {
         region.setPos1(position1);
         region.setPos2(position2);
 
-        assert(region.contains(o1));
-        assert(region.contains(o2));
-        assert(region.contains(position));
+        assert (region.contains(o1));
+        assert (region.contains(o2));
+        assert (region.contains(position));
 
         return true;
     }
@@ -140,9 +145,5 @@ public class ExtendingCuboidRegionSelector extends CuboidRegionSelector {
         BBC.SELECTOR_EXPANDED.send(player, pos, region.getArea());
 
         explainRegionAdjust(player, session);
-    }
-
-    public static Class<?> inject() {
-        return ExtendingCuboidRegionSelector.class;
     }
 }

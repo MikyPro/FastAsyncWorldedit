@@ -14,13 +14,14 @@ import com.thevoxelbox.voxelsniper.brush.perform.PerformBrush;
 import com.thevoxelbox.voxelsniper.command.VoxelVoxelCommand;
 import com.thevoxelbox.voxelsniper.event.SniperBrushChangedEvent;
 import com.thevoxelbox.voxelsniper.event.SniperMaterialChangedEvent;
-import java.io.File;
-import java.io.FileOutputStream;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 public class Favs extends JavaPlugin {
 
@@ -92,7 +93,8 @@ public class Favs extends JavaPlugin {
 
                 }
             });
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
     }
 
     public void setupCommand(final String label, final FaweCommand cmd) {

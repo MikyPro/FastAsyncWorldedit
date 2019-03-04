@@ -9,6 +9,7 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.transform.AffineTransform;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class BlobBrush implements Brush {
@@ -62,9 +63,9 @@ public class BlobBrush implements Brush {
             }
         } else {
             AffineTransform transform = new AffineTransform()
-            .rotateX(ThreadLocalRandom.current().nextInt(360))
-            .rotateY(ThreadLocalRandom.current().nextInt(360))
-            .rotateZ(ThreadLocalRandom.current().nextInt(360));
+                    .rotateX(ThreadLocalRandom.current().nextInt(360))
+                    .rotateY(ThreadLocalRandom.current().nextInt(360))
+                    .rotateZ(ThreadLocalRandom.current().nextInt(360));
 
             double manScaleX = (1.25 + seedX * 0.5);
             double manScaleY = (1.25 + seedY * 0.5);
@@ -90,8 +91,8 @@ public class BlobBrush implements Brush {
                         double distSqr = x * x * modX + z * z * modZ + y * y * modY;
 
                         double distance =
-                        Math.sqrt(distSqr) * sphericity +
-                        MathMan.max(manDist, xScaled * manScaleX, yScaled * manScaleY, zScaled * manScaleZ) * roughness;
+                                Math.sqrt(distSqr) * sphericity +
+                                        MathMan.max(manDist, xScaled * manScaleX, yScaled * manScaleY, zScaled * manScaleZ) * roughness;
 
                         double noise = this.amplitude * SimplexNoise.noise(seedX + x * distort, seedZ + z * distort, seedZ + z * distort);
                         if (distance + distance * noise < radius) {

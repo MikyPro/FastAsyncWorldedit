@@ -5,6 +5,7 @@ import com.boydti.fawe.object.FaweChunk;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.TaskManager;
 import com.sk89q.worldedit.world.World;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,7 @@ import java.util.UUID;
 public abstract class NMSMappedFaweQueue<WORLD, CHUNK, CHUNKSECTION, SECTION> extends MappedFaweQueue<WORLD, CHUNK, CHUNKSECTION, SECTION> {
 
     private final int maxY;
+    private final Relighter relighter = getSettings().IMP.LIGHTING.MODE > 0 ? new NMSRelighter(this) : NullRelighter.INSTANCE;
 
     public NMSMappedFaweQueue(World world) {
         super(world);
@@ -50,8 +52,6 @@ public abstract class NMSMappedFaweQueue<WORLD, CHUNK, CHUNKSECTION, SECTION> ex
             });
         }
     }
-
-    private final Relighter relighter = getSettings().IMP.LIGHTING.MODE > 0 ? new NMSRelighter(this) : NullRelighter.INSTANCE;
 
     @Override
     public Relighter getRelighter() {

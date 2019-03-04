@@ -1,12 +1,13 @@
 package com.boydti.fawe.object.task;
 
 import com.boydti.fawe.util.TaskManager;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AsyncNotifyQueue {
-    protected Object lock = new Object();
     protected final Runnable task;
     protected final AtomicBoolean running = new AtomicBoolean();
+    protected Object lock = new Object();
 
     public AsyncNotifyQueue() {
         this.task = new Runnable() {

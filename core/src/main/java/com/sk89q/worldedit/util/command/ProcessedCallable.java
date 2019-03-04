@@ -4,7 +4,6 @@ import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandLocals;
 import com.sk89q.worldedit.WorldEditException;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ProcessedCallable extends DelegateCallable {

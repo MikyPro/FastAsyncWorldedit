@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 public abstract class MapConverter implements Consumer<ConverterFrame>, Closeable {
 
+    private static Tag[] tags = new Tag[256];
     protected final File folderTo;
     protected final File folderFrom;
 
@@ -29,8 +30,6 @@ public abstract class MapConverter implements Consumer<ConverterFrame>, Closeabl
     public File getFolderFrom() {
         return folderFrom;
     }
-
-    private static Tag[] tags = new Tag[256];
 
     public enum Tag {
         Data2D(45),

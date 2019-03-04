@@ -11,12 +11,12 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.mask.Mask;
-import com.sk89q.worldedit.function.mask.SolidBlockMask;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.function.visitor.RecursiveVisitor;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.util.Location;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Arrays;
@@ -59,14 +59,6 @@ public class ImageBrush implements Brush {
         }
     }
 
-    private interface ColorFunction {
-        int call(int x1, int z1, int x2, int z2, Extent extent, Vector pos);
-    }
-
-    private interface BlockFunction {
-        void apply(int color, Extent extent, Vector pos);
-    }
-
     @Override
     public void build(EditSession editSession, Vector position, Pattern pattern, double sizeDouble) throws MaxChangedBlocksException {
         TextureUtil texture = session.getTextureUtil();
@@ -85,6 +77,7 @@ public class ImageBrush implements Brush {
 
         RecursiveVisitor visitor = new RecursiveVisitor(new Mask() {
             private final Vector mutable = new Vector();
+
             @Override
             public boolean test(Vector vector) {
                 if (solid.test(vector)) {
@@ -132,5 +125,13 @@ public class ImageBrush implements Brush {
 
     private void apply(double val) {
 
+    }
+
+    private interface ColorFunction {
+        int call(int x1, int z1, int x2, int z2, Extent extent, Vector pos);
+    }
+
+    private interface BlockFunction {
+        void apply(int color, Extent extent, Vector pos);
     }
 }

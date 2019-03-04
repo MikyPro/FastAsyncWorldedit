@@ -1,6 +1,6 @@
 package com.boydti.fawe.util;
 
-import java.awt.Color;
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.Locale;
 
@@ -17,7 +17,7 @@ public class ColorUtil {
                 throw new IllegalArgumentException("Invalid color specification");
             }
             type = PARSE_PERCENT;
-            color = color.substring(0, color.length()-1).trim();
+            color = color.substring(0, color.length() - 1).trim();
         } else if (type == PARSE_PERCENT) {
             throw new IllegalArgumentException("Invalid color specification");
         }
@@ -42,32 +42,32 @@ public class ColorUtil {
         throw new IllegalArgumentException("Invalid color specification");
     }
 
-    private static Color parseRGBColor(String color, int roff)
-    {
+    private static Color parseRGBColor(String color, int roff) {
         try {
             int rend = color.indexOf(',', roff);
-            int gend = rend < 0 ? -1 : color.indexOf(',', rend+1);
-            int bend = gend < 0 ? -1 : color.indexOf(gend+1);
+            int gend = rend < 0 ? -1 : color.indexOf(',', rend + 1);
+            int bend = gend < 0 ? -1 : color.indexOf(gend + 1);
             float r = parseComponent(color, roff, rend, PARSE_COMPONENT);
-            float g = parseComponent(color, rend+1, gend, PARSE_COMPONENT);
-            float b = parseComponent(color, gend+1, bend, PARSE_COMPONENT);
+            float g = parseComponent(color, rend + 1, gend, PARSE_COMPONENT);
+            float b = parseComponent(color, gend + 1, bend, PARSE_COMPONENT);
             return new Color(r, g, b);
-        } catch (NumberFormatException nfe) {}
+        } catch (NumberFormatException nfe) {
+        }
 
         throw new IllegalArgumentException("Invalid color specification");
     }
 
-    private static Color parseHSLColor(String color, int hoff)
-    {
+    private static Color parseHSLColor(String color, int hoff) {
         try {
             int hend = color.indexOf(',', hoff);
-            int send = hend < 0 ? -1 : color.indexOf(',', hend+1);
-            int lend = send < 0 ? -1 : color.indexOf(send+1);
+            int send = hend < 0 ? -1 : color.indexOf(',', hend + 1);
+            int lend = send < 0 ? -1 : color.indexOf(send + 1);
             float h = parseComponent(color, hoff, hend, PARSE_ANGLE);
-            float s = parseComponent(color, hend+1, send, PARSE_PERCENT);
-            float l = parseComponent(color, send+1, lend, PARSE_PERCENT);
+            float s = parseComponent(color, hend + 1, send, PARSE_PERCENT);
+            float l = parseComponent(color, send + 1, lend, PARSE_PERCENT);
             return Color.getHSBColor(h, s, l);
-        } catch (NumberFormatException nfe) {}
+        } catch (NumberFormatException nfe) {
+        }
 
         throw new IllegalArgumentException("Invalid color specification");
     }
@@ -104,7 +104,8 @@ public class ColorUtil {
             try {
                 Field field = java.awt.Color.class.getField(color.toLowerCase());
                 col = (Color) field.get(null);
-            } catch (Throwable ignore) {}
+            } catch (Throwable ignore) {
+            }
             if (col != null) {
                 return col;
             }
@@ -139,7 +140,8 @@ public class ColorUtil {
                 b = Integer.parseInt(color.substring(4, 6), 16);
                 return new Color(r, g, b);
             }
-        } catch (NumberFormatException nfe) {}
+        } catch (NumberFormatException nfe) {
+        }
 
         throw new IllegalArgumentException("Invalid color specification");
     }

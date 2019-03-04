@@ -12,11 +12,11 @@ import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -54,9 +54,9 @@ public abstract class FaweClipboard {
     public void setOrigin(Vector offset) {
     } // Do nothing
 
-    public abstract void setDimensions(Vector dimensions);
-
     public abstract Vector getDimensions();
+
+    public abstract void setDimensions(Vector dimensions);
 
     /**
      * The locations provided are relative to the clipboard min
@@ -65,10 +65,6 @@ public abstract class FaweClipboard {
      * @param air
      */
     public abstract void forEach(BlockReader task, boolean air);
-
-    public static abstract class BlockReader {
-        public abstract void run(int x, int y, int z, BaseBlock block);
-    }
 
     public abstract void streamBiomes(final NBTStreamer.ByteReader task);
 
@@ -118,6 +114,10 @@ public abstract class FaweClipboard {
     }
 
     public void flush() {
+    }
+
+    public static abstract class BlockReader {
+        public abstract void run(int x, int y, int z, BaseBlock block);
     }
 
     /**

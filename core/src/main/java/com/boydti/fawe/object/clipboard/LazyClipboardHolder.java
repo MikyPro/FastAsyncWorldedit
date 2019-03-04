@@ -8,6 +8,7 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.extent.clipboard.io.SchematicReader;
 import com.sk89q.worldedit.world.registry.WorldData;
+
 import java.io.InputStream;
 import java.net.URI;
 import java.util.UUID;

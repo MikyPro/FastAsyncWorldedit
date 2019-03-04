@@ -20,8 +20,8 @@
 package com.sk89q.worldedit.util.command.parametric;
 
 import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.worldedit.util.command.MissingParameterException;
 import com.sk89q.util.StringUtil;
+import com.sk89q.worldedit.util.command.MissingParameterException;
 
 /**
  * A virtual scope that does not actually read from the underlying
@@ -38,8 +38,8 @@ public class StringArgumentStack implements ArgumentStack {
     /**
      * Create a new instance using the given context.
      *
-     * @param context the context
-     * @param arguments a list of arguments
+     * @param context        the context
+     * @param arguments      a list of arguments
      * @param nonNullBoolean true to have {@link #nextBoolean()} return false instead of null
      */
     public StringArgumentStack(
@@ -52,8 +52,8 @@ public class StringArgumentStack implements ArgumentStack {
     /**
      * Create a new instance using the given context.
      *
-     * @param context the context
-     * @param arguments an argument string to be parsed
+     * @param context        the context
+     * @param arguments      an argument string to be parsed
      * @param nonNullBoolean true to have {@link #nextBoolean()} return false instead of null
      */
     public StringArgumentStack(
@@ -61,6 +61,10 @@ public class StringArgumentStack implements ArgumentStack {
         this.context = context;
         this.arguments = CommandContext.split(arguments);
         this.nonNullBoolean = nonNullBoolean;
+    }
+
+    public static Class<?> inject() {
+        return StringArgumentStack.class;
     }
 
     @Override
@@ -149,9 +153,5 @@ public class StringArgumentStack implements ArgumentStack {
         String value = (index - 1 > markedIndex) ? context.getString(markedIndex, index - 1) : "";
         index = markedIndex;
         return value;
-    }
-
-    public static Class<?> inject() {
-        return StringArgumentStack.class;
     }
 }

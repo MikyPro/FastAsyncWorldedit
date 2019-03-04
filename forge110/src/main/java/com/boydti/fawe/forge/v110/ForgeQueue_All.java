@@ -7,7 +7,6 @@ import com.boydti.fawe.forge.ForgePlayer;
 import com.boydti.fawe.object.FaweChunk;
 import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.object.brush.visualization.VisualChunk;
-import java.util.concurrent.atomic.LongAdder;
 import com.boydti.fawe.object.visitor.FaweChunkVisitor;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.MathMan;
@@ -18,17 +17,6 @@ import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -50,14 +38,17 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.BlockStateContainer;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkGenerator;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.chunk.NibbleArray;
+import net.minecraft.world.chunk.*;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.atomic.LongAdder;
 
 public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlockStorage[], ExtendedBlockStorage> {
 
@@ -65,6 +56,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
     protected final static Method methodToNative;
     protected final static Field fieldTickingBlockCount;
     protected final static Field fieldNonEmptyBlockCount;
+    protected final static IBlockState air = Blocks.AIR.getDefaultState();
     protected static ExtendedBlockStorage emptySection;
 
     static {
@@ -84,6 +76,9 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             throw new RuntimeException(e);
         }
     }
+
+    protected BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, 0, 0);
+    protected WorldServer nmsWorld;
 
     public ForgeQueue_All(com.sk89q.worldedit.world.World world) {
         super(world);
@@ -204,8 +199,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             e.printStackTrace();
         }
     }
-
-    protected BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, 0, 0);
 
     @Override
     public CompoundTag getTileEntity(Chunk chunk, int x, int y, int z) {
@@ -381,8 +374,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
         return previous;
     }
 
-    protected final static IBlockState air = Blocks.AIR.getDefaultState();
-
     public void setPalette(ExtendedBlockStorage section, BlockStateContainer palette) throws NoSuchFieldException, IllegalAccessException {
         Field fieldSection = ExtendedBlockStorage.class.getDeclaredField("data");
         fieldSection.setAccessible(true);
@@ -466,7 +457,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
         return false;
     }
 
-
     @Override
     public FaweChunk<Chunk> getFaweChunk(int x, int z) {
         return new ForgeChunk_All(this, x, z);
@@ -504,8 +494,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
         pos.setPos(x, y, z);
         nmsWorld.checkLight(pos);
     }
-
-    protected WorldServer nmsWorld;
 
     @Override
     public World getImpWorld() {

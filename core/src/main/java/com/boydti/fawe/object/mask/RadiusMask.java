@@ -4,12 +4,13 @@ import com.sk89q.worldedit.MutableBlockVector;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.function.mask.AbstractMask;
 import com.sk89q.worldedit.function.mask.Mask2D;
+
 import javax.annotation.Nullable;
 
 public class RadiusMask extends AbstractMask implements ResettableMask {
 
-    private transient Vector pos;
     private final int minSqr, maxSqr;
+    private transient Vector pos;
 
     public RadiusMask(int min, int max) {
         this.minSqr = min * min;

@@ -2,8 +2,12 @@ package com.boydti.fawe.config;
 
 import com.boydti.fawe.object.FaweLimit;
 import com.boydti.fawe.object.FawePlayer;
+
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 public class Settings extends Config {
     @Ignore
@@ -69,6 +73,55 @@ public class Settings extends Config {
     public PATHS PATHS;
     @Create
     public REGION_RESTRICTIONS_OPTIONS REGION_RESTRICTIONS_OPTIONS;
+    @Create // This value will be generated automatically
+    public ConfigBlock<LIMITS> LIMITS;
+
+    public void reload(File file) {
+        load(file);
+        save(file);
+    }
+
+    public FaweLimit getLimit(FawePlayer player) {
+        FaweLimit limit;
+        if (player.hasPermission("fawe.limit.*") || player.hasPermission("fawe.bypass")) {
+            limit = FaweLimit.MAX.copy();
+        } else {
+            limit = new FaweLimit();
+        }
+        ArrayList<String> keys = new ArrayList<>(LIMITS.getSections());
+        if (keys.remove("default")) keys.add("default");
+
+        boolean limitFound = false;
+        for (String key : keys) {
+            if ((player != null && player.hasPermission("fawe.limit." + key)) || (!limitFound && key.equals("default"))) {
+                limitFound = true;
+                LIMITS newLimit = LIMITS.get(key);
+                limit.MAX_ACTIONS = Math.max(limit.MAX_ACTIONS, newLimit.MAX_ACTIONS != -1 ? newLimit.MAX_ACTIONS : Integer.MAX_VALUE);
+                limit.MAX_CHANGES = Math.max(limit.MAX_CHANGES, newLimit.MAX_CHANGES != -1 ? newLimit.MAX_CHANGES : Integer.MAX_VALUE);
+                limit.MAX_BLOCKSTATES = Math.max(limit.MAX_BLOCKSTATES, newLimit.MAX_BLOCKSTATES != -1 ? newLimit.MAX_BLOCKSTATES : Integer.MAX_VALUE);
+                limit.MAX_CHECKS = Math.max(limit.MAX_CHECKS, newLimit.MAX_CHECKS != -1 ? newLimit.MAX_CHECKS : Integer.MAX_VALUE);
+                limit.MAX_ENTITIES = Math.max(limit.MAX_ENTITIES, newLimit.MAX_ENTITIES != -1 ? newLimit.MAX_ENTITIES : Integer.MAX_VALUE);
+                limit.MAX_FAILS = Math.max(limit.MAX_FAILS, newLimit.MAX_FAILS != -1 ? newLimit.MAX_FAILS : Integer.MAX_VALUE);
+                limit.MAX_ITERATIONS = Math.max(limit.MAX_ITERATIONS, newLimit.MAX_ITERATIONS != -1 ? newLimit.MAX_ITERATIONS : Integer.MAX_VALUE);
+                limit.MAX_HISTORY = Math.max(limit.MAX_HISTORY, newLimit.MAX_HISTORY_MB != -1 ? newLimit.MAX_HISTORY_MB : Integer.MAX_VALUE);
+                limit.MAX_EXPRESSION_MS = Math.max(limit.MAX_EXPRESSION_MS, newLimit.MAX_EXPRESSION_MS != -1 ? newLimit.MAX_EXPRESSION_MS : Integer.MAX_VALUE);
+                limit.INVENTORY_MODE = Math.min(limit.INVENTORY_MODE, newLimit.INVENTORY_MODE);
+                limit.SPEED_REDUCTION = Math.min(limit.SPEED_REDUCTION, newLimit.SPEED_REDUCTION);
+                limit.FAST_PLACEMENT |= newLimit.FAST_PLACEMENT;
+                limit.CONFIRM_LARGE &= newLimit.CONFIRM_LARGE;
+                if (limit.STRIP_NBT == null)
+                    limit.STRIP_NBT = newLimit.STRIP_NBT.isEmpty() ? Collections.emptySet() : new HashSet<>(newLimit.STRIP_NBT);
+                else if (limit.STRIP_NBT.isEmpty() || newLimit.STRIP_NBT.isEmpty()) {
+                    limit.STRIP_NBT = Collections.emptySet();
+                } else {
+                    limit.STRIP_NBT = new HashSet<>(limit.STRIP_NBT);
+                    limit.STRIP_NBT.retainAll(newLimit.STRIP_NBT);
+                    if (limit.STRIP_NBT.isEmpty()) limit.STRIP_NBT = Collections.emptySet();
+                }
+            }
+        }
+        return limit;
+    }
 
     @Comment("Paths for various directories")
     public static final class PATHS {
@@ -98,10 +151,6 @@ public class Settings extends Config {
         })
         public String MODE = "MEMBER";
     }
-
-
-    @Create // This value will be generated automatically
-    public ConfigBlock<LIMITS> LIMITS;
 
     @Comment({
             "The \"default\" limit group affects those without a specific limit permission.",
@@ -251,13 +300,13 @@ public class Settings extends Config {
 
     @Comment("This relates to how FAWE places chunks")
     public static class QUEUE {
+        @Create
+        public static PROGRESS PROGRESS;
         @Comment({
                 "This should equal the number of processors you have",
                 " - Set this to 1 if you need reliable `/timings`"
         })
         public int PARALLEL_THREADS = Math.max(1, Runtime.getRuntime().availableProcessors());
-        @Create
-        public static PROGRESS PROGRESS;
         @Comment({
                 "When doing edits that effect more than this many chunks:",
                 " - FAWE will start placing before all calculations are finished",
@@ -368,8 +417,8 @@ public class Settings extends Config {
 
     public static class WEB {
         @Comment({
-            "Should download urls be shortened?",
-             " - Links are less secure as they could be brute forced"
+                "Should download urls be shortened?",
+                " - Links are less secure as they could be brute forced"
         })
         public boolean SHORTEN_URLS = false;
         @Comment({
@@ -451,51 +500,5 @@ public class Settings extends Config {
         public int MODE = 1;
         @Comment({"If existing lighting should be removed before relighting"})
         public boolean REMOVE_FIRST = false;
-    }
-
-    public void reload(File file) {
-        load(file);
-        save(file);
-    }
-
-    public FaweLimit getLimit(FawePlayer player) {
-        FaweLimit limit;
-        if (player.hasPermission("fawe.limit.*") || player.hasPermission("fawe.bypass")) {
-            limit = FaweLimit.MAX.copy();
-        } else {
-            limit = new FaweLimit();
-        }
-        ArrayList<String> keys = new ArrayList<>(LIMITS.getSections());
-        if (keys.remove("default")) keys.add("default");
-
-        boolean limitFound = false;
-        for (String key : keys) {
-            if ((player != null && player.hasPermission("fawe.limit." + key)) || (!limitFound && key.equals("default"))) {
-                limitFound = true;
-                LIMITS newLimit = LIMITS.get(key);
-                limit.MAX_ACTIONS = Math.max(limit.MAX_ACTIONS, newLimit.MAX_ACTIONS != -1 ? newLimit.MAX_ACTIONS : Integer.MAX_VALUE);
-                limit.MAX_CHANGES = Math.max(limit.MAX_CHANGES, newLimit.MAX_CHANGES != -1 ? newLimit.MAX_CHANGES : Integer.MAX_VALUE);
-                limit.MAX_BLOCKSTATES = Math.max(limit.MAX_BLOCKSTATES, newLimit.MAX_BLOCKSTATES != -1 ? newLimit.MAX_BLOCKSTATES : Integer.MAX_VALUE);
-                limit.MAX_CHECKS = Math.max(limit.MAX_CHECKS, newLimit.MAX_CHECKS != -1 ? newLimit.MAX_CHECKS : Integer.MAX_VALUE);
-                limit.MAX_ENTITIES = Math.max(limit.MAX_ENTITIES, newLimit.MAX_ENTITIES != -1 ? newLimit.MAX_ENTITIES : Integer.MAX_VALUE);
-                limit.MAX_FAILS = Math.max(limit.MAX_FAILS, newLimit.MAX_FAILS != -1 ? newLimit.MAX_FAILS : Integer.MAX_VALUE);
-                limit.MAX_ITERATIONS = Math.max(limit.MAX_ITERATIONS, newLimit.MAX_ITERATIONS != -1 ? newLimit.MAX_ITERATIONS : Integer.MAX_VALUE);
-                limit.MAX_HISTORY = Math.max(limit.MAX_HISTORY, newLimit.MAX_HISTORY_MB != -1 ? newLimit.MAX_HISTORY_MB : Integer.MAX_VALUE);
-                limit.MAX_EXPRESSION_MS = Math.max(limit.MAX_EXPRESSION_MS, newLimit.MAX_EXPRESSION_MS != -1 ? newLimit.MAX_EXPRESSION_MS : Integer.MAX_VALUE);
-                limit.INVENTORY_MODE = Math.min(limit.INVENTORY_MODE, newLimit.INVENTORY_MODE);
-                limit.SPEED_REDUCTION = Math.min(limit.SPEED_REDUCTION, newLimit.SPEED_REDUCTION);
-                limit.FAST_PLACEMENT |= newLimit.FAST_PLACEMENT;
-                limit.CONFIRM_LARGE &= newLimit.CONFIRM_LARGE;
-                if (limit.STRIP_NBT == null) limit.STRIP_NBT = newLimit.STRIP_NBT.isEmpty() ? Collections.emptySet() : new HashSet<>(newLimit.STRIP_NBT);
-                else if (limit.STRIP_NBT.isEmpty() || newLimit.STRIP_NBT.isEmpty()) {
-                    limit.STRIP_NBT = Collections.emptySet();
-                } else {
-                    limit.STRIP_NBT = new HashSet<>(limit.STRIP_NBT);
-                    limit.STRIP_NBT.retainAll(newLimit.STRIP_NBT);
-                    if (limit.STRIP_NBT.isEmpty()) limit.STRIP_NBT = Collections.emptySet();
-                }
-            }
-        }
-        return limit;
     }
 }

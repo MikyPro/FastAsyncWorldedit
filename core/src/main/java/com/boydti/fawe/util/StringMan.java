@@ -1,17 +1,9 @@
 package com.boydti.fawe.util;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.function.IntConsumer;
-import java.util.function.IntFunction;
 
 public class StringMan {
     public static String replaceFromMap(final String string, final Map<String, String> replacements) {
@@ -64,8 +56,8 @@ public class StringMan {
     public static String prettyFormat(double d) {
         if (d == Double.MIN_VALUE) return "-∞";
         if (d == Double.MAX_VALUE) return "∞";
-        if(d == (long) d) return String.format("%d",(long)d);
-        else return String.format("%s",d);
+        if (d == (long) d) return String.format("%d", (long) d);
+        else return String.format("%s", d);
     }
 
     public static boolean isBracketForwards(char c) {
@@ -75,21 +67,31 @@ public class StringMan {
             case '{':
             case '<':
                 return true;
-            default: return false;
+            default:
+                return false;
         }
     }
 
     public static char getMatchingBracket(char c) {
         switch (c) {
-            case '[': return ']';
-            case '(': return ')';
-            case '{': return '}';
-            case '<': return '>';
-            case ']': return '[';
-            case ')': return '(';
-            case '}': return '{';
-            case '>': return '<';
-            default: return c;
+            case '[':
+                return ']';
+            case '(':
+                return ')';
+            case '{':
+                return '}';
+            case '<':
+                return '>';
+            case ']':
+                return '[';
+            case ')':
+                return '(';
+            case '}':
+                return '{';
+            case '>':
+                return '<';
+            default:
+                return c;
         }
     }
 
@@ -406,8 +408,7 @@ public class StringMan {
         if (char0 == '-') {
             negative = true;
             start++;
-        }
-        else negative = false;
+        } else negative = false;
         for (int i = start; i < end; i++) {
             char c = string.charAt(i);
             switch (c) {

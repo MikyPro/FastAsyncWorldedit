@@ -38,6 +38,7 @@ public class CommandScriptLoader {
 
     /**
      * Load all file commands
+     *
      * @throws Throwable
      */
     public void load() throws Throwable {
@@ -50,7 +51,7 @@ public class CommandScriptLoader {
     private void add(String[] aliases, File file) throws Throwable {
         if (file.isDirectory()) {
             if (aliases.length == 0) {
-                String[] newAliases = new String[] {file.getName()};
+                String[] newAliases = new String[]{file.getName()};
                 for (File newFile : file.listFiles()) {
                     add(newAliases, newFile);
                 }

@@ -21,32 +21,21 @@ package com.sk89q.worldedit.world.registry;
 
 import com.boydti.fawe.FaweCache;
 import com.google.common.io.Resources;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockMaterial;
+
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
 
 /**
  * Provides block data based on the built-in block database that is bundled
@@ -63,9 +52,8 @@ public class BundledBlockData {
 
     private static final Logger log = Logger.getLogger(BundledBlockData.class.getCanonicalName());
     private static final BundledBlockData INSTANCE = new BundledBlockData();
-
-    private final Map<String, BlockEntry> idMap = new ConcurrentHashMap<>();
     public final Map<String, BaseBlock> stateMap = new ConcurrentHashMap<>();
+    private final Map<String, BlockEntry> idMap = new ConcurrentHashMap<>();
     private final Map<String, BlockEntry> localIdMap = new ConcurrentHashMap<>();
 
     private final BlockEntry[] legacyMap = new BlockEntry[4096];
@@ -75,6 +63,19 @@ public class BundledBlockData {
      * Create a new instance.
      */
     private BundledBlockData() {
+    }
+
+    /**
+     * Get a singleton instance of this object.
+     *
+     * @return the instance
+     */
+    public static BundledBlockData getInstance() {
+        return INSTANCE;
+    }
+
+    public static Class<?> inject() {
+        return BundledBlockData.class;
     }
 
     /**
@@ -182,8 +183,8 @@ public class BundledBlockData {
             }
         }
         if (!entry.states.isEmpty()) { // Fix vine direction 2
-            String[] states = new String[] {"north", "east", "south", "west", "up", "down"};
-            Vector[] dirs = new Vector[] {
+            String[] states = new String[]{"north", "east", "south", "west", "up", "down"};
+            Vector[] dirs = new Vector[]{
                     new Vector(0, 0, -1),
                     new Vector(1, 0, 0),
                     new Vector(0, 0, 1),
@@ -448,15 +449,6 @@ public class BundledBlockData {
         }
     }
 
-    /**
-     * Get a singleton instance of this object.
-     *
-     * @return the instance
-     */
-    public static BundledBlockData getInstance() {
-        return INSTANCE;
-    }
-
     public static class BlockEntry {
         public int legacyId;
         public String id;
@@ -489,118 +481,6 @@ public class BundledBlockData {
                 facing.values.put(key, value);
             }
         }
-    }
-
-
-    public static Class<?> inject() {
-        return BundledBlockData.class;
-    }
-
-    public class FaweVectorAdapter implements JsonDeserializer<Vector> {
-
-        @Override
-        public Vector deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            JsonArray jsonArray = json.getAsJsonArray();
-            if (jsonArray.size() != 3) {
-                throw new JsonParseException("Expected array of 3 length for Vector");
-            }
-
-            double x = jsonArray.get(0).getAsDouble();
-            double y = jsonArray.get(1).getAsDouble();
-            double z = jsonArray.get(2).getAsDouble();
-
-            return new Vector(x, y, z);
-        }
-    }
-
-    public class FaweStateValue implements StateValue {
-
-        public FaweState state;
-        public Byte data;
-        public Vector direction;
-
-        public FaweStateValue() {
-        }
-
-        public FaweStateValue(FaweStateValue other) {
-            this.state = other.state;
-            this.data = other.data;
-            this.direction = other.direction;
-        }
-
-        public void setState(FaweState state) {
-            this.state = state;
-        }
-
-        @Override
-        public boolean isSet(BaseBlock block) {
-            return data != null && ((state.dataMask == null && block.getData() == data) || (block.getData() & state.getDataMask()) == data);
-        }
-
-        @Override
-        public boolean set(BaseBlock block) {
-            if (data != null) {
-                block.setData((block.getData() & ~state.getDataMask()) | data);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public FaweStateValue setDirection(Vector direction) {
-            this.direction = direction;
-            return this;
-        }
-
-        @Override
-        public Vector getDirection() {
-            return direction;
-        }
-
-    }
-
-    public class FaweState implements State {
-
-        public Byte dataMask;
-        public Map<String, FaweStateValue> values;
-
-        @Override
-        public Map<String, FaweStateValue> valueMap() {
-            return Collections.unmodifiableMap(values);
-        }
-
-        @Nullable
-        @Override
-        public StateValue getValue(BaseBlock block) {
-            for (StateValue value : values.values()) {
-                if (value.isSet(block)) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-        public byte getDataMask() {
-            return dataMask != null ? dataMask : 0xF;
-        }
-
-        @Override
-        public boolean hasDirection() {
-            for (FaweStateValue value : values.values()) {
-                if (value.getDirection() != null) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        void postDeserialization() {
-            for (FaweStateValue v : values.values()) {
-                v.setState(this);
-            }
-        }
-
     }
 
     public static class FaweBlockMaterial implements BlockMaterial {
@@ -825,5 +705,112 @@ public class BundledBlockData {
         public void setReplacedDuringPlacement(boolean replacedDuringPlacement) {
             this.replacedDuringPlacement = replacedDuringPlacement;
         }
+    }
+
+    public class FaweVectorAdapter implements JsonDeserializer<Vector> {
+
+        @Override
+        public Vector deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonArray jsonArray = json.getAsJsonArray();
+            if (jsonArray.size() != 3) {
+                throw new JsonParseException("Expected array of 3 length for Vector");
+            }
+
+            double x = jsonArray.get(0).getAsDouble();
+            double y = jsonArray.get(1).getAsDouble();
+            double z = jsonArray.get(2).getAsDouble();
+
+            return new Vector(x, y, z);
+        }
+    }
+
+    public class FaweStateValue implements StateValue {
+
+        public FaweState state;
+        public Byte data;
+        public Vector direction;
+
+        public FaweStateValue() {
+        }
+
+        public FaweStateValue(FaweStateValue other) {
+            this.state = other.state;
+            this.data = other.data;
+            this.direction = other.direction;
+        }
+
+        public void setState(FaweState state) {
+            this.state = state;
+        }
+
+        @Override
+        public boolean isSet(BaseBlock block) {
+            return data != null && ((state.dataMask == null && block.getData() == data) || (block.getData() & state.getDataMask()) == data);
+        }
+
+        @Override
+        public boolean set(BaseBlock block) {
+            if (data != null) {
+                block.setData((block.getData() & ~state.getDataMask()) | data);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public Vector getDirection() {
+            return direction;
+        }
+
+        public FaweStateValue setDirection(Vector direction) {
+            this.direction = direction;
+            return this;
+        }
+
+    }
+
+    public class FaweState implements State {
+
+        public Byte dataMask;
+        public Map<String, FaweStateValue> values;
+
+        @Override
+        public Map<String, FaweStateValue> valueMap() {
+            return Collections.unmodifiableMap(values);
+        }
+
+        @Nullable
+        @Override
+        public StateValue getValue(BaseBlock block) {
+            for (StateValue value : values.values()) {
+                if (value.isSet(block)) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+        public byte getDataMask() {
+            return dataMask != null ? dataMask : 0xF;
+        }
+
+        @Override
+        public boolean hasDirection() {
+            for (FaweStateValue value : values.values()) {
+                if (value.getDirection() != null) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        void postDeserialization() {
+            for (FaweStateValue v : values.values()) {
+                v.setState(this);
+            }
+        }
+
     }
 }

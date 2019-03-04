@@ -14,42 +14,7 @@ import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.StringTag;
 import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.world.biome.BaseBiome;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import net.minecraft.server.v1_7_R4.Block;
-import net.minecraft.server.v1_7_R4.Chunk;
-import net.minecraft.server.v1_7_R4.ChunkCoordIntPair;
-import net.minecraft.server.v1_7_R4.ChunkPosition;
-import net.minecraft.server.v1_7_R4.ChunkSection;
-import net.minecraft.server.v1_7_R4.Entity;
-import net.minecraft.server.v1_7_R4.EntityPlayer;
-import net.minecraft.server.v1_7_R4.EntityTracker;
-import net.minecraft.server.v1_7_R4.EntityTypes;
-import net.minecraft.server.v1_7_R4.EnumDifficulty;
-import net.minecraft.server.v1_7_R4.EnumGamemode;
-import net.minecraft.server.v1_7_R4.EnumSkyBlock;
-import net.minecraft.server.v1_7_R4.LongHashMap;
-import net.minecraft.server.v1_7_R4.MinecraftServer;
-import net.minecraft.server.v1_7_R4.NBTTagCompound;
-import net.minecraft.server.v1_7_R4.NibbleArray;
-import net.minecraft.server.v1_7_R4.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_7_R4.PlayerChunkMap;
-import net.minecraft.server.v1_7_R4.ServerNBTManager;
-import net.minecraft.server.v1_7_R4.TileEntity;
-import net.minecraft.server.v1_7_R4.WorldManager;
-import net.minecraft.server.v1_7_R4.WorldServer;
-import net.minecraft.server.v1_7_R4.WorldSettings;
-import net.minecraft.server.v1_7_R4.WorldType;
+import net.minecraft.server.v1_7_R4.*;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -60,6 +25,11 @@ import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.generator.ChunkGenerator;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class BukkitQueue17 extends BukkitQueue_0<net.minecraft.server.v1_7_R4.Chunk, ChunkSection[], ChunkSection> {
 
@@ -111,6 +81,8 @@ public class BukkitQueue17 extends BukkitQueue_0<net.minecraft.server.v1_7_R4.Ch
             e.printStackTrace();
         }
     }
+
+    protected WorldServer nmsWorld;
 
     public BukkitQueue17(final com.sk89q.worldedit.world.World world) {
         super(world);
@@ -364,7 +336,7 @@ public class BukkitQueue17 extends BukkitQueue_0<net.minecraft.server.v1_7_R4.Ch
         byte[] ids = ls.getIdArray();
         NibbleArray datasNibble = ls.getDataArray();
         int i = FaweCache.CACHE_J[y & 15][z & 15][x & 15];
-        int combined = ((ids[i] & 0xFF)  << 4) + (datasNibble == null ? 0 : datasNibble.a(x & 15, y & 15, z & 15));
+        int combined = ((ids[i] & 0xFF) << 4) + (datasNibble == null ? 0 : datasNibble.a(x & 15, y & 15, z & 15));
         return combined;
     }
 
@@ -451,7 +423,6 @@ public class BukkitQueue17 extends BukkitQueue_0<net.minecraft.server.v1_7_R4.Ch
         return tile != null ? getTag(tile) : null;
     }
 
-
     public void setCount(int tickingBlockCount, int nonEmptyBlockCount, ChunkSection section) throws NoSuchFieldException, IllegalAccessException {
         fieldTickingBlockCount.set(section, tickingBlockCount);
         fieldNonEmptyBlockCount.set(section, nonEmptyBlockCount);
@@ -502,7 +473,7 @@ public class BukkitQueue17 extends BukkitQueue_0<net.minecraft.server.v1_7_R4.Ch
                     Object playerChunk = map.getEntry(pair);
                     Field fieldPlayers = playerChunk.getClass().getDeclaredField("b");
                     fieldPlayers.setAccessible(true);
-                    final HashSet<EntityPlayer> players = new HashSet<>((Collection<EntityPlayer>)fieldPlayers.get(playerChunk));
+                    final HashSet<EntityPlayer> players = new HashSet<>((Collection<EntityPlayer>) fieldPlayers.get(playerChunk));
                     if (players.size() == 0) {
                         return;
                     }
@@ -638,8 +609,6 @@ public class BukkitQueue17 extends BukkitQueue_0<net.minecraft.server.v1_7_R4.Ch
     public void relight(int x, int y, int z) {
         nmsWorld.t(x, y, z);
     }
-
-    protected WorldServer nmsWorld;
 
     @Override
     public World getImpWorld() {

@@ -1,26 +1,26 @@
 /**
- This file is part of VoxelSniper, licensed under the MIT License (MIT).
-
- Copyright (c) The VoxelBox <http://thevoxelbox.com>
- Copyright (c) contributors
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
+ * This file is part of VoxelSniper, licensed under the MIT License (MIT).
+ * <p>
+ * Copyright (c) The VoxelBox <http://thevoxelbox.com>
+ * Copyright (c) contributors
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.thevoxelbox.voxelsniper;
 
@@ -67,14 +67,14 @@ public class RangeBlockHelper {
 
     public RangeBlockHelper(Location location, int range, double step) {
         this.world = location.getWorld();
-        this.init(location, (double)range, step, 0.0D);
+        this.init(location, (double) range, step, 0.0D);
     }
 
     public RangeBlockHelper(Player player, int range, double step) {
         if (player != null) {
             this.world = VoxelSniper.getInstance().getSniperManager().getSniperForPlayer(player).getWorld();
         }
-        this.init(player.getLocation(), (double)range, step, 1.65D);
+        this.init(player.getLocation(), (double) range, step, 1.65D);
     }
 
     public RangeBlockHelper(Player player, World world) {
@@ -96,45 +96,49 @@ public class RangeBlockHelper {
         this.fromOffworld();
     }
 
+    public static Class<?> inject() {
+        return RangeBlockHelper.class;
+    }
+
     public final void fromOffworld() {
-        if(this.targetY <= 255) {
-            if(this.targetY < 0) {
-                while(this.targetY < 0 && this.length <= this.range) {
+        if (this.targetY <= 255) {
+            if (this.targetY < 0) {
+                while (this.targetY < 0 && this.length <= this.range) {
                     this.lastX = this.targetX;
                     this.lastY = this.targetY;
                     this.lastZ = this.targetZ;
 
-                    while(true) {
+                    while (true) {
                         this.length += this.step;
                         this.hLength = this.length * this.rotYCos;
                         this.yOffset = this.length * this.rotYSin;
                         this.xOffset = this.hLength * this.rotXCos;
                         this.zOffset = this.hLength * this.rotXSin;
-                        this.targetX = (int)Math.floor(this.xOffset + this.playerX);
-                        this.targetY = (int)Math.floor(this.yOffset + this.playerY);
-                        this.targetZ = (int)Math.floor(this.zOffset + this.playerZ);
-                        if(this.length > this.range || this.targetX != this.lastX || this.targetY != this.lastY || this.targetZ != this.lastZ) {
+                        this.targetX = (int) Math.floor(this.xOffset + this.playerX);
+                        this.targetY = (int) Math.floor(this.yOffset + this.playerY);
+                        this.targetZ = (int) Math.floor(this.zOffset + this.playerZ);
+                        if (this.length > this.range || this.targetX != this.lastX || this.targetY != this.lastY || this.targetZ != this.lastZ) {
                             break;
                         }
                     }
                 }
             }
         } else {
-            while(this.targetY > 255 && this.length <= this.range) {
+            while (this.targetY > 255 && this.length <= this.range) {
                 this.lastX = this.targetX;
                 this.lastY = this.targetY;
                 this.lastZ = this.targetZ;
 
-                while(true) {
+                while (true) {
                     this.length += this.step;
                     this.hLength = this.length * this.rotYCos;
                     this.yOffset = this.length * this.rotYSin;
                     this.xOffset = this.hLength * this.rotXCos;
                     this.zOffset = this.hLength * this.rotXSin;
-                    this.targetX = (int)Math.floor(this.xOffset + this.playerX);
-                    this.targetY = (int)Math.floor(this.yOffset + this.playerY);
-                    this.targetZ = (int)Math.floor(this.zOffset + this.playerZ);
-                    if(this.length > this.range || this.targetX != this.lastX || this.targetY != this.lastY || this.targetZ != this.lastZ) {
+                    this.targetX = (int) Math.floor(this.xOffset + this.playerX);
+                    this.targetY = (int) Math.floor(this.yOffset + this.playerY);
+                    this.targetZ = (int) Math.floor(this.zOffset + this.playerZ);
+                    if (this.length > this.range || this.targetX != this.lastX || this.targetY != this.lastY || this.targetZ != this.lastZ) {
                         break;
                     }
                 }
@@ -144,23 +148,48 @@ public class RangeBlockHelper {
     }
 
     public final Block getCurBlock() {
-        return this.length <= this.range && this.targetY <= 255 && this.targetY >= 0?this.world.getBlockAt(this.targetX, this.targetY, this.targetZ):null;
+        return this.length <= this.range && this.targetY <= 255 && this.targetY >= 0 ? this.world.getBlockAt(this.targetX, this.targetY, this.targetZ) : null;
+    }
+
+    public final void setCurBlock(int type) {
+        if (this.getCurBlock() != null) {
+            this.world.getBlockAt(this.targetX, this.targetY, this.targetZ).setTypeId(type);
+        }
+
     }
 
     public final Block getFaceBlock() {
-        while(this.getNextBlock() != null && this.getCurBlock().getTypeId() == 0) {
+        while (this.getNextBlock() != null && this.getCurBlock().getTypeId() == 0) {
             ;
         }
 
-        if(this.getCurBlock() != null) {
+        if (this.getCurBlock() != null) {
             return this.getLastBlock();
         } else {
             return null;
         }
     }
 
+    public final void setFaceBlock(int type) {
+        while (this.getNextBlock() != null && this.getCurBlock().getTypeId() == 0) {
+            ;
+        }
+
+        if (this.getCurBlock() != null) {
+            this.world.getBlockAt(this.targetX, this.targetY, this.targetZ).setTypeId(type);
+        }
+
+    }
+
     public final Block getLastBlock() {
-        return this.lastY <= 255 && this.lastY >= 0?this.world.getBlockAt(this.lastX, this.lastY, this.lastZ):null;
+        return this.lastY <= 255 && this.lastY >= 0 ? this.world.getBlockAt(this.lastX, this.lastY, this.lastZ) : null;
+    }
+
+    public final void setLastBlock(int type) {
+        if (this.getLastBlock() != null) {
+            this.world.getBlockAt(this.lastX, this.lastY, this.lastZ).setTypeId(type);
+        }
+
     }
 
     public final Block getNextBlock() {
@@ -174,60 +203,35 @@ public class RangeBlockHelper {
             this.yOffset = this.length * this.rotYSin;
             this.xOffset = this.hLength * this.rotXCos;
             this.zOffset = this.hLength * this.rotXSin;
-            this.targetX = (int)Math.floor(this.xOffset + this.playerX);
-            this.targetY = (int)Math.floor(this.yOffset + this.playerY);
-            this.targetZ = (int)Math.floor(this.zOffset + this.playerZ);
-        } while(this.length <= this.range && this.targetX == this.lastX && this.targetY == this.lastY && this.targetZ == this.lastZ);
+            this.targetX = (int) Math.floor(this.xOffset + this.playerX);
+            this.targetY = (int) Math.floor(this.yOffset + this.playerY);
+            this.targetZ = (int) Math.floor(this.zOffset + this.playerZ);
+        } while (this.length <= this.range && this.targetX == this.lastX && this.targetY == this.lastY && this.targetZ == this.lastZ);
 
-        return this.length <= this.range && this.targetY <= 255 && this.targetY >= 0?this.world.getBlockAt(this.targetX, this.targetY, this.targetZ):null;
+        return this.length <= this.range && this.targetY <= 255 && this.targetY >= 0 ? this.world.getBlockAt(this.targetX, this.targetY, this.targetZ) : null;
     }
 
     public final Block getRangeBlock() {
         this.fromOffworld();
-        return this.length > this.range?null:this.getRange();
+        return this.length > this.range ? null : this.getRange();
     }
 
     public final Block getTargetBlock() {
         this.fromOffworld();
 
-        while(this.getNextBlock() != null && this.getCurBlock().getTypeId() == 0) {
+        while (this.getNextBlock() != null && this.getCurBlock().getTypeId() == 0) {
             ;
         }
 
         return this.getCurBlock();
     }
 
-    public final void setCurBlock(int type) {
-        if(this.getCurBlock() != null) {
-            this.world.getBlockAt(this.targetX, this.targetY, this.targetZ).setTypeId(type);
-        }
-
-    }
-
-    public final void setFaceBlock(int type) {
-        while(this.getNextBlock() != null && this.getCurBlock().getTypeId() == 0) {
-            ;
-        }
-
-        if(this.getCurBlock() != null) {
-            this.world.getBlockAt(this.targetX, this.targetY, this.targetZ).setTypeId(type);
-        }
-
-    }
-
-    public final void setLastBlock(int type) {
-        if(this.getLastBlock() != null) {
-            this.world.getBlockAt(this.lastX, this.lastY, this.lastZ).setTypeId(type);
-        }
-
-    }
-
     public final void setTargetBlock(int type) {
-        while(this.getNextBlock() != null && this.getCurBlock().getTypeId() == 0) {
+        while (this.getNextBlock() != null && this.getCurBlock().getTypeId() == 0) {
             ;
         }
 
-        if(this.getCurBlock() != null) {
+        if (this.getCurBlock() != null) {
             this.world.getBlockAt(this.targetX, this.targetY, this.targetZ).setTypeId(type);
         }
 
@@ -244,12 +248,12 @@ public class RangeBlockHelper {
             this.yOffset = this.length * this.rotYSin;
             this.xOffset = this.hLength * this.rotXCos;
             this.zOffset = this.hLength * this.rotXSin;
-            this.targetX = (int)Math.floor(this.xOffset + this.playerX);
-            this.targetY = (int)Math.floor(this.yOffset + this.playerY);
-            this.targetZ = (int)Math.floor(this.zOffset + this.playerZ);
-        } while(this.length <= this.range && this.targetX == this.lastX && this.targetY == this.lastY && this.targetZ == this.lastZ);
+            this.targetX = (int) Math.floor(this.xOffset + this.playerX);
+            this.targetY = (int) Math.floor(this.yOffset + this.playerY);
+            this.targetZ = (int) Math.floor(this.zOffset + this.playerZ);
+        } while (this.length <= this.range && this.targetX == this.lastX && this.targetY == this.lastY && this.targetZ == this.lastZ);
 
-        return this.world.getBlockTypeIdAt(this.targetX, this.targetY, this.targetZ) != 0?this.world.getBlockAt(this.targetX, this.targetY, this.targetZ):(this.length <= this.range && this.targetY <= 255 && this.targetY >= 0?this.getRange():this.world.getBlockAt(this.lastX, this.lastY, this.lastZ));
+        return this.world.getBlockTypeIdAt(this.targetX, this.targetY, this.targetZ) != 0 ? this.world.getBlockAt(this.targetX, this.targetY, this.targetZ) : (this.length <= this.range && this.targetY <= 255 && this.targetY >= 0 ? this.getRange() : this.world.getBlockAt(this.lastX, this.lastY, this.lastZ));
     }
 
     private void init(Location location, double range, double step, double viewHeight) {
@@ -261,21 +265,17 @@ public class RangeBlockHelper {
         this.range = range;
         this.step = step;
         this.length = 0.0D;
-        this.rotX = (double)((this.playerLoc.getYaw() + 90.0F) % 360.0F);
-        this.rotY = (double)(this.playerLoc.getPitch() * -1.0F);
+        this.rotX = (double) ((this.playerLoc.getYaw() + 90.0F) % 360.0F);
+        this.rotY = (double) (this.playerLoc.getPitch() * -1.0F);
         this.rotYCos = Math.cos(Math.toRadians(this.rotY));
         this.rotYSin = Math.sin(Math.toRadians(this.rotY));
         this.rotXCos = Math.cos(Math.toRadians(this.rotX));
         this.rotXSin = Math.sin(Math.toRadians(this.rotX));
-        this.targetX = (int)Math.floor(this.playerLoc.getX());
-        this.targetY = (int)Math.floor(this.playerLoc.getY() + this.viewHeight);
-        this.targetZ = (int)Math.floor(this.playerLoc.getZ());
+        this.targetX = (int) Math.floor(this.playerLoc.getX());
+        this.targetY = (int) Math.floor(this.playerLoc.getY() + this.viewHeight);
+        this.targetZ = (int) Math.floor(this.playerLoc.getZ());
         this.lastX = this.targetX;
         this.lastY = this.targetY;
         this.lastZ = this.targetZ;
-    }
-
-    public static Class<?> inject() {
-        return RangeBlockHelper.class;
     }
 }

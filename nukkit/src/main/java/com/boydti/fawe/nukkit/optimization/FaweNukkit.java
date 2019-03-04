@@ -33,6 +33,7 @@ import com.boydti.fawe.util.TaskManager;
 import com.boydti.fawe.util.gui.FormBuilder;
 import com.google.common.base.Charsets;
 import com.sk89q.worldedit.world.World;
+
 import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
@@ -40,12 +41,12 @@ import java.util.logging.Level;
 public class FaweNukkit implements IFawe, Listener {
 
     private final NukkitWorldEdit plugin;
+    private Map<UUID, String> names = new HashMap<>();
 
     public FaweNukkit(NukkitWorldEdit mod) {
         this.plugin = mod;
         FaweChunk.HEIGHT = 256;
         VisualChunk.VISUALIZE_BLOCK = 20 << 4;
-
 
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -117,15 +118,15 @@ public class FaweNukkit implements IFawe, Listener {
         // TODO
     }
 
-	@EventHandler
-	public void onPlayerQuit(PlayerQuitEvent event) {
-		Player player = event.getPlayer();
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
         FawePlayer fp = Fawe.get().getCachedPlayer(player.getName());
         if (fp != null) {
             fp.unregister();
         }
         Fawe.get().unregister(event.getPlayer().getName());
-	}
+    }
 
     @Override
     public void debug(String s) {
@@ -222,15 +223,13 @@ public class FaweNukkit implements IFawe, Listener {
         }
     }
 
-    private Map<UUID, String> names = new HashMap<>();
-
     @Override
     public String getName(UUID uuid) {
         try {
             Class.forName("com.boydti.fawe.regions.general.plot.PlotSquaredFeature");
             String name = PlotSquaredFeature.getName(uuid);
             if (name != null) return name;
-        } catch (Throwable ignore){
+        } catch (Throwable ignore) {
             String mapped = names.get(uuid);
             if (mapped != null) return mapped;
 

@@ -11,34 +11,17 @@ import com.boydti.fawe.object.io.PGZIPOutputStream;
 import com.boydti.fawe.util.MemUtil;
 import com.boydti.fawe.util.ReflectionUtils;
 import com.google.common.io.LittleEndianDataInputStream;
-import com.sk89q.jnbt.ByteTag;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.IntTag;
-import com.sk89q.jnbt.LongTag;
-import com.sk89q.jnbt.NBTInputStream;
-import com.sk89q.jnbt.NBTOutputStream;
-import com.sk89q.jnbt.NamedTag;
-import com.sk89q.jnbt.StringTag;
-import java.io.ByteArrayInputStream;
-import java.io.DataInput;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
+import com.sk89q.jnbt.*;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.impl.Iq80DBFactory;
+
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 
 public class LevelDBToMCAFile extends MapConverter {
 
@@ -67,6 +50,106 @@ public class LevelDBToMCAFile extends MapConverter {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void copyLevelDat(File folderTo, File in) throws IOException {
+        File levelDat = new File(folderTo, "level.dat");
+        if (!levelDat.exists()) {
+            folderTo.mkdirs();
+            levelDat.createNewFile();
+        }
+        try (LittleEndianDataInputStream ledis = new LittleEndianDataInputStream(new FileInputStream(in))) {
+            int version = ledis.readInt(); // Ignored
+            int length = ledis.readInt(); // Ignored
+            NBTInputStream nis = new NBTInputStream((DataInput) ledis);
+            NamedTag named = nis.readNamedTag();
+            com.sk89q.jnbt.CompoundTag tag = (CompoundTag) named.getTag();
+            Map<String, com.sk89q.jnbt.Tag> map = ReflectionUtils.getMap(tag.getValue());
+
+            Map<String, String> gameRules = new HashMap<>();
+            gameRules.put("firedamage", "firedamage");
+            gameRules.put("falldamage", "falldamage");
+            gameRules.put("dofiretick", "doFireTick");
+            gameRules.put("drowningdamage", "drowningdamage");
+            gameRules.put("doentitydrops", "doEntityDrops");
+            gameRules.put("keepinventory", "keepInventory");
+            gameRules.put("sendcommandfeedback", "sendCommandFeedback");
+            gameRules.put("dodaylightcycle", "doDaylightCycle");
+            gameRules.put("commandblockoutput", "commandBlockOutput");
+            gameRules.put("domobloot", "doMobLoot");
+            gameRules.put("domobspawning", "doMobSpawning");
+            gameRules.put("doweathercycle", "doWeatherCycle");
+            gameRules.put("mobgriefing", "mobGriefing");
+            gameRules.put("dotiledrops", "doTileDrops");
+
+            HashMap<String, com.sk89q.jnbt.Tag> ruleTagValue = new HashMap<>();
+            for (Map.Entry<String, String> rule : gameRules.entrySet()) {
+                com.sk89q.jnbt.Tag value = map.remove(rule.getKey());
+                if (value instanceof ByteTag) {
+                    value = new StringTag((Byte) value.getValue() == 1 ? "true" : "false");
+                }
+                if (value != null) {
+                    ruleTagValue.put(rule.getValue(), value);
+                }
+            }
+
+            HashSet<String> allowed = new HashSet<>(Arrays.asList(
+                    "lightningTime", "pvp", "LevelName", "Difficulty", "GameType", "Generator", "LastPlayed", "RandomSeed", "StorageVersion", "Time", "commandsEnabled", "currentTick", "rainTime", "SpawnX", "SpawnY", "SpawnZ", "SizeOnDisk"
+            ));
+            Iterator<Map.Entry<String, com.sk89q.jnbt.Tag>> iterator = map.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, com.sk89q.jnbt.Tag> entry = iterator.next();
+                if (!allowed.contains(entry.getKey())) {
+                    iterator.remove();
+                }
+            }
+
+            {
+                map.put("GameRules", new CompoundTag(ruleTagValue));
+
+                map.put("version", new IntTag(19133));
+                map.put("DataVersion", new IntTag(1343));
+                map.put("initialized", new ByteTag((byte) 1));
+                map.putIfAbsent("SizeOnDisk", new LongTag(0));
+
+                // generator
+                int generator = tag.getInt("Generator");
+                String name;
+                switch (generator) {
+                    default:
+                    case 1:
+                        name = "default";
+                        break;
+                    case 2:
+                        name = "flat";
+                        break;
+                }
+                map.put("generatorName", new StringTag(name));
+                map.put("generatorOptions", new StringTag(""));
+                map.put("generatorVersion", new IntTag(1));
+                map.put("Difficulty", new ByteTag((byte) tag.getInt("Difficulty")));
+                map.put("DifficultyLocked", new ByteTag((byte) 0));
+                map.put("MapFeatures", new ByteTag((byte) 1));
+                map.put("allowCommands", new ByteTag(tag.getByte("commandsEnabled")));
+                long time = tag.getLong("Time");
+                if (time == 0) time = tag.getLong("CurrentTick");
+                map.put("Time", new LongTag(time));
+                map.put("spawnMobs", new ByteTag((byte) 1));
+                Long lastPlayed = tag.getLong("LastPlayed");
+                if (lastPlayed != null && lastPlayed < Integer.MAX_VALUE) {
+                    lastPlayed = lastPlayed * 1000;
+                    map.put("LastPlayed", new LongTag(lastPlayed));
+                }
+
+                HashMap<String, com.sk89q.jnbt.Tag> data = new HashMap<>();
+                data.put("Data", new CompoundTag(map));
+                CompoundTag root = new CompoundTag(data);
+
+                try (NBTOutputStream nos = new NBTOutputStream(new PGZIPOutputStream(new FileOutputStream(levelDat)))) {
+                    nos.writeNamedTag("level.dat", root);
+                }
+            }
         }
     }
 
@@ -175,7 +258,7 @@ public class LevelDBToMCAFile extends MapConverter {
                 }
             });
             MCAQueueMap map = (MCAQueueMap) queue.getFaweQueueMap();
-            while (map.next(0, Long.MAX_VALUE));
+            while (map.next(0, Long.MAX_VALUE)) ;
             queue.clear();
         } catch (Throwable e) {
             e.printStackTrace();
@@ -221,7 +304,7 @@ public class LevelDBToMCAFile extends MapConverter {
             case 2048: {
                 int index = 0;
                 int i1, i2, i3, i4;
-                for (int x = 0; x < 16;) {
+                for (int x = 0; x < 16; ) {
                     {
                         i1 = x;
                         for (int z = 0; z < 16; z++) {
@@ -269,106 +352,5 @@ public class LevelDBToMCAFile extends MapConverter {
 
     public void copyLevelDat(File in) throws IOException {
         copyLevelDat(this.folderTo, in);
-    }
-
-
-    public static void copyLevelDat(File folderTo, File in) throws IOException {
-        File levelDat = new File(folderTo, "level.dat");
-        if (!levelDat.exists()) {
-            folderTo.mkdirs();
-            levelDat.createNewFile();
-        }
-        try (LittleEndianDataInputStream ledis = new LittleEndianDataInputStream(new FileInputStream(in))) {
-            int version = ledis.readInt(); // Ignored
-            int length = ledis.readInt(); // Ignored
-            NBTInputStream nis = new NBTInputStream((DataInput) ledis);
-            NamedTag named = nis.readNamedTag();
-            com.sk89q.jnbt.CompoundTag tag = (CompoundTag) named.getTag();
-            Map<String, com.sk89q.jnbt.Tag> map = ReflectionUtils.getMap(tag.getValue());
-
-            Map<String, String> gameRules = new HashMap<>();
-            gameRules.put("firedamage", "firedamage");
-            gameRules.put("falldamage", "falldamage");
-            gameRules.put("dofiretick", "doFireTick");
-            gameRules.put("drowningdamage", "drowningdamage");
-            gameRules.put("doentitydrops", "doEntityDrops");
-            gameRules.put("keepinventory", "keepInventory");
-            gameRules.put("sendcommandfeedback", "sendCommandFeedback");
-            gameRules.put("dodaylightcycle", "doDaylightCycle");
-            gameRules.put("commandblockoutput", "commandBlockOutput");
-            gameRules.put("domobloot", "doMobLoot");
-            gameRules.put("domobspawning", "doMobSpawning");
-            gameRules.put("doweathercycle", "doWeatherCycle");
-            gameRules.put("mobgriefing", "mobGriefing");
-            gameRules.put("dotiledrops", "doTileDrops");
-
-            HashMap<String, com.sk89q.jnbt.Tag> ruleTagValue = new HashMap<>();
-            for (Map.Entry<String, String> rule : gameRules.entrySet()) {
-                com.sk89q.jnbt.Tag value = map.remove(rule.getKey());
-                if (value instanceof ByteTag) {
-                    value = new StringTag((Byte) value.getValue() == 1 ? "true" : "false");
-                }
-                if (value != null) {
-                    ruleTagValue.put(rule.getValue(), value);
-                }
-            }
-
-            HashSet<String> allowed = new HashSet<>(Arrays.asList(
-                    "lightningTime", "pvp", "LevelName", "Difficulty", "GameType", "Generator", "LastPlayed", "RandomSeed", "StorageVersion", "Time", "commandsEnabled", "currentTick", "rainTime", "SpawnX", "SpawnY", "SpawnZ", "SizeOnDisk"
-            ));
-            Iterator<Map.Entry<String, com.sk89q.jnbt.Tag>> iterator = map.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, com.sk89q.jnbt.Tag> entry = iterator.next();
-                if (!allowed.contains(entry.getKey())) {
-                    iterator.remove();
-                }
-            }
-
-            {
-                map.put("GameRules", new CompoundTag(ruleTagValue));
-
-                map.put("version", new IntTag(19133));
-                map.put("DataVersion", new IntTag(1343));
-                map.put("initialized", new ByteTag((byte) 1));
-                map.putIfAbsent("SizeOnDisk", new LongTag(0));
-
-                // generator
-                int generator = tag.getInt("Generator");
-                String name;
-                switch (generator) {
-                    default:
-                    case 1:
-                        name = "default";
-                        break;
-                    case 2:
-                        name = "flat";
-                        break;
-                }
-                map.put("generatorName", new StringTag(name));
-                map.put("generatorOptions", new StringTag(""));
-                map.put("generatorVersion", new IntTag(1));
-                map.put("Difficulty", new ByteTag((byte) tag.getInt("Difficulty")));
-                map.put("DifficultyLocked", new ByteTag((byte) 0));
-                map.put("MapFeatures", new ByteTag((byte) 1));
-                map.put("allowCommands", new ByteTag(tag.getByte("commandsEnabled")));
-                long time = tag.getLong("Time");
-                if (time == 0) time = tag.getLong("CurrentTick");
-                map.put("Time", new LongTag(time));
-                map.put("spawnMobs", new ByteTag((byte) 1));
-                Long lastPlayed = tag.getLong("LastPlayed");
-                if (lastPlayed != null && lastPlayed < Integer.MAX_VALUE) {
-                    lastPlayed = lastPlayed * 1000;
-                    map.put("LastPlayed", new LongTag(lastPlayed));
-                }
-
-                HashMap<String, com.sk89q.jnbt.Tag> data = new HashMap<>();
-                data.put("Data", new CompoundTag(map));
-                CompoundTag root = new CompoundTag(data);
-
-                try (NBTOutputStream nos = new NBTOutputStream(new PGZIPOutputStream(new FileOutputStream(levelDat)))) {
-                    nos.writeNamedTag("level.dat", root);
-                }
-            }
-        }
     }
 }

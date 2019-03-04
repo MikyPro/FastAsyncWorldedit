@@ -26,6 +26,7 @@ import com.sk89q.worldedit.history.changeset.ChangeSet;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -34,24 +35,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class FaweChangeSet implements ChangeSet {
 
-    private World world;
     private final String worldName;
     private final boolean mainThread;
     private final int layers;
     protected AtomicInteger waitingCombined = new AtomicInteger(0);
     protected AtomicInteger waitingAsync = new AtomicInteger(0);
-
-    public static FaweChangeSet getDefaultChangeSet(World world, UUID uuid) {
-        if (Settings.IMP.HISTORY.USE_DISK) {
-            if (Settings.IMP.HISTORY.USE_DATABASE) {
-                return new RollbackOptimizedHistory(world, uuid);
-            } else {
-                return new DiskStorageHistory(world, uuid);
-            }
-        } else {
-            return new MemoryOptimizedHistory(world);
-        }
-    }
+    private World world;
 
     public FaweChangeSet(String world) {
         this.worldName = world;
@@ -64,6 +53,18 @@ public abstract class FaweChangeSet implements ChangeSet {
         this.worldName = Fawe.imp().getWorldName(world);
         this.mainThread = Fawe.isMainThread();
         this.layers = (this.world.getMaxY() + 1) >> 4;
+    }
+
+    public static FaweChangeSet getDefaultChangeSet(World world, UUID uuid) {
+        if (Settings.IMP.HISTORY.USE_DISK) {
+            if (Settings.IMP.HISTORY.USE_DATABASE) {
+                return new RollbackOptimizedHistory(world, uuid);
+            } else {
+                return new DiskStorageHistory(world, uuid);
+            }
+        } else {
+            return new MemoryOptimizedHistory(world);
+        }
     }
 
     public String getWorldName() {

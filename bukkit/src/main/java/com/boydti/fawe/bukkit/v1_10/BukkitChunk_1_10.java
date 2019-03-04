@@ -1,4 +1,3 @@
-
 package com.boydti.fawe.bukkit.v1_10;
 
 import com.boydti.fawe.Fawe;
@@ -12,14 +11,15 @@ import com.boydti.fawe.util.MathMan;
 import com.boydti.fawe.util.ReflectionUtils;
 import com.sk89q.jnbt.*;
 import com.sk89q.worldedit.internal.Constants;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 import net.minecraft.server.v1_10_R1.*;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 public class BukkitChunk_1_10 extends CharFaweChunk<Chunk, BukkitQueue_1_10> {
 
@@ -366,7 +366,7 @@ public class BukkitChunk_1_10 extends CharFaweChunk<Chunk, BukkitQueue_1_10> {
                     short[][] i1 = FaweCache.CACHE_J[y];
                     for (int z = 0; z < 16; z++) {
                         short[] i2 = i1[z];
-                        for (int x= 0; x < 16; x++) {
+                        for (int x = 0; x < 16; x++) {
                             char combinedId = array[i2[x]];
                             switch (combinedId) {
                                 case 0:
@@ -439,7 +439,7 @@ public class BukkitChunk_1_10 extends CharFaweChunk<Chunk, BukkitQueue_1_10> {
                     copy.storeBiomes(nmsChunk.getBiomeIndex());
                 }
                 byte[] currentBiomes = nmsChunk.getBiomeIndex();
-                for (int i = 0 ; i < this.biomes.length; i++) {
+                for (int i = 0; i < this.biomes.length; i++) {
                     byte biome = this.biomes[i];
                     if (biome != 0) {
                         if (biome == -1) biome = 0;

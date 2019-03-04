@@ -3,11 +3,12 @@ package com.boydti.fawe.bukkit.chat;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.stream.JsonWriter;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 /**
  * Represents a textual component of a message part.
@@ -97,11 +98,11 @@ public abstract class TextualComponent implements Cloneable {
      * <p><b>This method is currently guaranteed to throw an {@code UnsupportedOperationException}
      * as it is only supported on snapshot clients.</b>
      *
-     * @param playerName The name of the player whos score will be shown. If
-     *                   this string represents the single-character sequence
-     *                   "*", the viewing player's score will be displayed.
-     *                   Standard minecraft selectors (@a, @p, etc)
-     *                   are <em>not</em> supported.
+     * @param playerName          The name of the player whos score will be shown. If
+     *                            this string represents the single-character sequence
+     *                            "*", the viewing player's score will be displayed.
+     *                            Standard minecraft selectors (@a, @p, etc)
+     *                            are <em>not</em> supported.
      * @param scoreboardObjective The name of the objective for
      *                            which to display the score.
      * @return The text component representing the specified scoreboard score
@@ -125,7 +126,7 @@ public abstract class TextualComponent implements Cloneable {
      * </p>
      *
      * @param selector The minecraft player or entity selector which will capture the entities whose string representations will be displayed in
-     * the place of this text component.
+     *                 the place of this text component.
      * @return The text component representing the name of the entities captured by the selector.
      */
     public static TextualComponent selector(String selector) {

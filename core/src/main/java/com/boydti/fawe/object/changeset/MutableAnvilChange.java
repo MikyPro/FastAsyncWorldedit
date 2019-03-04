@@ -10,6 +10,7 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.history.UndoContext;
 import com.sk89q.worldedit.history.change.Change;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,13 +19,12 @@ import java.nio.file.StandardCopyOption;
 public class MutableAnvilChange implements Change {
     private Path source;
     private Path destDir;
+    private FaweQueue queue;
+    private boolean checkedQueue;
 
     public void setSource(Path source) {
         this.source = source;
     }
-
-    private FaweQueue queue;
-    private boolean checkedQueue;
 
     @Override
     public void undo(UndoContext context) throws WorldEditException {

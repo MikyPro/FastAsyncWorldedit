@@ -25,19 +25,15 @@ import static com.boydti.fawe.object.io.zstd.ZstdFrameDecompressor.SIZE_OF_LONG;
  * <p>
  * ... [16 17 18 19 20 21 22 23] [8 9 10 11 12 13 14 15] [0 1 2 3 4 5 6 7]
  */
-class BitStream
-{
-    private BitStream()
-    {
+class BitStream {
+    private BitStream() {
     }
 
-    public static boolean isEndOfStream(long startAddress, long currentAddress, int bitsConsumed)
-    {
+    public static boolean isEndOfStream(long startAddress, long currentAddress, int bitsConsumed) {
         return startAddress == currentAddress && bitsConsumed == Long.SIZE;
     }
 
-    static long readTail(Object inputBase, long inputAddress, int inputSize)
-    {
+    static long readTail(Object inputBase, long inputAddress, int inputSize) {
         long bits = UNSAFE.getByte(inputBase, inputAddress) & 0xFF;
 
         switch (inputSize) {
@@ -61,8 +57,7 @@ class BitStream
     /**
      * @return numberOfBits in the low order bits of a long
      */
-    public static long peekBits(int bitsConsumed, long bitContainer, int numberOfBits)
-    {
+    public static long peekBits(int bitsConsumed, long bitContainer, int numberOfBits) {
         return (((bitContainer << bitsConsumed) >>> 1) >>> (63 - numberOfBits));
     }
 
@@ -71,13 +66,11 @@ class BitStream
      *
      * @return numberOfBits in the low order bits of a long
      */
-    public static long peekBitsFast(int bitsConsumed, long bitContainer, int numberOfBits)
-    {
+    public static long peekBitsFast(int bitsConsumed, long bitContainer, int numberOfBits) {
         return ((bitContainer << bitsConsumed) >>> (64 - numberOfBits));
     }
 
-    static class Initializer
-    {
+    static class Initializer {
         private final Object inputBase;
         private final long startAddress;
         private final long endAddress;
@@ -85,30 +78,25 @@ class BitStream
         private long currentAddress;
         private int bitsConsumed;
 
-        public Initializer(Object inputBase, long startAddress, long endAddress)
-        {
+        public Initializer(Object inputBase, long startAddress, long endAddress) {
             this.inputBase = inputBase;
             this.startAddress = startAddress;
             this.endAddress = endAddress;
         }
 
-        public long getBits()
-        {
+        public long getBits() {
             return bits;
         }
 
-        public long getCurrentAddress()
-        {
+        public long getCurrentAddress() {
             return currentAddress;
         }
 
-        public int getBitsConsumed()
-        {
+        public int getBitsConsumed() {
             return bitsConsumed;
         }
 
-        public void initialize()
-        {
+        public void initialize() {
             verify(endAddress - startAddress >= 1, startAddress, "Bitstream is empty");
 
             int lastByte = UNSAFE.getByte(inputBase, endAddress - 1) & 0xFF;
@@ -120,8 +108,7 @@ class BitStream
             if (inputSize >= SIZE_OF_LONG) {  /* normal case */
                 currentAddress = endAddress - SIZE_OF_LONG;
                 bits = UNSAFE.getLong(inputBase, currentAddress);
-            }
-            else {
+            } else {
                 currentAddress = startAddress;
                 bits = readTail(inputBase, startAddress, inputSize);
 
@@ -130,8 +117,7 @@ class BitStream
         }
     }
 
-    static final class Loader
-    {
+    static final class Loader {
         private final Object inputBase;
         private final long startAddress;
         private long bits;
@@ -139,8 +125,7 @@ class BitStream
         private int bitsConsumed;
         private boolean overflow;
 
-        public Loader(Object inputBase, long startAddress, long currentAddress, long bits, int bitsConsumed)
-        {
+        public Loader(Object inputBase, long startAddress, long currentAddress, long bits, int bitsConsumed) {
             this.inputBase = inputBase;
             this.startAddress = startAddress;
             this.bits = bits;
@@ -148,34 +133,27 @@ class BitStream
             this.bitsConsumed = bitsConsumed;
         }
 
-        public long getBits()
-        {
+        public long getBits() {
             return bits;
         }
 
-        public long getCurrentAddress()
-        {
+        public long getCurrentAddress() {
             return currentAddress;
         }
 
-        public int getBitsConsumed()
-        {
+        public int getBitsConsumed() {
             return bitsConsumed;
         }
 
-        public boolean isOverflow()
-        {
+        public boolean isOverflow() {
             return overflow;
         }
 
-        public boolean load()
-        {
+        public boolean load() {
             if (bitsConsumed > 64) {
                 overflow = true;
                 return true;
-            }
-
-            else if (currentAddress == startAddress) {
+            } else if (currentAddress == startAddress) {
                 return true;
             }
 
@@ -186,15 +164,13 @@ class BitStream
                     bits = UNSAFE.getLong(inputBase, currentAddress);
                 }
                 bitsConsumed &= 0b111;
-            }
-            else if (currentAddress - bytes < startAddress) {
+            } else if (currentAddress - bytes < startAddress) {
                 bytes = (int) (currentAddress - startAddress);
                 currentAddress = startAddress;
                 bitsConsumed -= bytes * SIZE_OF_LONG;
                 bits = UNSAFE.getLong(inputBase, startAddress);
                 return true;
-            }
-            else {
+            } else {
                 currentAddress -= bytes;
                 bitsConsumed -= bytes * SIZE_OF_LONG;
                 bits = UNSAFE.getLong(inputBase, currentAddress);

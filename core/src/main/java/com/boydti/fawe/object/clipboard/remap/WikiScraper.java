@@ -5,6 +5,7 @@ import com.boydti.fawe.util.MainUtil;
 import com.google.common.io.Resources;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,15 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class WikiScraper {
-    public enum Wiki {
-        ITEM_MAPPINGS_PE("https://minecraft.gamepedia.com/index.php?title=Bedrock_Edition_data_values&action=edit&section=1"),
-        ITEM_MAPPINGS_PC("https://minecraft.gamepedia.com/index.php?title=Java_Edition_data_values/Item_IDs&action=edit"),
-        ENTITY_MAPPINGS("https://minecraft.gamepedia.com/index.php?title=Bedrock_Edition_data_values&action=edit&section=4"),
-        ;
-        public final String url;
-        Wiki(String url) {this.url = url;}
-    }
-
     private Map<Wiki, Map<String, Integer>> cache = new HashMap<>();
 
     public Map<String, Integer> expand(Map<String, Integer> map) {
@@ -126,6 +118,18 @@ public class WikiScraper {
                 id++;
             }
             return map;
+        }
+    }
+
+    public enum Wiki {
+        ITEM_MAPPINGS_PE("https://minecraft.gamepedia.com/index.php?title=Bedrock_Edition_data_values&action=edit&section=1"),
+        ITEM_MAPPINGS_PC("https://minecraft.gamepedia.com/index.php?title=Java_Edition_data_values/Item_IDs&action=edit"),
+        ENTITY_MAPPINGS("https://minecraft.gamepedia.com/index.php?title=Bedrock_Edition_data_values&action=edit&section=4"),
+        ;
+        public final String url;
+
+        Wiki(String url) {
+            this.url = url;
         }
     }
 }

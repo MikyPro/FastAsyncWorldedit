@@ -11,6 +11,7 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.history.change.Change;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.World;
+
 import java.util.Iterator;
 
 public class ResizableClipboardBuilder extends MemoryOptimizedHistory {

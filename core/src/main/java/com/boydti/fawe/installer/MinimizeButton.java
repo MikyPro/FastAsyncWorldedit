@@ -1,8 +1,8 @@
 package com.boydti.fawe.installer;
 
-import java.awt.Frame;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import javax.swing.JFrame;
 
 public class MinimizeButton extends InteractiveButton {
     private final JFrame window;

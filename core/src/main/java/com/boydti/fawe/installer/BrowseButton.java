@@ -1,12 +1,13 @@
 package com.boydti.fawe.installer;
 
 import com.boydti.fawe.Fawe;
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
+
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.prefs.Preferences;
 
 public abstract class BrowseButton extends InteractiveButton {
     private final String id;

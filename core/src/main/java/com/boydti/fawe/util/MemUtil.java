@@ -1,6 +1,7 @@
 package com.boydti.fawe.util;
 
 import com.boydti.fawe.config.Settings;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -8,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MemUtil {
 
     private static AtomicBoolean memory = new AtomicBoolean(false);
+    private static Queue<Runnable> memoryLimitedTasks = new ConcurrentLinkedQueue<>();
+    private static Queue<Runnable> memoryPlentifulTasks = new ConcurrentLinkedQueue<>();
 
     public static boolean isMemoryFree() {
         return !memory.get();
@@ -50,9 +53,6 @@ public class MemUtil {
         }
         return size;
     }
-
-    private static Queue<Runnable> memoryLimitedTasks = new ConcurrentLinkedQueue<>();
-    private static Queue<Runnable> memoryPlentifulTasks = new ConcurrentLinkedQueue<>();
 
     public static void addMemoryLimitedTask(Runnable run) {
         if (run != null)

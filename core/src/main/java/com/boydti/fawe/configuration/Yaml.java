@@ -15,16 +15,6 @@
  */
 package org.yaml.snakeyaml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Pattern;
 import org.yaml.snakeyaml.DumperOptions.FlowStyle;
 import org.yaml.snakeyaml.composer.Composer;
 import org.yaml.snakeyaml.constructor.BaseConstructor;
@@ -44,15 +34,21 @@ import org.yaml.snakeyaml.representer.Representer;
 import org.yaml.snakeyaml.resolver.Resolver;
 import org.yaml.snakeyaml.serializer.Serializer;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * Public YAML interface. Each Thread must have its own instance.
  */
 public class Yaml {
     protected final Resolver resolver;
-    private String name;
     protected BaseConstructor constructor;
     protected Representer representer;
     protected DumperOptions dumperOptions;
+    private String name;
 
     /**
      * Create Yaml instance. It is safe to create a few instances and use them
@@ -65,8 +61,7 @@ public class Yaml {
     /**
      * Create Yaml instance.
      *
-     * @param dumperOptions
-     *            DumperOptions to configure outgoing objects
+     * @param dumperOptions DumperOptions to configure outgoing objects
      */
     public Yaml(DumperOptions dumperOptions) {
         this(new Constructor(), new Representer(), dumperOptions);
@@ -76,8 +71,7 @@ public class Yaml {
      * Create Yaml instance. It is safe to create a few instances and use them
      * in different Threads.
      *
-     * @param representer
-     *            Representer to emit outgoing objects
+     * @param representer Representer to emit outgoing objects
      */
     public Yaml(Representer representer) {
         this(new Constructor(), representer);
@@ -87,8 +81,7 @@ public class Yaml {
      * Create Yaml instance. It is safe to create a few instances and use them
      * in different Threads.
      *
-     * @param constructor
-     *            BaseConstructor to construct incoming documents
+     * @param constructor BaseConstructor to construct incoming documents
      */
     public Yaml(BaseConstructor constructor) {
         this(constructor, new Representer());
@@ -98,10 +91,8 @@ public class Yaml {
      * Create Yaml instance. It is safe to create a few instances and use them
      * in different Threads.
      *
-     * @param constructor
-     *            BaseConstructor to construct incoming documents
-     * @param representer
-     *            Representer to emit outgoing objects
+     * @param constructor BaseConstructor to construct incoming documents
+     * @param representer Representer to emit outgoing objects
      */
     public Yaml(BaseConstructor constructor, Representer representer) {
         this(constructor, representer, new DumperOptions());
@@ -111,10 +102,8 @@ public class Yaml {
      * Create Yaml instance. It is safe to create a few instances and use them
      * in different Threads.
      *
-     * @param representer
-     *            Representer to emit outgoing objects
-     * @param dumperOptions
-     *            DumperOptions to configure outgoing objects
+     * @param representer   Representer to emit outgoing objects
+     * @param dumperOptions DumperOptions to configure outgoing objects
      */
     public Yaml(Representer representer, DumperOptions dumperOptions) {
         this(new Constructor(), representer, dumperOptions, new Resolver());
@@ -124,12 +113,9 @@ public class Yaml {
      * Create Yaml instance. It is safe to create a few instances and use them
      * in different Threads.
      *
-     * @param constructor
-     *            BaseConstructor to construct incoming documents
-     * @param representer
-     *            Representer to emit outgoing objects
-     * @param dumperOptions
-     *            DumperOptions to configure outgoing objects
+     * @param constructor   BaseConstructor to construct incoming documents
+     * @param representer   Representer to emit outgoing objects
+     * @param dumperOptions DumperOptions to configure outgoing objects
      */
     public Yaml(BaseConstructor constructor, Representer representer, DumperOptions dumperOptions) {
         this(constructor, representer, dumperOptions, new Resolver());
@@ -139,14 +125,10 @@ public class Yaml {
      * Create Yaml instance. It is safe to create a few instances and use them
      * in different Threads.
      *
-     * @param constructor
-     *            BaseConstructor to construct incoming documents
-     * @param representer
-     *            Representer to emit outgoing objects
-     * @param dumperOptions
-     *            DumperOptions to configure outgoing objects
-     * @param resolver
-     *            Resolver to detect implicit type
+     * @param constructor   BaseConstructor to construct incoming documents
+     * @param representer   Representer to emit outgoing objects
+     * @param dumperOptions DumperOptions to configure outgoing objects
+     * @param resolver      Resolver to detect implicit type
      */
     public Yaml(BaseConstructor constructor, Representer representer, DumperOptions dumperOptions,
                 Resolver resolver) {
@@ -170,8 +152,7 @@ public class Yaml {
     /**
      * Serialize a Java object into a YAML String.
      *
-     * @param data
-     *            Java object to be Serialized to YAML
+     * @param data Java object to be Serialized to YAML
      * @return YAML String
      */
     public String dump(Object data) {
@@ -183,11 +164,10 @@ public class Yaml {
     /**
      * Produce the corresponding representation tree for a given Object.
      *
-     * @see <a href="http://yaml.org/spec/1.1/#id859333">Figure 3.1. Processing
-     *      Overview</a>
-     * @param data
-     *            instance to build the representation tree for
+     * @param data instance to build the representation tree for
      * @return representation tree
+     * @see <a href="http://yaml.org/spec/1.1/#id859333">Figure 3.1. Processing
+     * Overview</a>
      */
     public Node represent(Object data) {
         return representer.represent(data);
@@ -196,8 +176,7 @@ public class Yaml {
     /**
      * Serialize a sequence of Java objects into a YAML String.
      *
-     * @param data
-     *            Iterator with Objects
+     * @param data Iterator with Objects
      * @return YAML String with all the objects in proper sequence
      */
     public String dumpAll(Iterator<? extends Object> data) {
@@ -209,10 +188,8 @@ public class Yaml {
     /**
      * Serialize a Java object into a YAML stream.
      *
-     * @param data
-     *            Java object to be serialized to YAML
-     * @param output
-     *            stream to write to
+     * @param data   Java object to be serialized to YAML
+     * @param output stream to write to
      */
     public void dump(Object data, Writer output) {
         List<Object> list = new ArrayList<Object>(1);
@@ -223,10 +200,8 @@ public class Yaml {
     /**
      * Serialize a sequence of Java objects into a YAML stream.
      *
-     * @param data
-     *            Iterator with Objects
-     * @param output
-     *            stream to write to
+     * @param data   Iterator with Objects
+     * @param output stream to write to
      */
     public void dumpAll(Iterator<? extends Object> data, Writer output) {
         dumpAll(data, output, null);
@@ -272,19 +247,15 @@ public class Yaml {
      * handled as an instance of YourClass when loaded.
      * </p>
      *
-     * @param data
-     *            Java object to be serialized to YAML
-     * @param rootTag
-     *            the tag for the whole YAML document. The tag should be Tag.MAP
-     *            for a JavaBean to make the tag disappear (to use implicit tag
-     *            !!map). If <code>null</code> is provided then the standard tag
-     *            with the full class name is used.
-     * @param flowStyle
-     *            flow style for the whole document. See Chapter 10. Collection
-     *            Styles http://yaml.org/spec/1.1/#id930798. If
-     *            <code>null</code> is provided then the flow style from
-     *            DumperOptions is used.
-     *
+     * @param data      Java object to be serialized to YAML
+     * @param rootTag   the tag for the whole YAML document. The tag should be Tag.MAP
+     *                  for a JavaBean to make the tag disappear (to use implicit tag
+     *                  !!map). If <code>null</code> is provided then the standard tag
+     *                  with the full class name is used.
+     * @param flowStyle flow style for the whole document. See Chapter 10. Collection
+     *                  Styles http://yaml.org/spec/1.1/#id930798. If
+     *                  <code>null</code> is provided then the flow style from
+     *                  DumperOptions is used.
      * @return YAML String
      */
     public String dumpAs(Object data, Tag rootTag, FlowStyle flowStyle) {
@@ -315,8 +286,7 @@ public class Yaml {
      * (http://yaml.org/spec/1.1/#id934537)
      * </p>
      *
-     * @param data
-     *            Java object to be serialized to YAML
+     * @param data Java object to be serialized to YAML
      * @return YAML String
      */
     public String dumpAsMap(Object data) {
@@ -326,10 +296,9 @@ public class Yaml {
     /**
      * Serialize the representation tree into Events.
      *
-     * @see <a href="http://yaml.org/spec/1.1/#id859333">Processing Overview</a>
-     * @param data
-     *            representation tree
+     * @param data representation tree
      * @return Event list
+     * @see <a href="http://yaml.org/spec/1.1/#id859333">Processing Overview</a>
      */
     public List<Event> serialize(Node data) {
         SilentEmitter emitter = new SilentEmitter();
@@ -344,24 +313,11 @@ public class Yaml {
         return emitter.getEvents();
     }
 
-    private static class SilentEmitter implements Emitable {
-        private List<Event> events = new ArrayList<Event>(100);
-
-        public List<Event> getEvents() {
-            return events;
-        }
-
-        public void emit(Event event) throws IOException {
-            events.add(event);
-        }
-    }
-
     /**
      * Parse the only YAML document in a String and produce the corresponding
      * Java object. (Because the encoding in known BOM is not respected.)
      *
-     * @param yaml
-     *            YAML data to load from (BOM must not be present)
+     * @param yaml YAML data to load from (BOM must not be present)
      * @return parsed object
      */
     public Object load(String yaml) {
@@ -372,8 +328,7 @@ public class Yaml {
      * Parse the only YAML document in a stream and produce the corresponding
      * Java object.
      *
-     * @param io
-     *            data to load from (BOM is respected and removed)
+     * @param io data to load from (BOM is respected and removed)
      * @return parsed object
      */
     public Object load(InputStream io) {
@@ -384,8 +339,7 @@ public class Yaml {
      * Parse the only YAML document in a stream and produce the corresponding
      * Java object.
      *
-     * @param io
-     *            data to load from (BOM must not be present)
+     * @param io data to load from (BOM must not be present)
      * @return parsed object
      */
     public Object load(Reader io) {
@@ -396,12 +350,9 @@ public class Yaml {
      * Parse the only YAML document in a stream and produce the corresponding
      * Java object.
      *
-     * @param <T>
-     *            Class is defined by the second argument
-     * @param io
-     *            data to load from (BOM must not be present)
-     * @param type
-     *            Class of the object to be created
+     * @param <T>  Class is defined by the second argument
+     * @param io   data to load from (BOM must not be present)
+     * @param type Class of the object to be created
      * @return parsed object
      */
     @SuppressWarnings("unchecked")
@@ -413,12 +364,9 @@ public class Yaml {
      * Parse the only YAML document in a String and produce the corresponding
      * Java object. (Because the encoding in known BOM is not respected.)
      *
-     * @param <T>
-     *            Class is defined by the second argument
-     * @param yaml
-     *            YAML data to load from (BOM must not be present)
-     * @param type
-     *            Class of the object to be created
+     * @param <T>  Class is defined by the second argument
+     * @param yaml YAML data to load from (BOM must not be present)
+     * @param type Class of the object to be created
      * @return parsed object
      */
     @SuppressWarnings("unchecked")
@@ -430,12 +378,9 @@ public class Yaml {
      * Parse the only YAML document in a stream and produce the corresponding
      * Java object.
      *
-     * @param <T>
-     *            Class is defined by the second argument
-     * @param input
-     *            data to load from (BOM is respected and removed)
-     * @param type
-     *            Class of the object to be created
+     * @param <T>   Class is defined by the second argument
+     * @param input data to load from (BOM is respected and removed)
+     * @param type  Class of the object to be created
      * @return parsed object
      */
     @SuppressWarnings("unchecked")
@@ -453,10 +398,9 @@ public class Yaml {
      * Parse all YAML documents in a String and produce corresponding Java
      * objects. The documents are parsed only when the iterator is invoked.
      *
-     * @param yaml
-     *            YAML data to load from (BOM must not be present)
+     * @param yaml YAML data to load from (BOM must not be present)
      * @return an iterator over the parsed Java objects in this String in proper
-     *         sequence
+     * sequence
      */
     public Iterable<Object> loadAll(Reader yaml) {
         Composer composer = new Composer(new ParserImpl(new StreamReader(yaml)), resolver);
@@ -477,27 +421,14 @@ public class Yaml {
         return new YamlIterable(result);
     }
 
-    private static class YamlIterable implements Iterable<Object> {
-        private Iterator<Object> iterator;
-
-        public YamlIterable(Iterator<Object> iterator) {
-            this.iterator = iterator;
-        }
-
-        public Iterator<Object> iterator() {
-            return iterator;
-        }
-    }
-
     /**
      * Parse all YAML documents in a String and produce corresponding Java
      * objects. (Because the encoding in known BOM is not respected.) The
      * documents are parsed only when the iterator is invoked.
      *
-     * @param yaml
-     *            YAML data to load from (BOM must not be present)
+     * @param yaml YAML data to load from (BOM must not be present)
      * @return an iterator over the parsed Java objects in this String in proper
-     *         sequence
+     * sequence
      */
     public Iterable<Object> loadAll(String yaml) {
         return loadAll(new StringReader(yaml));
@@ -507,10 +438,9 @@ public class Yaml {
      * Parse all YAML documents in a stream and produce corresponding Java
      * objects. The documents are parsed only when the iterator is invoked.
      *
-     * @param yaml
-     *            YAML data to load from (BOM is respected and ignored)
+     * @param yaml YAML data to load from (BOM is respected and ignored)
      * @return an iterator over the parsed Java objects in this stream in proper
-     *         sequence
+     * sequence
      */
     public Iterable<Object> loadAll(InputStream yaml) {
         return loadAll(new UnicodeReader(yaml));
@@ -520,11 +450,10 @@ public class Yaml {
      * Parse the first YAML document in a stream and produce the corresponding
      * representation tree. (This is the opposite of the represent() method)
      *
-     * @see <a href="http://yaml.org/spec/1.1/#id859333">Figure 3.1. Processing
-     *      Overview</a>
-     * @param yaml
-     *            YAML document
+     * @param yaml YAML document
      * @return parsed root Node for the specified YAML document
+     * @see <a href="http://yaml.org/spec/1.1/#id859333">Figure 3.1. Processing
+     * Overview</a>
      */
     public Node compose(Reader yaml) {
         Composer composer = new Composer(new ParserImpl(new StreamReader(yaml)), resolver);
@@ -536,10 +465,9 @@ public class Yaml {
      * Parse all YAML documents in a stream and produce corresponding
      * representation trees.
      *
-     * @see <a href="http://yaml.org/spec/1.1/#id859333">Processing Overview</a>
-     * @param yaml
-     *            stream of YAML documents
+     * @param yaml stream of YAML documents
      * @return parsed root Nodes for all the specified YAML documents
+     * @see <a href="http://yaml.org/spec/1.1/#id859333">Processing Overview</a>
      */
     public Iterable<Node> composeAll(Reader yaml) {
         final Composer composer = new Composer(new ParserImpl(new StreamReader(yaml)), resolver);
@@ -560,29 +488,14 @@ public class Yaml {
         return new NodeIterable(result);
     }
 
-    private static class NodeIterable implements Iterable<Node> {
-        private Iterator<Node> iterator;
-
-        public NodeIterable(Iterator<Node> iterator) {
-            this.iterator = iterator;
-        }
-
-        public Iterator<Node> iterator() {
-            return iterator;
-        }
-    }
-
     /**
      * Add an implicit scalar detector. If an implicit scalar value matches the
      * given regexp, the corresponding tag is assigned to the scalar.
      *
-     * @param tag
-     *            tag to assign to the node
-     * @param regexp
-     *            regular expression to match against
-     * @param first
-     *            a sequence of possible initial characters or null (which means
-     *            any).
+     * @param tag    tag to assign to the node
+     * @param regexp regular expression to match against
+     * @param first  a sequence of possible initial characters or null (which means
+     *               any).
      */
     public void addImplicitResolver(Tag tag, Pattern regexp, String first) {
         resolver.addImplicitResolver(tag, regexp, first);
@@ -607,8 +520,7 @@ public class Yaml {
     /**
      * Set a meaningful name to be shown in toString()
      *
-     * @param name
-     *            human readable name
+     * @param name human readable name
      */
     public void setName(String name) {
         this.name = name;
@@ -617,10 +529,9 @@ public class Yaml {
     /**
      * Parse a YAML stream and produce parsing events.
      *
-     * @see <a href="http://yaml.org/spec/1.1/#id859333">Processing Overview</a>
-     * @param yaml
-     *            YAML document(s)
+     * @param yaml YAML document(s)
      * @return parsed events
+     * @see <a href="http://yaml.org/spec/1.1/#id859333">Processing Overview</a>
      */
     public Iterable<Event> parse(Reader yaml) {
         final Parser parser = new ParserImpl(new StreamReader(yaml));
@@ -640,6 +551,47 @@ public class Yaml {
         return new EventIterable(result);
     }
 
+    public void setBeanAccess(BeanAccess beanAccess) {
+        constructor.getPropertyUtils().setBeanAccess(beanAccess);
+        representer.getPropertyUtils().setBeanAccess(beanAccess);
+    }
+
+    private static class SilentEmitter implements Emitable {
+        private List<Event> events = new ArrayList<Event>(100);
+
+        public List<Event> getEvents() {
+            return events;
+        }
+
+        public void emit(Event event) throws IOException {
+            events.add(event);
+        }
+    }
+
+    private static class YamlIterable implements Iterable<Object> {
+        private Iterator<Object> iterator;
+
+        public YamlIterable(Iterator<Object> iterator) {
+            this.iterator = iterator;
+        }
+
+        public Iterator<Object> iterator() {
+            return iterator;
+        }
+    }
+
+    private static class NodeIterable implements Iterable<Node> {
+        private Iterator<Node> iterator;
+
+        public NodeIterable(Iterator<Node> iterator) {
+            this.iterator = iterator;
+        }
+
+        public Iterator<Node> iterator() {
+            return iterator;
+        }
+    }
+
     private static class EventIterable implements Iterable<Event> {
         private Iterator<Event> iterator;
 
@@ -650,11 +602,6 @@ public class Yaml {
         public Iterator<Event> iterator() {
             return iterator;
         }
-    }
-
-    public void setBeanAccess(BeanAccess beanAccess) {
-        constructor.getPropertyUtils().setBeanAccess(beanAccess);
-        representer.getPropertyUtils().setBeanAccess(beanAccess);
     }
 
 }

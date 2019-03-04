@@ -26,6 +26,7 @@ import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.regions.selector.limit.SelectorLimits;
 import com.sk89q.worldedit.world.World;
+
 import javax.annotation.Nullable;
 
 /**
@@ -64,12 +65,16 @@ public class SphereRegionSelector extends EllipsoidRegionSelector {
     /**
      * Create a new selector.
      *
-     * @param world the world
+     * @param world  the world
      * @param center the center position
      * @param radius the radius
      */
     public SphereRegionSelector(@Nullable World world, Vector center, int radius) {
         super(world, center, new Vector(radius, radius, radius));
+    }
+
+    public static Class<?> inject() {
+        return SphereRegionSelector.class;
     }
 
     @Override
@@ -94,9 +99,5 @@ public class SphereRegionSelector extends EllipsoidRegionSelector {
     @Override
     public String getTypeName() {
         return "sphere";
-    }
-
-    public static Class<?> inject() {
-        return SphereRegionSelector.class;
     }
 }

@@ -16,6 +16,7 @@ import com.sk89q.worldedit.function.visitor.RegionVisitor;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,10 +24,10 @@ import java.util.Map;
 public class WorldCopyClipboard extends ReadOnlyClipboard {
 
     public final int mx, my, mz;
+    public final EditSession editSession;
     private final boolean hasBiomes;
     private final boolean hasEntities;
     private MutableBlockVector2D mutableBlockVector2D = new MutableBlockVector2D();
-    public final EditSession editSession;
 
     public WorldCopyClipboard(EditSession editSession, Region region) {
         this(editSession, region, true, false);

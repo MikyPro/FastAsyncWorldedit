@@ -28,12 +28,7 @@ import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
 import com.sk89q.minecraft.util.commands.Logging;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.function.FlatRegionFunction;
 import com.sk89q.worldedit.function.FlatRegionMaskingFilter;
@@ -54,10 +49,10 @@ import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.biome.BiomeData;
 import com.sk89q.worldedit.world.registry.BiomeRegistry;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 
 import static com.sk89q.minecraft.util.commands.Logging.LogMode.REGION;
 
@@ -74,6 +69,10 @@ public class BiomeCommands extends MethodCommands {
      */
     public BiomeCommands(WorldEdit worldEdit) {
         super(worldEdit);
+    }
+
+    public static Class<BiomeCommands> inject() {
+        return BiomeCommands.class;
     }
 
     @Command(
@@ -228,9 +227,5 @@ public class BiomeCommands extends MethodCommands {
         BBC.BIOME_CHANGED.send(player, visitor.getAffected());
         if (!FawePlayer.wrap(player).hasPermission("fawe.tips"))
             BBC.TIP_BIOME_PATTERN.or(BBC.TIP_BIOME_MASK).send(player);
-    }
-
-    public static Class<BiomeCommands> inject() {
-        return BiomeCommands.class;
     }
 }

@@ -3,6 +3,7 @@ package com.sk89q.worldedit.function.mask;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockType;
 import com.sk89q.worldedit.extent.Extent;
+
 import javax.annotation.Nullable;
 
 public class SolidBlockMask extends BlockMask {
@@ -18,13 +19,13 @@ public class SolidBlockMask extends BlockMask {
         }
     }
 
+    public static Class<?> inject() {
+        return SolidBlockMask.class;
+    }
+
     @Nullable
     @Override
     public Mask2D toMask2D() {
         return null; // 9751418
-    }
-
-    public static Class<?> inject() {
-        return SolidBlockMask.class;
     }
 }

@@ -1,7 +1,5 @@
 package com.boydti.fawe.object;
 
-import com.sk89q.worldedit.blocks.BaseBlock;
-
 import java.util.Collections;
 import java.util.Set;
 
@@ -9,21 +7,6 @@ import java.util.Set;
  * Created by Jesse on 4/5/2016.
  */
 public class FaweLimit {
-    public int MAX_ACTIONS = 0;
-    public int MAX_CHANGES = 0;
-    public int MAX_FAILS = 0;
-    public int MAX_CHECKS = 0;
-    public int MAX_ITERATIONS = 0;
-    public int MAX_BLOCKSTATES = 0;
-    public int MAX_ENTITIES = 0;
-    public int MAX_HISTORY = 0;
-    public int MAX_EXPRESSION_MS = 0;
-    public int INVENTORY_MODE = Integer.MAX_VALUE;
-    public int SPEED_REDUCTION = Integer.MAX_VALUE;
-    public boolean FAST_PLACEMENT = false;
-    public boolean CONFIRM_LARGE = true;
-    public Set<String> STRIP_NBT = null;
-
     public static FaweLimit MAX;
 
     static {
@@ -73,6 +56,21 @@ public class FaweLimit {
         MAX.CONFIRM_LARGE = true;
         MAX.STRIP_NBT = Collections.emptySet();
     }
+
+    public int MAX_ACTIONS = 0;
+    public int MAX_CHANGES = 0;
+    public int MAX_FAILS = 0;
+    public int MAX_CHECKS = 0;
+    public int MAX_ITERATIONS = 0;
+    public int MAX_BLOCKSTATES = 0;
+    public int MAX_ENTITIES = 0;
+    public int MAX_HISTORY = 0;
+    public int MAX_EXPRESSION_MS = 0;
+    public int INVENTORY_MODE = Integer.MAX_VALUE;
+    public int SPEED_REDUCTION = Integer.MAX_VALUE;
+    public boolean FAST_PLACEMENT = false;
+    public boolean CONFIRM_LARGE = true;
+    public Set<String> STRIP_NBT = null;
 
     public boolean MAX_CHANGES() {
         return MAX_CHANGES-- > 0;

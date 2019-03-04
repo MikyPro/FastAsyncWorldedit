@@ -7,6 +7,7 @@ import com.sk89q.worldedit.event.Event;
 public abstract class FaweEvent extends Event implements Cancellable {
     /**
      * Returns true if this event was called and not cancelled
+     *
      * @return !isCancelled
      */
     public boolean call() {

@@ -9,7 +9,6 @@ import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.object.IntegerPair;
 import com.boydti.fawe.object.RunnableVal;
 import com.boydti.fawe.object.brush.visualization.VisualChunk;
-import java.util.concurrent.atomic.LongAdder;
 import com.boydti.fawe.object.visitor.FaweChunkVisitor;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.MathMan;
@@ -20,17 +19,6 @@ import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.UnpooledByteBufAllocator;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -44,11 +32,7 @@ import net.minecraft.network.play.server.S22PacketMultiBlockChange;
 import net.minecraft.server.management.PlayerManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.LongHashMap;
-import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraft.world.ChunkPosition;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
+import net.minecraft.world.*;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.chunk.NibbleArray;
@@ -56,21 +40,18 @@ import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.DimensionManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.atomic.LongAdder;
+
 public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlockStorage[], ExtendedBlockStorage> {
 
     protected static Method methodFromNative;
     protected static Method methodToNative;
     protected static ExtendedBlockStorage emptySection;
-
-    public ForgeQueue_All(com.sk89q.worldedit.world.World world) {
-        super(world);
-        getImpWorld();
-    }
-
-    public ForgeQueue_All(String world) {
-        super(world);
-        getImpWorld();
-    }
 
     static {
         try {
@@ -83,6 +64,28 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected final RunnableVal<IntegerPair> loadChunk = new RunnableVal<IntegerPair>() {
+        @Override
+        public void run(IntegerPair loc) {
+            Chunk chunk = getWorld().getChunkProvider().provideChunk(loc.x, loc.z);
+            if (chunk != null && !chunk.isChunkLoaded) {
+                chunk.onChunkLoad();
+            }
+
+        }
+    };
+    protected WorldServer nmsWorld;
+
+    public ForgeQueue_All(com.sk89q.worldedit.world.World world) {
+        super(world);
+        getImpWorld();
+    }
+
+    public ForgeQueue_All(String world) {
+        super(world);
+        getImpWorld();
     }
 
     @Override
@@ -146,7 +149,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
 
     @Override
     public ExtendedBlockStorage[] getCachedSections(World world, int cx, int cz) {
-        Chunk chunk = (Chunk) ((ChunkProviderServer)world.getChunkProvider()).loadedChunkHashMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(cx, cz));
+        Chunk chunk = (Chunk) ((ChunkProviderServer) world.getChunkProvider()).loadedChunkHashMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(cx, cz));
         if (chunk != null) {
             return chunk.getBlockStorageArray();
         }
@@ -155,7 +158,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
 
     @Override
     public Chunk getCachedChunk(World world, int cx, int cz) {
-        return (Chunk) ((ChunkProviderServer)world.getChunkProvider()).loadedChunkHashMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(cx, cz));
+        return (Chunk) ((ChunkProviderServer) world.getChunkProvider()).loadedChunkHashMap.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(cx, cz));
     }
 
     @Override
@@ -197,7 +200,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             Field u;
             try {
                 u = ChunkProviderServer.class.getDeclaredField("field_73248_b"); // chunksToUnload
-            } catch(NoSuchFieldException e) {
+            } catch (NoSuchFieldException e) {
                 u = ChunkProviderServer.class.getDeclaredField("chunksToUnload");
             }
             u.setAccessible(true);
@@ -205,7 +208,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             Field m;
             try {
                 m = ChunkProviderServer.class.getDeclaredField("field_73244_f"); // loadedChunkHashMap
-            } catch(NoSuchFieldException e) {
+            } catch (NoSuchFieldException e) {
                 m = ChunkProviderServer.class.getDeclaredField("loadedChunkHashMap");
             }
             m.setAccessible(true);
@@ -213,7 +216,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             Field lc;
             try {
                 lc = ChunkProviderServer.class.getDeclaredField("field_73245_g"); // loadedChunkHashMap
-            } catch(NoSuchFieldException e) {
+            } catch (NoSuchFieldException e) {
                 lc = ChunkProviderServer.class.getDeclaredField("loadedChunks");
             }
             lc.setAccessible(true);
@@ -221,7 +224,7 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             Field p;
             try {
                 p = ChunkProviderServer.class.getDeclaredField("field_73246_d"); // currentChunkProvider
-            } catch(NoSuchFieldException e) {
+            } catch (NoSuchFieldException e) {
                 p = ChunkProviderServer.class.getDeclaredField("currentChunkProvider");
             }
             p.setAccessible(true);
@@ -246,17 +249,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
         }
         return true;
     }
-
-    protected final RunnableVal<IntegerPair> loadChunk = new RunnableVal<IntegerPair>() {
-        @Override
-        public void run(IntegerPair loc) {
-            Chunk chunk = getWorld().getChunkProvider().provideChunk(loc.x, loc.z);
-            if (chunk != null && !chunk.isChunkLoaded) {
-                chunk.onChunkLoad();
-            }
-
-        }
-    };
 
     @Override
     public void sendChunk(int x, int z, int bitMask) {
@@ -382,7 +374,8 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
             });
             packet.readPacketData(buffer);
             for (int i = 0; i < players.length; i++) {
-                if (watchingArr[i]) ((EntityPlayerMP) ((ForgePlayer) players[i]).parent).playerNetServerHandler.sendPacket(packet);
+                if (watchingArr[i])
+                    ((EntityPlayerMP) ((ForgePlayer) players[i]).parent).playerNetServerHandler.sendPacket(packet);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -499,8 +492,6 @@ public class ForgeQueue_All extends NMSMappedFaweQueue<World, Chunk, ExtendedBlo
     public void relight(int x, int y, int z) {
         nmsWorld.func_147451_t(x, y, z);
     }
-
-    protected WorldServer nmsWorld;
 
     @Override
     public World getImpWorld() {

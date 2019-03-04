@@ -29,12 +29,12 @@ import com.sk89q.worldedit.session.SessionKey;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.auth.AuthorizationException;
 import com.sk89q.worldedit.world.World;
-import java.io.File;
-import java.util.UUID;
-import javax.annotation.Nullable;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.UUID;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;

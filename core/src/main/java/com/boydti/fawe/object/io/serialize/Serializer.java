@@ -1,6 +1,7 @@
 package com.boydti.fawe.object.io.serialize;
 
 import com.boydti.fawe.util.ReflectionUtils;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -20,7 +21,7 @@ public interface Serializer extends Serializable {
                     Object value = field.get(this);
                     if (primitive) {
                         stream.writeObject(value);
-                    } else if (value == null){
+                    } else if (value == null) {
                         stream.writeByte(0);
                     } else {
                         stream.writeByte(1);

@@ -1,8 +1,9 @@
 package com.boydti.fawe.bukkit.v1_12;
 
-import java.util.Arrays;
 import net.minecraft.server.v1_12_R1.GenLayer;
 import net.minecraft.server.v1_12_R1.IntCache;
+
+import java.util.Arrays;
 
 public class MutableGenLayer extends GenLayer {
 

@@ -35,7 +35,10 @@ import com.boydti.fawe.wrappers.FakePlayer;
 import com.boydti.fawe.wrappers.LocationMaskedPlayerWrapper;
 import com.google.common.base.Joiner;
 import com.sk89q.minecraft.util.commands.*;
-import com.sk89q.worldedit.*;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.LocalConfiguration;
+import com.sk89q.worldedit.LocalSession;
+import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.command.*;
 import com.sk89q.worldedit.command.argument.ReplaceParser;
 import com.sk89q.worldedit.command.argument.TreeGeneratorParser;
@@ -52,11 +55,16 @@ import com.sk89q.worldedit.internal.command.*;
 import com.sk89q.worldedit.scripting.CommandScriptLoader;
 import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.util.auth.AuthorizationException;
-import com.sk89q.worldedit.util.command.*;
+import com.sk89q.worldedit.util.command.CallableProcessor;
+import com.sk89q.worldedit.util.command.CommandCallable;
+import com.sk89q.worldedit.util.command.Dispatcher;
+import com.sk89q.worldedit.util.command.InvalidUsageException;
 import com.sk89q.worldedit.util.command.composition.ProvidedValue;
 import com.sk89q.worldedit.util.command.fluent.CommandGraph;
 import com.sk89q.worldedit.util.command.fluent.DispatcherNode;
-import com.sk89q.worldedit.util.command.parametric.*;
+import com.sk89q.worldedit.util.command.parametric.ExceptionConverter;
+import com.sk89q.worldedit.util.command.parametric.LegacyCommandsHandler;
+import com.sk89q.worldedit.util.command.parametric.ParametricBuilder;
 import com.sk89q.worldedit.util.eventbus.Subscribe;
 import com.sk89q.worldedit.util.logging.DynamicStreamHandler;
 import com.sk89q.worldedit.util.logging.LogFormat;
@@ -88,19 +96,16 @@ public final class CommandManager {
     private static final Logger log = Logger.getLogger(CommandManager.class.getCanonicalName());
     private static final Logger commandLog = Logger.getLogger(CommandManager.class.getCanonicalName() + ".CommandLog");
     private static final Pattern numberFormatExceptionPattern = Pattern.compile("^For input string: \"(.*)\"$");
-
+    private static CommandManager INSTANCE;
     private final WorldEdit worldEdit;
     private final PlatformManager platformManager;
-    private volatile Dispatcher dispatcher;
-    private volatile Platform platform;
     private final DynamicStreamHandler dynamicHandler = new DynamicStreamHandler();
     private final ExceptionConverter exceptionConverter;
-
+    private volatile Dispatcher dispatcher;
+    private volatile Platform platform;
     private ParametricBuilder builder;
     private Map<Object, String[]> methodMap;
     private Map<CommandCallable, String[][]> commandMap;
-
-    private static CommandManager INSTANCE;
 
     /**
      * Create a new instance.
@@ -141,7 +146,20 @@ public final class CommandManager {
             Class.forName("com.intellectualcrafters.plot.PS");
             CFICommand cfi = new CFICommand(worldEdit, builder);
             registerCommands(cfi);
-        } catch (ClassNotFoundException e) {}
+        } catch (ClassNotFoundException e) {
+        }
+    }
+
+    public static CommandManager getInstance() {
+        return INSTANCE;
+    }
+
+    public static Logger getLogger() {
+        return commandLog;
+    }
+
+    public static Class<CommandManager> inject() {
+        return CommandManager.class;
     }
 
     /**
@@ -209,7 +227,7 @@ public final class CommandManager {
             }
             platform.registerCommands(dispatcher);
         } else {
-            commandMap.putIfAbsent(callable, new String[][] {aliases, command.aliases()});
+            commandMap.putIfAbsent(callable, new String[][]{aliases, command.aliases()});
         }
     }
 
@@ -285,10 +303,6 @@ public final class CommandManager {
         if (platform != null) {
             platform.registerCommands(dispatcher);
         }
-    }
-
-    public static CommandManager getInstance() {
-        return INSTANCE;
     }
 
     public ExceptionConverter getExceptionConverter() {
@@ -560,14 +574,5 @@ public final class CommandManager {
      */
     public Dispatcher getDispatcher() {
         return dispatcher;
-    }
-
-    public static Logger getLogger() {
-        return commandLog;
-    }
-
-
-    public static Class<CommandManager> inject() {
-        return CommandManager.class;
     }
 }

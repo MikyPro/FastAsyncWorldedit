@@ -33,6 +33,7 @@ import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.world.snapshot.InvalidSnapshotException;
 import com.sk89q.worldedit.world.snapshot.Snapshot;
 import com.sk89q.worldedit.world.storage.MissingWorldException;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -54,6 +55,10 @@ public class SnapshotCommands {
 
     public SnapshotCommands(WorldEdit we) {
         this.we = we;
+    }
+
+    public static Class<SnapshotCommands> inject() {
+        return SnapshotCommands.class;
     }
 
     @Command(
@@ -270,9 +275,5 @@ public class SnapshotCommands {
                 player.printError("No snapshots were found for this world.");
             }
         }
-    }
-
-    public static Class<SnapshotCommands> inject() {
-        return SnapshotCommands.class;
     }
 }

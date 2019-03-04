@@ -14,6 +14,7 @@ import com.boydti.fawe.util.MathMan;
 import com.sk89q.jnbt.NBTInputStream;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -48,14 +49,6 @@ public class MCAFile {
         }
     }
 
-    private final FaweQueue queue;
-    private final File file;
-    private RandomAccessFile raf;
-    private byte[] locations;
-    private boolean deleted;
-    private final int X, Z;
-    private final Int2ObjectOpenHashMap<MCAChunk> chunks = new Int2ObjectOpenHashMap<>();
-
     final ThreadLocal<byte[]> byteStore1 = new ThreadLocal<byte[]>() {
         @Override
         protected byte[] initialValue() {
@@ -74,6 +67,13 @@ public class MCAFile {
             return new byte[1024];
         }
     };
+    private final FaweQueue queue;
+    private final File file;
+    private final int X, Z;
+    private final Int2ObjectOpenHashMap<MCAChunk> chunks = new Int2ObjectOpenHashMap<>();
+    private RandomAccessFile raf;
+    private byte[] locations;
+    private boolean deleted;
 
     public MCAFile(FaweQueue parent, File file) {
         this.queue = parent;
@@ -122,12 +122,12 @@ public class MCAFile {
         super.finalize();
     }
 
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public FaweQueue getParent() {
@@ -474,6 +474,7 @@ public class MCAFile {
 
     /**
      * Write the chunk to the file
+     *
      * @param pool
      */
     public void flush(ForkJoinPool pool) {

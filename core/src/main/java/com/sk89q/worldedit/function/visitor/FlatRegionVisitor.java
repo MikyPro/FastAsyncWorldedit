@@ -31,8 +31,8 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.function.operation.RunContext;
 import com.sk89q.worldedit.regions.FlatRegion;
-import java.util.List;
 
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -42,9 +42,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class FlatRegionVisitor implements Operation {
 
     private final FlatRegionFunction function;
+    private final Iterable<Vector2D> iterator;
     private MappedFaweQueue queue;
     private int affected = 0;
-    private final Iterable<Vector2D> iterator;
 
     /**
      * Create a new visitor.
@@ -66,6 +66,10 @@ public class FlatRegionVisitor implements Operation {
         this.iterator = flatRegion.asFlatRegion();
         FaweQueue queue = hasFaweQueue.getQueue();
         this.queue = (MappedFaweQueue) (queue instanceof MappedFaweQueue ? queue : null);
+    }
+
+    public static Class<?> inject() {
+        return Operations.class;
     }
 
     /**
@@ -98,10 +102,6 @@ public class FlatRegionVisitor implements Operation {
     @Override
     public void addStatusMessages(final List<String> messages) {
         messages.add(BBC.VISITOR_FLAT.format(getAffected()));
-    }
-
-    public static Class<?> inject() {
-        return Operations.class;
     }
 
 }

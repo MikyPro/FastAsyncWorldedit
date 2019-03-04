@@ -31,6 +31,7 @@ import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.extent.inventory.BlockBagException;
 import com.sk89q.worldedit.extent.inventory.OutOfBlocksException;
 import com.sk89q.worldedit.extent.inventory.OutOfSpaceException;
+
 import java.util.Map;
 
 public class NukkitPlayerBlockBag extends BlockBag {
@@ -73,7 +74,7 @@ public class NukkitPlayerBlockBag extends BlockBag {
         final int id = item.getType();
         final int damage = item.getData();
         int amount = (item instanceof BaseItemStack) ? ((BaseItemStack) item).getAmount() : 1;
-        assert(amount == 1);
+        assert (amount == 1);
         boolean usesDamageValue = ItemType.usesDamageValue(id);
 
         if (id == BlockID.AIR) {
@@ -126,7 +127,7 @@ public class NukkitPlayerBlockBag extends BlockBag {
         final int id = item.getType();
         final int damage = item.getData();
         int amount = (item instanceof BaseItemStack) ? ((BaseItemStack) item).getAmount() : 1;
-        assert(amount <= 64);
+        assert (amount <= 64);
         boolean usesDamageValue = ItemType.usesDamageValue(id);
 
         if (id == BlockID.AIR) {

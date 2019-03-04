@@ -9,8 +9,8 @@ buildscript {
             name = 'minecrell'
             url = 'http://repo.minecrell.net/releases'
         }
-        maven {url = "https://oss.sonatype.org/content/repositories/snapshots/"}
-        maven {url = "http://repo.minecrell.net/snapshots"}
+        maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url = "http://repo.minecrell.net/snapshots" }
         maven { url = "http://files.minecraftforge.net/maven" }
         maven { url = "http://repo.minecrell.net/releases" }
         maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -34,7 +34,7 @@ targetCompatibility = 1.8
 clean { delete "../target" }
 
 repositories {
-    flatDir {dirs 'lib'}
+    flatDir { dirs 'lib' }
     maven {
         name = 'forge'
         url = 'http://files.minecraftforge.net/maven'

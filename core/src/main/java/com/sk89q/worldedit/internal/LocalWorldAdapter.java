@@ -19,13 +19,7 @@
 
 package com.sk89q.worldedit.internal;
 
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BaseItemStack;
 import com.sk89q.worldedit.entity.BaseEntity;
@@ -38,9 +32,9 @@ import com.sk89q.worldedit.util.TreeGenerator.TreeType;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.WorldData;
-import java.util.List;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -55,6 +49,28 @@ public class LocalWorldAdapter extends LocalWorld {
     private LocalWorldAdapter(World world) {
         checkNotNull(world);
         this.world = world;
+    }
+
+    public static LocalWorldAdapter adapt(World world) {
+        return new LocalWorldAdapter(world);
+    }
+
+    public static LocalWorld wrap(World world) {
+        if (world instanceof LocalWorld) {
+            return (LocalWorld) world;
+        }
+        return new LocalWorldAdapter(world);
+    }
+
+    public static World unwrap(World world) {
+        if (world instanceof LocalWorldAdapter) {
+            return ((LocalWorldAdapter) world).world;
+        }
+        return world;
+    }
+
+    public static Class<?> inject() {
+        return LocalWorldAdapter.class;
     }
 
     @Override
@@ -255,27 +271,5 @@ public class LocalWorldAdapter extends LocalWorld {
     @Override
     public List<? extends Entity> getEntities() {
         return world.getEntities();
-    }
-
-    public static LocalWorldAdapter adapt(World world) {
-        return new LocalWorldAdapter(world);
-    }
-
-    public static LocalWorld wrap(World world) {
-        if (world instanceof LocalWorld) {
-            return (LocalWorld) world;
-        }
-        return new LocalWorldAdapter(world);
-    }
-
-    public static World unwrap(World world) {
-        if (world instanceof LocalWorldAdapter) {
-            return ((LocalWorldAdapter) world).world;
-        }
-        return world;
-    }
-
-    public static Class<?> inject() {
-        return LocalWorldAdapter.class;
     }
 }

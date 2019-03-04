@@ -11,11 +11,13 @@ import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.interpolation.KochanekBartelsInterpolation;
 import com.sk89q.worldedit.math.interpolation.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SurfaceSpline implements Brush {
     final double tension, bias, continuity, quality;
+    private ArrayList<Vector> path = new ArrayList<>();
 
     public SurfaceSpline(final double tension, final double bias, final double continuity, final double quality) {
         this.tension = tension;
@@ -23,8 +25,6 @@ public class SurfaceSpline implements Brush {
         this.continuity = continuity;
         this.quality = quality;
     }
-
-    private ArrayList<Vector> path = new ArrayList<>();
 
     @Override
     public void build(EditSession editSession, Vector pos, Pattern pattern, double radius) throws MaxChangedBlocksException {

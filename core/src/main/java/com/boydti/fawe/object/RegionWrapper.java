@@ -14,10 +14,6 @@ public class RegionWrapper extends CuboidRegion {
     public int minZ;
     public int maxZ;
 
-    public static RegionWrapper GLOBAL() {
-        return GLOBAL;
-    }
-
     public RegionWrapper(final int minX, final int maxX, final int minZ, final int maxZ) {
         this(minX, maxX, 0, 255, minZ, maxZ);
     }
@@ -34,6 +30,10 @@ public class RegionWrapper extends CuboidRegion {
         this.maxZ = Math.max(pos1.getBlockZ(), pos2.getBlockZ());
         this.minY = Math.min(pos1.getBlockY(), pos2.getBlockY());
         this.maxY = Math.max(pos1.getBlockY(), pos2.getBlockY());
+    }
+
+    public static RegionWrapper GLOBAL() {
+        return GLOBAL;
     }
 
     @Override

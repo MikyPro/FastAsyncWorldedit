@@ -30,17 +30,19 @@ package com.boydti.fawe.object.io.zstd;
 
 import java.nio.ByteBuffer;
 
-
 import static com.boydti.fawe.object.io.zstd.UnsafeUtil.getAddress;
 import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
 
-public class ZstdDecompressor
-{
+public class ZstdDecompressor {
     private final ZstdFrameDecompressor decompressor = new ZstdFrameDecompressor();
 
+    public static long getDecompressedSize(byte[] input, int offset, int length) {
+        int baseAddress = ARRAY_BYTE_BASE_OFFSET + offset;
+        return ZstdFrameDecompressor.getDecompressedSize(input, baseAddress, baseAddress + length);
+    }
+
     public int decompress(byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset, int maxOutputLength)
-            throws MalformedInputException
-    {
+            throws MalformedInputException {
         long inputAddress = ARRAY_BYTE_BASE_OFFSET + inputOffset;
         long inputLimit = inputAddress + inputLength;
         long outputAddress = ARRAY_BYTE_BASE_OFFSET + outputOffset;
@@ -50,8 +52,7 @@ public class ZstdDecompressor
     }
 
     public void decompress(ByteBuffer input, ByteBuffer output)
-            throws MalformedInputException
-    {
+            throws MalformedInputException {
         Object inputBase;
         long inputAddress;
         long inputLimit;
@@ -60,13 +61,11 @@ public class ZstdDecompressor
             long address = getAddress(input);
             inputAddress = address + input.position();
             inputLimit = address + input.limit();
-        }
-        else if (input.hasArray()) {
+        } else if (input.hasArray()) {
             inputBase = input.array();
             inputAddress = ARRAY_BYTE_BASE_OFFSET + input.arrayOffset() + input.position();
             inputLimit = ARRAY_BYTE_BASE_OFFSET + input.arrayOffset() + input.limit();
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unsupported input ByteBuffer implementation " + input.getClass().getName());
         }
 
@@ -78,13 +77,11 @@ public class ZstdDecompressor
             long address = getAddress(output);
             outputAddress = address + output.position();
             outputLimit = address + output.limit();
-        }
-        else if (output.hasArray()) {
+        } else if (output.hasArray()) {
             outputBase = output.array();
             outputAddress = ARRAY_BYTE_BASE_OFFSET + output.arrayOffset() + output.position();
             outputLimit = ARRAY_BYTE_BASE_OFFSET + output.arrayOffset() + output.limit();
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unsupported output ByteBuffer implementation " + output.getClass().getName());
         }
 
@@ -98,11 +95,5 @@ public class ZstdDecompressor
                 output.position(output.position() + written);
             }
         }
-    }
-
-    public static long getDecompressedSize(byte[] input, int offset, int length)
-    {
-        int baseAddress = ARRAY_BYTE_BASE_OFFSET + offset;
-        return ZstdFrameDecompressor.getDecompressedSize(input, baseAddress, baseAddress + length);
     }
 }

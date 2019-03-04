@@ -13,36 +13,29 @@
  */
 package com.boydti.fawe.object.io.zstd;
 
-class Util
-{
-    private Util()
-    {
+class Util {
+    private Util() {
     }
 
-    public static int highestBit(int value)
-    {
+    public static int highestBit(int value) {
         return 31 - Integer.numberOfLeadingZeros(value);
     }
 
-    public static boolean isPowerOf2(int value)
-    {
+    public static boolean isPowerOf2(int value) {
         return (value & (value - 1)) == 0;
     }
 
-    public static int mask(int bits)
-    {
+    public static int mask(int bits) {
         return (1 << bits) - 1;
     }
 
-    public static void verify(boolean condition, long offset, String reason)
-    {
+    public static void verify(boolean condition, long offset, String reason) {
         if (!condition) {
             throw new MalformedInputException(offset, reason);
         }
     }
 
-    public static MalformedInputException fail(long offset, String reason)
-    {
+    public static MalformedInputException fail(long offset, String reason) {
         throw new MalformedInputException(offset, reason);
     }
 }

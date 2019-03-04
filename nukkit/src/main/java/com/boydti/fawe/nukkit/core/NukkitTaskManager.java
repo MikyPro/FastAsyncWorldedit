@@ -3,12 +3,15 @@ package com.boydti.fawe.nukkit.core;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.scheduler.TaskHandler;
 import com.boydti.fawe.util.TaskManager;
+
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NukkitTaskManager extends TaskManager{
+public class NukkitTaskManager extends TaskManager {
 
     private final Plugin plugin;
+    private AtomicInteger index = new AtomicInteger(0);
+    private HashMap<Integer, Integer> tasks = new HashMap<>();
 
     public NukkitTaskManager(final Plugin plugin) {
         this.plugin = plugin;
@@ -25,9 +28,6 @@ public class NukkitTaskManager extends TaskManager{
         TaskHandler task = this.plugin.getServer().getScheduler().scheduleRepeatingTask(r, interval, true);
         return task.getTaskId();
     }
-
-    private AtomicInteger index = new AtomicInteger(0);
-    private HashMap<Integer, Integer> tasks = new HashMap<>();
 
     @Override
     public void async(final Runnable r) {

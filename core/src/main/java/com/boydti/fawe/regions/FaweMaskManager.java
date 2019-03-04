@@ -6,21 +6,6 @@ import com.boydti.fawe.regions.general.RegionFilter;
 
 public abstract class FaweMaskManager<T> {
 
-    public enum MaskType {
-        OWNER,
-        MEMBER
-
-        ;
-
-        public static MaskType getDefaultMaskType() {
-            try {
-                return MaskType.valueOf(Settings.IMP.REGION_RESTRICTIONS_OPTIONS.MODE.toUpperCase());
-            } catch (Exception ignore) {
-                return MEMBER;
-            }
-        }
-    }
-
     private final String key;
 
     public FaweMaskManager(final String plugin) {
@@ -59,5 +44,18 @@ public abstract class FaweMaskManager<T> {
 
     public boolean isExclusive() {
         return false;
+    }
+
+    public enum MaskType {
+        OWNER,
+        MEMBER;
+
+        public static MaskType getDefaultMaskType() {
+            try {
+                return MaskType.valueOf(Settings.IMP.REGION_RESTRICTIONS_OPTIONS.MODE.toUpperCase());
+            } catch (Exception ignore) {
+                return MEMBER;
+            }
+        }
     }
 }

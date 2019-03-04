@@ -8,6 +8,7 @@ import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.util.List;
 
 public class AbstractDelegateFaweClipboard extends FaweClipboard {
@@ -98,11 +99,6 @@ public class AbstractDelegateFaweClipboard extends FaweClipboard {
     }
 
     @Override
-    public void setDimensions(Vector dimensions) {
-        parent.setDimensions(dimensions);
-    }
-
-    @Override
     public void flush() {
         parent.flush();
     }
@@ -115,6 +111,11 @@ public class AbstractDelegateFaweClipboard extends FaweClipboard {
     @Override
     public Vector getDimensions() {
         return parent.getDimensions();
+    }
+
+    @Override
+    public void setDimensions(Vector dimensions) {
+        parent.setDimensions(dimensions);
     }
 
     @Override

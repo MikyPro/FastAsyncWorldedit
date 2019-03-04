@@ -1,8 +1,5 @@
 package com.sk89q.worldedit.command;
 
-import com.boydti.fawe.Fawe;
-import com.boydti.fawe.FaweAPI;
-import com.boydti.fawe.config.Settings;
 import com.boydti.fawe.object.DataAnglePattern;
 import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.object.clipboard.MultiClipboardHolder;
@@ -11,11 +8,11 @@ import com.boydti.fawe.object.pattern.*;
 import com.boydti.fawe.object.random.SimplexRandom;
 import com.boydti.fawe.util.ColorUtil;
 import com.boydti.fawe.util.TextureUtil;
-import com.boydti.fawe.wrappers.LocationMaskedPlayerWrapper;
 import com.sk89q.minecraft.util.commands.Command;
-import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.worldedit.*;
-import com.sk89q.worldedit.blocks.BaseBlock;
+import com.sk89q.worldedit.EmptyClipboardException;
+import com.sk89q.worldedit.LocalSession;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.platform.Actor;
@@ -29,13 +26,12 @@ import com.sk89q.worldedit.function.pattern.RandomPattern;
 import com.sk89q.worldedit.internal.expression.Expression;
 import com.sk89q.worldedit.internal.expression.ExpressionException;
 import com.sk89q.worldedit.regions.shape.WorldEditExpressionEnvironment;
-import com.sk89q.worldedit.scripting.RhinoCraftScriptEngine;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.command.binding.Range;
 import com.sk89q.worldedit.util.command.parametric.Optional;
 import com.sk89q.worldedit.world.biome.BaseBiome;
-import java.awt.Color;
-import java.io.File;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -44,10 +40,10 @@ import java.util.Set;
 @Command(aliases = {"patterns"},
         desc = "Help for the various patterns. [More Info](https://git.io/vSPmA)",
         help = "Patterns determine what blocks are placed\n" +
-        " - Use [brackets] for arguments\n" +
-        " - Use , to OR multiple\n" +
-        "e.g. #surfacespread[10][#existing],andesite\n" +
-        "More Info: https://git.io/vSPmA"
+                " - Use [brackets] for arguments\n" +
+                " - Use , to OR multiple\n" +
+                "e.g. #surfacespread[10][#existing],andesite\n" +
+                "More Info: https://git.io/vSPmA"
 )
 public class PatternCommands extends MethodCommands {
     public PatternCommands(WorldEdit worldEdit) {

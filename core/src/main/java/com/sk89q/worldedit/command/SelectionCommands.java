@@ -26,17 +26,8 @@ import com.boydti.fawe.object.mask.IdMask;
 import com.boydti.fawe.object.regions.selector.FuzzyRegionSelector;
 import com.boydti.fawe.object.regions.selector.PolyhedralRegionSelector;
 import com.google.common.base.Optional;
-import com.sk89q.minecraft.util.commands.Command;
-import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.minecraft.util.commands.CommandException;
-import com.sk89q.minecraft.util.commands.CommandPermissions;
-import com.sk89q.minecraft.util.commands.Logging;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.minecraft.util.commands.*;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockType;
 import com.sk89q.worldedit.entity.Player;
@@ -47,14 +38,7 @@ import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionOperationException;
 import com.sk89q.worldedit.regions.RegionSelector;
-import com.sk89q.worldedit.regions.selector.ConvexPolyhedralRegionSelector;
-import com.sk89q.worldedit.regions.selector.CuboidRegionSelector;
-import com.sk89q.worldedit.regions.selector.CylinderRegionSelector;
-import com.sk89q.worldedit.regions.selector.EllipsoidRegionSelector;
-import com.sk89q.worldedit.regions.selector.ExtendingCuboidRegionSelector;
-import com.sk89q.worldedit.regions.selector.Polygonal2DRegionSelector;
-import com.sk89q.worldedit.regions.selector.RegionSelectorType;
-import com.sk89q.worldedit.regions.selector.SphereRegionSelector;
+import com.sk89q.worldedit.regions.selector.*;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.util.Countable;
 import com.sk89q.worldedit.util.formatting.ColorCodeBuilder;
@@ -63,14 +47,12 @@ import com.sk89q.worldedit.util.formatting.StyledFragment;
 import com.sk89q.worldedit.util.formatting.component.CommandListBox;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.storage.ChunkStore;
+
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 
 import static com.sk89q.minecraft.util.commands.Logging.LogMode.POSITION;
 import static com.sk89q.minecraft.util.commands.Logging.LogMode.REGION;
@@ -85,6 +67,10 @@ public class SelectionCommands {
 
     public SelectionCommands(WorldEdit we) {
         this.we = we;
+    }
+
+    public static Class<?> inject() {
+        return SelectionCommands.class;
     }
 
     @Command(
@@ -616,7 +602,6 @@ public class SelectionCommands {
             }
 
 
-
 //            player.print(BBC.getPrefix() + "Cuboid dimensions (max - min): " + size);
 //            player.print(BBC.getPrefix() + "Offset: " + origin);
 //            player.print(BBC.getPrefix() + "Cuboid distance: " + size.distance(Vector.ONE));
@@ -641,7 +626,6 @@ public class SelectionCommands {
         player.print(BBC.getPrefix() + "Cuboid distance: " + region.getMaximumPoint().distance(region.getMinimumPoint()));
         player.print(BBC.getPrefix() + "# of blocks: " + region.getArea());
     }
-
 
     @Command(
             aliases = {"/count"},
@@ -843,9 +827,5 @@ public class SelectionCommands {
 
         session.setRegionSelector(world, selector);
         session.dispatchCUISelection(player);
-    }
-
-    public static Class<?> inject() {
-        return SelectionCommands.class;
     }
 }

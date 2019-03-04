@@ -4,15 +4,16 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.mask.AbstractExtentMask;
 import com.sk89q.worldedit.function.mask.Mask2D;
+
 import javax.annotation.Nullable;
 
 public class DataMask extends AbstractExtentMask implements ResettableMask {
 
+    private transient int data = -1;
+
     public DataMask(Extent extent) {
         super(extent);
     }
-
-    private transient int data = -1;
 
     @Override
     public boolean test(Vector vector) {

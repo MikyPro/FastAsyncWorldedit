@@ -14,6 +14,7 @@ import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotArea;
 import com.intellectualcrafters.plot.util.expiry.ExpireManager;
 import com.sk89q.worldedit.world.World;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,15 +30,6 @@ public class PlotTrimFilter extends DeleteUninhabitedFilter {
     private final LongHashSet occupiedRegions;
     private final LongHashSet unoccupiedChunks;
     private boolean referenceIsVoid;
-
-    public static boolean shouldSuggest(PlotArea area) {
-        IndependentPlotGenerator gen = area.getGenerator();
-        if (area instanceof HybridPlotWorld && gen instanceof HybridGen) {
-            HybridPlotWorld hpw = (HybridPlotWorld) area;
-            return hpw.PLOT_BEDROCK && !hpw.PLOT_SCHEMATIC && hpw.MAIN_BLOCK.length == 1 && hpw.TOP_BLOCK.length == 1;
-        }
-        return false;
-    }
 
     public PlotTrimFilter(World world, long fileDuration, long inhabitedTicks, long chunkInactivity) {
         super(fileDuration, inhabitedTicks, chunkInactivity);
@@ -61,6 +53,15 @@ public class PlotTrimFilter extends DeleteUninhabitedFilter {
 
         Fawe.debug(" - calculating claims");
         this.calculateClaimedArea();
+    }
+
+    public static boolean shouldSuggest(PlotArea area) {
+        IndependentPlotGenerator gen = area.getGenerator();
+        if (area instanceof HybridPlotWorld && gen instanceof HybridGen) {
+            HybridPlotWorld hpw = (HybridPlotWorld) area;
+            return hpw.PLOT_BEDROCK && !hpw.PLOT_SCHEMATIC && hpw.MAIN_BLOCK.length == 1 && hpw.TOP_BLOCK.length == 1;
+        }
+        return false;
     }
 
     private MCAChunk calculateReference() {
@@ -171,8 +172,7 @@ public class PlotTrimFilter extends DeleteUninhabitedFilter {
                                         }
                                     }
                                 }
-                            }
-                            else if (!reference.idsEqual(chunk, false)) {
+                            } else if (!reference.idsEqual(chunk, false)) {
                                 return;
                             }
                             chunk.setDeleted(true);

@@ -3,18 +3,16 @@ package com.boydti.fawe.object.mask;
 import com.boydti.fawe.FaweCache;
 import com.boydti.fawe.object.PseudoRandom;
 import com.sk89q.worldedit.blocks.BaseBlock;
+
 import java.util.Set;
 
 public abstract class FaweBlockMatcher {
-    public abstract boolean apply(BaseBlock block);
-
     public static FaweBlockMatcher ALWAYS_TRUE = new FaweBlockMatcher() {
         @Override
         public boolean apply(BaseBlock block) {
             return true;
         }
     };
-
     public static FaweBlockMatcher NOT_AIR = new FaweBlockMatcher() {
         @Override
         public boolean apply(BaseBlock block) {
@@ -133,4 +131,6 @@ public abstract class FaweBlockMatcher {
             }
         };
     }
+
+    public abstract boolean apply(BaseBlock block);
 }

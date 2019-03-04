@@ -32,12 +32,14 @@ import com.boydti.fawe.Fawe;
 import com.boydti.fawe.object.io.FastByteArrayOutputStream;
 import com.boydti.fawe.util.MainUtil;
 import com.google.inject.Inject;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.Task;
+
+import java.io.*;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
@@ -45,12 +47,6 @@ import java.net.URLEncoder;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.scheduler.Task;
 
 public class SpongeMetrics {
 
@@ -396,7 +392,6 @@ public class SpongeMetrics {
 
     /**
      * Generic method that posts a plugin to the metrics website
-     *
      */
     private void postPlugin(final boolean isPing) throws IOException {
         // Server software specific section

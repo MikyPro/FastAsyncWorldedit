@@ -3,6 +3,7 @@ package com.boydti.fawe.object.mask;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.function.mask.AbstractMask;
 import com.sk89q.worldedit.function.mask.Mask2D;
+
 import javax.annotation.Nullable;
 
 /**

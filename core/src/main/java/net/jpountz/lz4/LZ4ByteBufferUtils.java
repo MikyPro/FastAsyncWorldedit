@@ -17,7 +17,6 @@ package net.jpountz.lz4;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-
 import static net.jpountz.lz4.LZ4Constants.*;
 import static net.jpountz.util.ByteBufferUtils.*;
 
@@ -207,6 +206,12 @@ enum LZ4ByteBufferUtils {
         return dOff;
     }
 
+    static void copyTo(Match m1, Match m2) {
+        m2.len = m1.len;
+        m2.start = m1.start;
+        m2.ref = m1.ref;
+    }
+
     static class Match {
         int start, ref, len;
 
@@ -219,12 +224,6 @@ enum LZ4ByteBufferUtils {
         int end() {
             return start + len;
         }
-    }
-
-    static void copyTo(Match m1, Match m2) {
-        m2.len = m1.len;
-        m2.start = m1.start;
-        m2.ref = m1.ref;
     }
 
 }

@@ -3,6 +3,7 @@ package com.boydti.fawe.util;
 import com.boydti.fawe.FaweCache;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
 import java.io.FileNotFoundException;
 
 public class CachedTextureUtil extends DelegateTextureUtil {

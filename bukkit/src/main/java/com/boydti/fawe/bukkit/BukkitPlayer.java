@@ -4,13 +4,14 @@ import com.boydti.fawe.Fawe;
 import com.boydti.fawe.object.FaweLocation;
 import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.wrappers.PlayerWrapper;
-import java.lang.reflect.Method;
-import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+
+import java.lang.reflect.Method;
+import java.util.UUID;
 
 public class BukkitPlayer extends FawePlayer<Player> {
 
@@ -46,15 +47,15 @@ public class BukkitPlayer extends FawePlayer<Player> {
          *  Permissions are used to managing WorldEdit region restrictions
          *   - The `/wea` command will give/remove the required bypass permission
          */
-        if (Fawe.<FaweBukkit> imp().getVault() == null || Fawe.<FaweBukkit> imp().getVault().permission == null) {
-            this.parent.addAttachment(Fawe.<FaweBukkit> imp().getPlugin()).setPermission(perm, flag);
+        if (Fawe.<FaweBukkit>imp().getVault() == null || Fawe.<FaweBukkit>imp().getVault().permission == null) {
+            this.parent.addAttachment(Fawe.<FaweBukkit>imp().getPlugin()).setPermission(perm, flag);
         } else if (flag) {
-            if (!Fawe.<FaweBukkit> imp().getVault().permission.playerAdd(this.parent, perm)) {
-                this.parent.addAttachment(Fawe.<FaweBukkit> imp().getPlugin()).setPermission(perm, flag);
+            if (!Fawe.<FaweBukkit>imp().getVault().permission.playerAdd(this.parent, perm)) {
+                this.parent.addAttachment(Fawe.<FaweBukkit>imp().getPlugin()).setPermission(perm, flag);
             }
         } else {
-            if (!Fawe.<FaweBukkit> imp().getVault().permission.playerRemove(this.parent, perm)) {
-                this.parent.addAttachment(Fawe.<FaweBukkit> imp().getPlugin()).setPermission(perm, flag);
+            if (!Fawe.<FaweBukkit>imp().getVault().permission.playerRemove(this.parent, perm)) {
+                this.parent.addAttachment(Fawe.<FaweBukkit>imp().getPlugin()).setPermission(perm, flag);
             }
         }
     }
@@ -62,7 +63,7 @@ public class BukkitPlayer extends FawePlayer<Player> {
 
     @Override
     public void resetTitle() {
-        sendTitle("","");
+        sendTitle("", "");
     }
 
     public void sendTitle(String title, String sub) {
@@ -75,7 +76,8 @@ public class BukkitPlayer extends FawePlayer<Player> {
                 Method methodSendTitle = Player.class.getDeclaredMethod("sendTitle", String.class, String.class);
                 methodSendTitle.invoke(parent, ChatColor.GOLD + title, ChatColor.GOLD + sub);
                 return;
-            } catch (Throwable ignore2) {}
+            } catch (Throwable ignore2) {
+            }
         }
         if (console == null) {
             console = Bukkit.getConsoleSender();
@@ -104,7 +106,7 @@ public class BukkitPlayer extends FawePlayer<Player> {
 
     @Override
     public com.sk89q.worldedit.entity.Player toWorldEditPlayer() {
-        return PlayerWrapper.wrap(Fawe.<FaweBukkit> imp().getWorldEditPlugin().wrapPlayer(this.parent));
+        return PlayerWrapper.wrap(Fawe.<FaweBukkit>imp().getWorldEditPlugin().wrapPlayer(this.parent));
     }
 
 }

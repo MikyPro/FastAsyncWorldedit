@@ -48,9 +48,9 @@ import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.math.transform.Identity;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.regions.Region;
+
 import java.util.ArrayList;
 import java.util.List;
-
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -116,6 +116,10 @@ public class ForwardExtentCopy implements Operation {
         this.to = to;
     }
 
+    public static Class<?> inject() {
+        return ForwardExtentCopy.class;
+    }
+
     /**
      * Get the transformation that will occur on every point.
      * <p>
@@ -149,22 +153,6 @@ public class ForwardExtentCopy implements Operation {
         return sourceMask;
     }
 
-    public void setCopyEntities(boolean copyEntities) {
-        this.copyEntities = copyEntities;
-    }
-
-    public boolean isCopyEntities() {
-        return copyEntities;
-    }
-
-    public void setCopyBiomes(boolean copyBiomes) {
-        this.copyBiomes = copyBiomes;
-    }
-
-    public boolean isCopyBiomes() {
-        return copyBiomes;
-    }
-
     /**
      * Set a mask that gets applied to the source extent.
      *
@@ -174,6 +162,22 @@ public class ForwardExtentCopy implements Operation {
     public void setSourceMask(Mask sourceMask) {
         checkNotNull(sourceMask);
         this.sourceMask = sourceMask;
+    }
+
+    public boolean isCopyEntities() {
+        return copyEntities;
+    }
+
+    public void setCopyEntities(boolean copyEntities) {
+        this.copyEntities = copyEntities;
+    }
+
+    public boolean isCopyBiomes() {
+        return copyBiomes;
+    }
+
+    public void setCopyBiomes(boolean copyBiomes) {
+        this.copyBiomes = copyBiomes;
     }
 
     public void setFilterFunction(RegionFunction filterFunction) {
@@ -330,8 +334,7 @@ public class ForwardExtentCopy implements Operation {
                     };
                 }
                 copy = new CombinedBlockCopy(source, finalDest, copySrcFunc);
-            }
-            else {
+            } else {
                 copy = new SimpleBlockCopy(source, finalDest);
             }
             if (this.filterFunction != null) {
@@ -375,9 +378,5 @@ public class ForwardExtentCopy implements Operation {
 
     @Override
     public void addStatusMessages(List<String> messages) {
-    }
-
-    public static Class<?> inject() {
-        return ForwardExtentCopy.class;
     }
 }

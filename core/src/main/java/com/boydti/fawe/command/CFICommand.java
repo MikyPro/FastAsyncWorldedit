@@ -13,6 +13,7 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.command.MethodCommands;
 import com.sk89q.worldedit.util.command.SimpleDispatcher;
 import com.sk89q.worldedit.util.command.parametric.ParametricBuilder;
+
 import java.io.IOException;
 
 public class CFICommand extends MethodCommands {

@@ -36,7 +36,6 @@ import com.boydti.fawe.object.extent.ResettableExtent;
 import com.boydti.fawe.util.*;
 import com.boydti.fawe.util.cui.CUI;
 import com.boydti.fawe.wrappers.WorldWrapper;
-import com.intellectualcrafters.plot.object.PlotArea;
 import com.sk89q.jchronic.Chronic;
 import com.sk89q.jchronic.Options;
 import com.sk89q.jchronic.utils.Span;
@@ -61,12 +60,12 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.snapshot.Snapshot;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -77,31 +76,14 @@ public class LocalSession implements TextureHolder {
 
     @Deprecated
     public transient static int MAX_HISTORY_SIZE = 15;
-
+    private transient final AtomicBoolean dirty = new AtomicBoolean();
     // Non-session related fields
     private transient LocalConfiguration config;
-    private transient final AtomicBoolean dirty = new AtomicBoolean();
     private transient int failedCuiAttempts = 0;
 
     // Session related
     private transient RegionSelector selector = new CuboidRegionSelector();
     private transient boolean placeAtPos1 = false;
-    private transient List<Object> history = Collections.synchronizedList(new LinkedList<Object>() {
-        @Override
-        public Object get(int index) {
-            Object value = super.get(index);
-            if (value instanceof Integer) {
-                value = getChangeSet(value);
-                set(index, value);
-            }
-            return value;
-        }
-
-        @Override
-        public Object remove(int index) {
-            return getChangeSet(super.remove(index));
-        }
-    });
     private transient volatile Integer historyNegativeIndex;
     private transient ClipboardHolder clipboard;
     private transient boolean toolControl = true;
@@ -119,9 +101,24 @@ public class LocalSession implements TextureHolder {
     private transient TextureUtil texture;
     private transient ResettableExtent transform = null;
     private transient TimeZone timezone = TimeZone.getDefault();
-
     private transient World currentWorld;
     private transient UUID uuid;
+    private transient List<Object> history = Collections.synchronizedList(new LinkedList<Object>() {
+        @Override
+        public Object get(int index) {
+            Object value = super.get(index);
+            if (value instanceof Integer) {
+                value = getChangeSet(value);
+                set(index, value);
+            }
+            return value;
+        }
+
+        @Override
+        public Object remove(int index) {
+            return getChangeSet(super.remove(index));
+        }
+    });
     private transient volatile long historySize = 0;
 
     private transient VirtualWorld virtual;
@@ -146,6 +143,10 @@ public class LocalSession implements TextureHolder {
      */
     public LocalSession(@Nullable LocalConfiguration config) {
         this.config = config;
+    }
+
+    public static Class<?> inject() {
+        return LocalSession.class;
     }
 
     /**
@@ -289,12 +290,12 @@ public class LocalSession implements TextureHolder {
         return history.size() - 1 - (historyNegativeIndex == null ? 0 : historyNegativeIndex);
     }
 
-    public int getHistoryNegativeIndex() {
-        return (historyNegativeIndex == null ? historyNegativeIndex = 0 : historyNegativeIndex);
-    }
-
     public void setHistoryIndex(int value) {
         historyNegativeIndex = history.size() - value - 1;
+    }
+
+    public int getHistoryNegativeIndex() {
+        return (historyNegativeIndex == null ? historyNegativeIndex = 0 : historyNegativeIndex);
     }
 
     public boolean save() {
@@ -721,7 +722,8 @@ public class LocalSession implements TextureHolder {
         return selector.getRegion();
     }
 
-    public @Nullable VirtualWorld getVirtualWorld() {
+    public @Nullable
+    VirtualWorld getVirtualWorld() {
         synchronized (dirty) {
             return virtual;
         }
@@ -793,29 +795,6 @@ public class LocalSession implements TextureHolder {
         return clipboard;
     }
 
-    @Nullable
-    public ClipboardHolder getExistingClipboard() {
-        return clipboard;
-    }
-
-    public void addClipboard(@Nonnull MultiClipboardHolder toAppend) {
-        checkNotNull(toAppend);
-        ClipboardHolder existing = getExistingClipboard();
-        MultiClipboardHolder multi;
-        if (existing instanceof MultiClipboardHolder) {
-            multi = (MultiClipboardHolder) existing;
-            for (ClipboardHolder holder : toAppend.getHolders()) {
-                multi.add(holder);
-            }
-        } else  {
-            multi = toAppend;
-            if (existing != null) {
-                multi.add(existing);
-            }
-        }
-        setClipboard(multi);
-    }
-
     /**
      * Sets the clipboard.
      * <p>
@@ -832,6 +811,29 @@ public class LocalSession implements TextureHolder {
             }
         }
         this.clipboard = clipboard;
+    }
+
+    @Nullable
+    public ClipboardHolder getExistingClipboard() {
+        return clipboard;
+    }
+
+    public void addClipboard(@Nonnull MultiClipboardHolder toAppend) {
+        checkNotNull(toAppend);
+        ClipboardHolder existing = getExistingClipboard();
+        MultiClipboardHolder multi;
+        if (existing instanceof MultiClipboardHolder) {
+            multi = (MultiClipboardHolder) existing;
+            for (ClipboardHolder holder : toAppend.getHolders()) {
+                multi.add(holder);
+            }
+        } else {
+            multi = toAppend;
+            if (existing != null) {
+                multi.add(existing);
+            }
+        }
+        setClipboard(multi);
     }
 
     /**
@@ -1050,7 +1052,6 @@ public class LocalSession implements TextureHolder {
         }
         return getBrushTool(block, player, create);
     }
-
 
     public BrushTool getBrushTool(BaseBlock item, Player player, boolean create) throws InvalidToolBindException {
         Tool tool = getTool(item, player);
@@ -1384,12 +1385,12 @@ public class LocalSession implements TextureHolder {
     }
 
     /**
-     * Get the mask.
+     * Set a mask.
      *
-     * @return mask, may be null
+     * @param mask mask or null
      */
-    public Mask getSourceMask() {
-        return sourceMask;
+    public void setMask(Mask mask) {
+        this.mask = mask;
     }
 
     /**
@@ -1397,8 +1398,18 @@ public class LocalSession implements TextureHolder {
      *
      * @param mask mask or null
      */
-    public void setMask(Mask mask) {
-        this.mask = mask;
+    @SuppressWarnings("deprecation")
+    public void setMask(com.sk89q.worldedit.masks.Mask mask) {
+        setMask(mask != null ? Masks.wrap(mask) : null);
+    }
+
+    /**
+     * Get the mask.
+     *
+     * @return mask, may be null
+     */
+    public Mask getSourceMask() {
+        return sourceMask;
     }
 
     /**
@@ -1416,28 +1427,13 @@ public class LocalSession implements TextureHolder {
      * @param mask mask or null
      */
     @SuppressWarnings("deprecation")
-    public void setMask(com.sk89q.worldedit.masks.Mask mask) {
-        setMask(mask != null ? Masks.wrap(mask) : null);
-    }
-
-    /**
-     * Set a mask.
-     *
-     * @param mask mask or null
-     */
-    @SuppressWarnings("deprecation")
     public void setSourceMask(com.sk89q.worldedit.masks.Mask mask) {
         setSourceMask(mask != null ? Masks.wrap(mask) : null);
     }
 
-    public void setTextureUtil(TextureUtil texture) {
-        synchronized (this) {
-            this.texture = texture;
-        }
-    }
-
     /**
      * Get the TextureUtil currently being used
+     *
      * @return
      */
     @Override
@@ -1452,15 +1448,17 @@ public class LocalSession implements TextureHolder {
         return tmp;
     }
 
+    public void setTextureUtil(TextureUtil texture) {
+        synchronized (this) {
+            this.texture = texture;
+        }
+    }
+
     public ResettableExtent getTransform() {
         return transform;
     }
 
     public void setTransform(ResettableExtent transform) {
         this.transform = transform;
-    }
-
-    public static Class<?> inject() {
-        return LocalSession.class;
     }
 }

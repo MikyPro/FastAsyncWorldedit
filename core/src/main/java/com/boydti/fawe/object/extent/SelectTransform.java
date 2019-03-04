@@ -11,6 +11,7 @@ import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.NullExtent;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import javax.annotation.Nullable;
 
 public abstract class SelectTransform extends ResettableExtent {

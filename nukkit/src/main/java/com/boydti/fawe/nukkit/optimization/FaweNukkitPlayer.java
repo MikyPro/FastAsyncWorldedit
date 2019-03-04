@@ -10,6 +10,7 @@ import com.boydti.fawe.nukkit.core.NukkitPlayer;
 import com.boydti.fawe.object.FaweLocation;
 import com.boydti.fawe.object.FawePlayer;
 import com.google.common.base.Charsets;
+
 import java.util.UUID;
 
 public class FaweNukkitPlayer extends FawePlayer<Player> {
@@ -37,13 +38,13 @@ public class FaweNukkitPlayer extends FawePlayer<Player> {
 
     @Override
     public void setPermission(final String perm, final boolean flag) {
-        this.parent.addAttachment(Fawe.<FaweNukkit> imp().getPlugin()).setPermission(perm, flag);
+        this.parent.addAttachment(Fawe.<FaweNukkit>imp().getPlugin()).setPermission(perm, flag);
     }
 
 
     @Override
     public void resetTitle() {
-        sendTitle("","");
+        sendTitle("", "");
     }
 
     public void sendTitle(String title, String sub) {
@@ -57,7 +58,7 @@ public class FaweNukkitPlayer extends FawePlayer<Player> {
 
     @Override
     public void executeCommand(final String cmd) {
-        Fawe.<FaweNukkit> imp().getPlugin().getServer().dispatchCommand(parent, cmd);
+        Fawe.<FaweNukkit>imp().getPlugin().getServer().dispatchCommand(parent, cmd);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class FaweNukkitPlayer extends FawePlayer<Player> {
 
     @Override
     public com.sk89q.worldedit.entity.Player toWorldEditPlayer() {
-        return new NukkitPlayer((NukkitPlatform) Fawe.<FaweNukkit> imp().getPlugin().getPlatform(), parent);
+        return new NukkitPlayer((NukkitPlatform) Fawe.<FaweNukkit>imp().getPlugin().getPlatform(), parent);
     }
 
     @Override

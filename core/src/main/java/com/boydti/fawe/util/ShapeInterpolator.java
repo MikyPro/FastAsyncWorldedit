@@ -1,14 +1,7 @@
 package com.boydti.fawe.util;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.FlatteningPathIterator;
-import java.awt.geom.IllegalPathStateException;
-import java.awt.geom.Path2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.*;
+import java.awt.geom.*;
 import java.util.Vector;
 
 /**
@@ -52,6 +45,43 @@ public class ShapeInterpolator {
     public static Shape apply(Shape v0, Shape v1, float fraction, boolean unionBounds) {
         final ShapeInterpolator instance = new ShapeInterpolator();
         return instance.evaluate(v0, v1, fraction, unionBounds);
+    }
+
+    private static float[] mergeTVals(float[] tVals0, float[] tVals1) {
+        final int count = sortTVals(tVals0, tVals1, null);
+        final float[] newTVals = new float[count];
+        sortTVals(tVals0, tVals1, newTVals);
+        return newTVals;
+    }
+
+    private static int sortTVals(float[] tVals0,
+                                 float[] tVals1,
+                                 float[] newTVals) {
+        int i0 = 0;
+        int i1 = 0;
+        int numTVals = 0;
+        while (i0 < tVals0.length && i1 < tVals1.length) {
+            final float t0 = tVals0[i0];
+            final float t1 = tVals1[i1];
+            if (t0 <= t1) {
+                if (newTVals != null) {
+                    newTVals[numTVals] = t0;
+                }
+                i0++;
+            }
+            if (t1 <= t0) {
+                if (newTVals != null) {
+                    newTVals[numTVals] = t1;
+                }
+                i1++;
+            }
+            numTVals++;
+        }
+        return numTVals;
+    }
+
+    private static float interp(float v0, float v1, float t) {
+        return (v0 + ((v1 - v0) * t));
     }
 
     /**
@@ -99,43 +129,6 @@ public class ShapeInterpolator {
 
     private Shape getShape(float fraction, boolean unionBounds) {
         return new MorphedShape(geom0, geom1, fraction, unionBounds);
-    }
-
-    private static float[] mergeTVals(float[] tVals0, float[] tVals1) {
-        final int count = sortTVals(tVals0, tVals1, null);
-        final float[] newTVals = new float[count];
-        sortTVals(tVals0, tVals1, newTVals);
-        return newTVals;
-    }
-
-    private static int sortTVals(float[] tVals0,
-                                 float[] tVals1,
-                                 float[] newTVals) {
-        int i0 = 0;
-        int i1 = 0;
-        int numTVals = 0;
-        while (i0 < tVals0.length && i1 < tVals1.length) {
-            final float t0 = tVals0[i0];
-            final float t1 = tVals1[i1];
-            if (t0 <= t1) {
-                if (newTVals != null) {
-                    newTVals[numTVals] = t0;
-                }
-                i0++;
-            }
-            if (t1 <= t0) {
-                if (newTVals != null) {
-                    newTVals[numTVals] = t1;
-                }
-                i1++;
-            }
-            numTVals++;
-        }
-        return numTVals;
-    }
-
-    private static float interp(float v0, float v1, float t) {
-        return (v0 + ((v1 - v0) * t));
     }
 
     private static class Geometry {

@@ -1,12 +1,9 @@
 package com.boydti.fawe.installer;
 
 
-import java.awt.AlphaComposite;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import javax.swing.JPanel;
 
 public class ImagePanel extends JPanel {
 

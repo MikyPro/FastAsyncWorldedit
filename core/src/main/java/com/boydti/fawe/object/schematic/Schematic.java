@@ -5,11 +5,7 @@ import com.boydti.fawe.object.clipboard.FaweClipboard;
 import com.boydti.fawe.object.clipboard.ReadOnlyClipboard;
 import com.boydti.fawe.util.EditSessionBuilder;
 import com.boydti.fawe.util.MaskTraverser;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.MutableBlockVector2D;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extent.Extent;
@@ -30,12 +26,12 @@ import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.registry.WorldData;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -204,9 +200,11 @@ public class Schematic {
             if (copyBiomes) {
                 bac.IMP.forEach(new FaweClipboard.BlockReader() {
                     MutableBlockVector2D mpos2d = new MutableBlockVector2D();
+
                     {
                         mpos2d.setComponents(Integer.MIN_VALUE, Integer.MIN_VALUE);
                     }
+
                     @Override
                     public void run(int x, int y, int z, BaseBlock block) {
                         try {
@@ -220,7 +218,9 @@ public class Schematic {
                                 return;
                             }
                             extent.setBlock(xx, y + rely, zz, block);
-                        } catch (WorldEditException e) { throw new RuntimeException(e);}
+                        } catch (WorldEditException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }, true);
             } else {
@@ -229,7 +229,9 @@ public class Schematic {
                     public void run(int x, int y, int z, BaseBlock block) {
                         try {
                             extent.setBlock(x + relx, y + rely, z + relz, block);
-                        } catch (WorldEditException e) { throw new RuntimeException(e);}
+                        } catch (WorldEditException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }, pasteAir);
             }
@@ -241,9 +243,11 @@ public class Schematic {
             RegionVisitor visitor = new RegionVisitor(region, new RegionFunction() {
                 MutableBlockVector2D mpos2d_2 = new MutableBlockVector2D();
                 MutableBlockVector2D mpos2d = new MutableBlockVector2D();
+
                 {
                     mpos2d.setComponents(Integer.MIN_VALUE, Integer.MIN_VALUE);
                 }
+
                 @Override
                 public boolean apply(Vector mutable) throws WorldEditException {
                     BaseBlock block = clipboard.getBlock(mutable);

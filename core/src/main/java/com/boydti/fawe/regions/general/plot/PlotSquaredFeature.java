@@ -26,6 +26,7 @@ import com.plotsquared.listener.WEManager;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
+
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -94,7 +95,7 @@ public class PlotSquaredFeature extends FaweMaskManager {
             return false;
         }
         UUID uid = fp.getUUID();
-        return !Flags.NO_WORLDEDIT.isTrue(plot) && ((plot.isOwner(uid) || (type == MaskType.MEMBER && (plot.getTrusted().contains(uid) || plot.getTrusted().contains(DBFunc.everyone)  || ((plot.getMembers().contains(uid) || plot.getMembers().contains(DBFunc.everyone)) && fp.hasPermission("fawe.plotsquared.member"))))) || fp.hasPermission("fawe.plotsquared.admin"));
+        return !Flags.NO_WORLDEDIT.isTrue(plot) && ((plot.isOwner(uid) || (type == MaskType.MEMBER && (plot.getTrusted().contains(uid) || plot.getTrusted().contains(DBFunc.everyone) || ((plot.getMembers().contains(uid) || plot.getMembers().contains(DBFunc.everyone)) && fp.hasPermission("fawe.plotsquared.member"))))) || fp.hasPermission("fawe.plotsquared.admin"));
     }
 
     @Override

@@ -26,13 +26,13 @@ import com.sk89q.worldedit.blocks.BaseBlock;
  */
 public interface ExpressionEnvironment {
 
+    public static Class<?> inject() {
+        return ExpressionEnvironment.class;
+    }
+
     BaseBlock getBlock(double x, double y, double z);
 
     BaseBlock getBlockAbs(double x, double y, double z);
 
     BaseBlock getBlockRel(double x, double y, double z);
-
-    public static Class<?> inject() {
-        return ExpressionEnvironment.class;
-    }
 }

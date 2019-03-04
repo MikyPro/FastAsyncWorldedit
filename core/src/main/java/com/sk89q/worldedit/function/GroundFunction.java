@@ -23,7 +23,6 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.function.mask.Mask;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -31,8 +30,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class GroundFunction implements LayerFunction {
 
-    private Mask mask;
     private final RegionFunction function;
+    private Mask mask;
     private int affected;
 
     /**

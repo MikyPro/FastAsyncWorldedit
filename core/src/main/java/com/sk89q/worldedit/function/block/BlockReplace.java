@@ -25,7 +25,6 @@ import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.RegionFunction;
 import com.sk89q.worldedit.patterns.Pattern;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -53,13 +52,13 @@ public class BlockReplace implements RegionFunction {
         this(extent, (Pattern) pattern);
     }
 
+    public static Class<?> inject() {
+        return BlockReplace.class;
+    }
+
     @Override
     public boolean apply(Vector position) throws WorldEditException {
         return pattern.apply(extent, position, position);
-    }
-
-    public static Class<?> inject() {
-        return BlockReplace.class;
     }
 
 }

@@ -26,14 +26,9 @@ import com.sk89q.worldedit.regions.AbstractRegion;
 import com.sk89q.worldedit.regions.RegionOperationException;
 import com.sk89q.worldedit.regions.polyhedron.Edge;
 import com.sk89q.worldedit.world.World;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -108,6 +103,14 @@ public class PolyhedralRegion extends AbstractRegion {
         lastTriangle = region.lastTriangle;
     }
 
+    private static void shiftCollection(Collection<Vector> collection, Vector change) {
+        final List<Vector> tmp = new ArrayList<Vector>(collection);
+        collection.clear();
+        for (Vector vertex : tmp) {
+            collection.add(change.add(vertex));
+        }
+    }
+
     /**
      * Clears the region, removing all vertices and triangles.
      */
@@ -121,7 +124,6 @@ public class PolyhedralRegion extends AbstractRegion {
         centerAccum = Vector.ZERO;
         lastTriangle = null;
     }
-
 
     /**
      * Add a vertex to the region.
@@ -268,14 +270,6 @@ public class PolyhedralRegion extends AbstractRegion {
         maximumPoint = change.add(maximumPoint);
         centerAccum = change.multiply(vertices.size()).add(centerAccum);
         lastTriangle = null;
-    }
-
-    private static void shiftCollection(Collection<Vector> collection, Vector change) {
-        final List<Vector> tmp = new ArrayList<Vector>(collection);
-        collection.clear();
-        for (Vector vertex : tmp) {
-            collection.add(change.add(vertex));
-        }
     }
 
     @Override

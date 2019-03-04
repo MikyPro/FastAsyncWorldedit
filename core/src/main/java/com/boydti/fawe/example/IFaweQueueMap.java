@@ -2,6 +2,7 @@ package com.boydti.fawe.example;
 
 import com.boydti.fawe.object.FaweChunk;
 import com.boydti.fawe.object.RunnableVal;
+
 import java.util.Collection;
 
 public interface IFaweQueueMap {

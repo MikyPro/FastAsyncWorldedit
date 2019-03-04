@@ -2,6 +2,7 @@ package com.boydti.fawe.object.clipboard;
 
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardWriter;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

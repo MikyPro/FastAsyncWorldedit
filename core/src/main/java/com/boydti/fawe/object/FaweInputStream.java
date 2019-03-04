@@ -3,6 +3,7 @@ package com.boydti.fawe.object;
 import com.boydti.fawe.util.IOUtil;
 import com.sk89q.jnbt.NBTInputStream;
 import com.sk89q.jnbt.NamedTag;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 public class FaweInputStream extends DataInputStream {
 
     private final InputStream parent;
+    private NBTInputStream nbtIn;
 
     public FaweInputStream(InputStream parent) {
         super(parent);
@@ -26,8 +28,6 @@ public class FaweInputStream extends DataInputStream {
                         (read() << 8) +
                         read());
     }
-
-    private NBTInputStream nbtIn;
 
     public void skipFully(int num) throws IOException {
         long skipped = skip(num);

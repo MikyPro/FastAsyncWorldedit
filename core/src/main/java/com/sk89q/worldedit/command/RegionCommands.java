@@ -37,7 +37,6 @@ import com.sk89q.minecraft.util.commands.Logging;
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.entity.Player;
-import com.sk89q.worldedit.extension.platform.Capability;
 import com.sk89q.worldedit.function.GroundFunction;
 import com.sk89q.worldedit.function.generator.FloraGenerator;
 import com.sk89q.worldedit.function.generator.ForestGenerator;
@@ -64,18 +63,14 @@ import com.sk89q.worldedit.util.command.parametric.Optional;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.biome.Biomes;
 import com.sk89q.worldedit.world.registry.BiomeRegistry;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.sk89q.minecraft.util.commands.Logging.LogMode.ALL;
-import static com.sk89q.minecraft.util.commands.Logging.LogMode.ORIENTATION_REGION;
-import static com.sk89q.minecraft.util.commands.Logging.LogMode.REGION;
-import static com.sk89q.worldedit.regions.Regions.asFlatRegion;
-import static com.sk89q.worldedit.regions.Regions.maximumBlockY;
-import static com.sk89q.worldedit.regions.Regions.minimumBlockY;
+import static com.sk89q.minecraft.util.commands.Logging.LogMode.*;
+import static com.sk89q.worldedit.regions.Regions.*;
 
 /**
  * Commands that operate on regions.
@@ -94,6 +89,10 @@ public class RegionCommands extends MethodCommands {
         super(worldEdit);
         checkNotNull(worldEdit);
         this.worldEdit = worldEdit;
+    }
+
+    public static Class<?> inject() {
+        return RegionCommands.class;
     }
 
     @Command(
@@ -513,7 +512,6 @@ public class RegionCommands extends MethodCommands {
         }
     }
 
-
     @Command(
             aliases = {"/move"},
             usage = "[count] [direction] [leave-id]",
@@ -790,9 +788,5 @@ public class RegionCommands extends MethodCommands {
 
             BBC.COMMAND_FLORA.send(player, ground.getAffected());
         }, getArguments(context), region, context);
-    }
-
-    public static Class<?> inject() {
-        return RegionCommands.class;
     }
 }

@@ -4,7 +4,7 @@ import com.boydti.fawe.FaweAPI;
 import com.sk89q.worldedit.world.World;
 
 /**
-
+ *
  */
 public class FaweLocation {
 

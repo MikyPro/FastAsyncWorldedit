@@ -22,8 +22,6 @@ package com.sk89q.worldedit.function;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.function.mask.Mask;
-import com.sk89q.worldedit.regions.Region;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -34,13 +32,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class RegionMaskTestFunction implements RegionFunction {
 
-    private final RegionFunction pass,fail;
+    private final RegionFunction pass, fail;
     private Mask mask;
 
     /**
      * Create a new masking filter.
      *
-     * @param mask the mask
+     * @param mask     the mask
      * @param function the function
      */
     public RegionMaskTestFunction(Mask mask, RegionFunction success, RegionFunction failure) {

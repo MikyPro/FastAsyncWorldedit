@@ -17,27 +17,13 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.command.tool.BrushTool;
 import com.sk89q.worldedit.command.tool.InvalidToolBindException;
 import com.sk89q.worldedit.command.tool.brush.Brush;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Rotation;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
@@ -47,6 +33,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.Plugin;
+
+import java.util.*;
 
 public class BukkitImageListener implements Listener {
     private Location mutable = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
@@ -82,13 +70,13 @@ public class BukkitImageListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
-        if(!(event.getRemover() instanceof Player)) return;
+        if (!(event.getRemover() instanceof Player)) return;
         handleInteract(event, (Player) event.getRemover(), event.getEntity(), false);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if(!(event.getDamager() instanceof Player)) return;
+        if (!(event.getDamager() instanceof Player)) return;
         handleInteract(event, (Player) event.getDamager(), event.getEntity(), false);
     }
 
@@ -101,7 +89,8 @@ public class BukkitImageListener implements Listener {
         if (fp.getMeta("CFISettings") == null) return;
         try {
             if (event.getHand() == EquipmentSlot.OFF_HAND) return;
-        } catch (NoSuchFieldError | NoSuchMethodError ignored) {}
+        } catch (NoSuchFieldError | NoSuchMethodError ignored) {
+        }
 
         List<Block> target = player.getLastTwoTargetBlocks((Set<Material>) null, 100);
         if (target.isEmpty()) return;
@@ -179,7 +168,9 @@ public class BukkitImageListener implements Listener {
         BrushTool tool;
         try {
             tool = session.getBrushTool(fp.getPlayer(), false);
-        } catch (InvalidToolBindException e) { return; }
+        } catch (InvalidToolBindException e) {
+            return;
+        }
 
         ItemFrame[][] frames = viewer.getItemFrames();
         if (frames == null || tool == null) {
@@ -215,7 +206,7 @@ public class BukkitImageListener implements Listener {
         double zRat = Math.sin(yawRad) * a;
 
         BlockFace facing = itemFrame.getFacing();
-        double thickness = 1/32d + 1/128d;
+        double thickness = 1 / 32d + 1 / 128d;
         double modX = facing.getModX();
         double modZ = facing.getModZ();
         double dx = source.getX() - target.getX() - modX * thickness;
@@ -232,8 +223,8 @@ public class BukkitImageListener implements Listener {
             localX = (modZ) * (dx - offset * xRat);
         }
         double localY = dy - offset * Math.sin(pitchRad);
-        int localPixelX = (int)((localX + 0.5) * 128);
-        int localPixelY = (int)((localY + 0.5) * 128);
+        int localPixelX = (int) ((localX + 0.5) * 128);
+        int localPixelY = (int) ((localY + 0.5) * 128);
 
         UUID uuid = itemFrame.getUniqueId();
         for (int blockX = 0; blockX < frames.length; blockX++) {
@@ -271,8 +262,6 @@ public class BukkitImageListener implements Listener {
                             viewer.view(generator);
                         }
                     }, true, true);
-
-
 
 
                     return;

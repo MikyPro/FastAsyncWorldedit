@@ -19,47 +19,11 @@ import com.boydti.fawe.util.ReflectionUtils;
 import com.boydti.fawe.util.StringMan;
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
-import com.sk89q.jnbt.ByteTag;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.FloatTag;
-import com.sk89q.jnbt.IntTag;
-import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.LongTag;
-import com.sk89q.jnbt.NBTInputStream;
-import com.sk89q.jnbt.NBTOutputStream;
-import com.sk89q.jnbt.NamedTag;
-import com.sk89q.jnbt.ShortTag;
-import com.sk89q.jnbt.StringTag;
+import com.sk89q.jnbt.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BaseItem;
 import com.sk89q.worldedit.world.registry.BundledBlockData;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.DataOutput;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.LongAdder;
-import java.util.zip.GZIPInputStream;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.iq80.leveldb.CompressionType;
@@ -67,9 +31,18 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.iq80.leveldb.impl.Iq80DBFactory;
 
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.zip.GZIPInputStream;
+
 public class MCAFile2LevelDB extends MapConverter {
-    private final byte[] VERSION = new byte[] { 4 };
-    private final byte[] COMPLETE_STATE = new byte[] { 2, 0, 0, 0 };
+    private final byte[] VERSION = new byte[]{4};
+    private final byte[] COMPLETE_STATE = new byte[]{2, 0, 0, 0};
 
     private final DB db;
     private final ClipboardRemapper remapper;
@@ -88,6 +61,10 @@ public class MCAFile2LevelDB extends MapConverter {
     private ConverterFrame app;
 
     private ConcurrentLinkedQueue<CompoundTag> portals = new ConcurrentLinkedQueue<>();
+    private double lastPercent;
+    private double lastTimeRatio;
+    private byte[] last;
+    private Int2ObjectOpenHashMap<FileCache> cache = new Int2ObjectOpenHashMap<>();
 
     public MCAFile2LevelDB(File folderFrom, File folderTo) {
         super(folderFrom, folderTo);
@@ -125,8 +102,19 @@ public class MCAFile2LevelDB extends MapConverter {
         }
     }
 
-    private double lastPercent;
-    private double lastTimeRatio;
+    private static byte[] getSectionKey(int x, int z, int layer, int dimension) {
+        if (dimension == 0) {
+            byte[] key = Tag.SubChunkPrefix.fill(x, z, new byte[10]);
+            key[9] = (byte) layer;
+            return key;
+        }
+        byte[] key = new byte[14];
+        Tag.SubChunkPrefix.fill(x, z, key);
+        key[12] = key[8];
+        key[8] = (byte) dimension;
+        key[13] = (byte) layer;
+        return key;
+    }
 
     private void resetProgress(int estimatedOperations) {
         startTime = System.currentTimeMillis();
@@ -197,7 +185,6 @@ public class MCAFile2LevelDB extends MapConverter {
         return delegate;
     }
 
-
     @Override
     public synchronized void accept(ConverterFrame app) {
         this.app = app;
@@ -255,7 +242,7 @@ public class MCAFile2LevelDB extends MapConverter {
 //
                         int minLength = Math.min(left.length, right.length);
 
-                        for(int i = 0; i < minLength; ++i) {
+                        for (int i = 0; i < minLength; ++i) {
                             int lb = left[i] << 5;
                             int rb = right[i] << 5;
                             for (int j = 0; j < 4; j++) {
@@ -263,7 +250,7 @@ public class MCAFile2LevelDB extends MapConverter {
                                 int sbl = (lb >> shift) & 0xFF;
                                 int sbr = (rb >> shift) & 0xFF;
                                 int result = sbl - sbr;
-                                if(result != 0) {
+                                if (result != 0) {
                                     return result;
                                 }
                             }
@@ -345,7 +332,8 @@ public class MCAFile2LevelDB extends MapConverter {
                 .writeBufferSize(134217728) // >=128MB
         )) {
             newDb.close();
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         Fawe.debug("Done compacting!");
     }
 
@@ -360,7 +348,7 @@ public class MCAFile2LevelDB extends MapConverter {
             Map<String, com.sk89q.jnbt.Tag> map = ReflectionUtils.getMap(tag.getValue());
 
             HashSet<String> allowed = new HashSet<>(Arrays.asList(
-            "Difficulty", "GameType", "Generator", "LastPlayed", "RandomSeed", "StorageVersion", "Time", "commandsEnabled", "currentTick", "rainTime", "spawnMobs", "GameRules", "SpawnX", "SpawnY", "SpawnZ"
+                    "Difficulty", "GameType", "Generator", "LastPlayed", "RandomSeed", "StorageVersion", "Time", "commandsEnabled", "currentTick", "rainTime", "spawnMobs", "GameRules", "SpawnX", "SpawnY", "SpawnZ"
             ));
             Iterator<Map.Entry<String, com.sk89q.jnbt.Tag>> iterator = map.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -531,70 +519,6 @@ public class MCAFile2LevelDB extends MapConverter {
         }
     }
 
-    private byte[] last;
-
-    private class FileCache implements Comparable<FileCache>, Closeable {
-        private FaweOutputStream os;
-        private final File file;
-        private int id;
-        int numKeys = 0;
-
-        public FileCache(int id) throws IOException {
-            this.id = id;
-            this.file = new File(getFolderTo() + File.separator + "cache" + File.separator + Integer.toHexString(id));
-        }
-
-        public void update(byte[] key, byte[] value) throws IOException {
-            numKeys++;
-            try {
-                updateUnsafe(key, value);
-            } catch (NullPointerException e) {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-                this.os = new FaweOutputStream(new BufferedOutputStream(new ZstdOutputStream(new LZ4BlockOutputStream(new FileOutputStream(file)))));
-                updateUnsafe(key, value);
-            }
-        }
-
-        private void updateUnsafe(byte[] key, byte[] value) throws IOException {
-            os.writeVarInt(key.length);
-            os.write(key);
-            os.writeVarInt(value.length);
-            os.write(value);
-        }
-
-        @Override
-        public void close() throws IOException {
-            try {
-                this.os.close();
-
-                FaweInputStream in = new FaweInputStream(new ZstdInputStream(new LZ4BlockInputStream(new BufferedInputStream(new FileInputStream(file)))));
-                for (int i = 0; i < numKeys; i++) {
-                    int len = in.readVarInt();
-                    byte[] key = new byte[len];
-                    in.readFully(key);
-
-                    len = in.readVarInt();
-                    byte[] value = new byte[len];
-                    in.readFully(value);
-                    db.put(key, value);
-                }
-                in.close();
-                file.delete();
-            } catch (Throwable e) {
-                e.printStackTrace();
-                throw e;
-            }
-        }
-
-        @Override
-        public int compareTo(FileCache other) {
-            return Integer.compareUnsigned(this.id, other.id);
-        }
-    }
-
-    private Int2ObjectOpenHashMap<FileCache> cache = new Int2ObjectOpenHashMap<>();
-
     private FileCache getFileCache(MCAChunk chunk, int dim) throws IOException {
         synchronized (cache) {
             int key = (chunk.getX() & 0xFFFFFF);
@@ -631,7 +555,7 @@ public class MCAFile2LevelDB extends MapConverter {
             case 2048: {
                 int index = 0;
                 int i1, i2, i3, i4;
-                for (int x = 0; x < 16;) {
+                for (int x = 0; x < 16; ) {
                     {
                         i1 = x;
                         for (int z = 0; z < 16; z++) {
@@ -746,7 +670,7 @@ public class MCAFile2LevelDB extends MapConverter {
                     }
                 }
                 { // Convert color
-                    for (String key : new String[] {"color", "Color"}) {
+                    for (String key : new String[]{"color", "Color"}) {
                         com.sk89q.jnbt.Tag value = map.get(key);
                         if (value instanceof IntTag) {
                             map.put(key, new ByteTag((byte) (int) ((IntTag) value).getValue()));
@@ -769,7 +693,7 @@ public class MCAFile2LevelDB extends MapConverter {
                         map.put("Health", new ShortTag((short) (newVal * 2)));
                     }
                 }
-                for (String key : new String[] {"Age", "Health"}) {
+                for (String key : new String[]{"Age", "Health"}) {
                     com.sk89q.jnbt.Tag tVal = map.get(key);
                     if (tVal != null) {
                         short newVal = ((Number) tVal.getValue()).shortValue();
@@ -777,7 +701,7 @@ public class MCAFile2LevelDB extends MapConverter {
                     }
                 }
                 { // Orientation / Position
-                    for (String key : new String[] {"Orientation", "Position", "Rotation", "Pos", "Motion"}) {
+                    for (String key : new String[]{"Orientation", "Position", "Rotation", "Pos", "Motion"}) {
                         ListTag list = (ListTag) map.get(key);
                         if (list != null) {
                             List<com.sk89q.jnbt.Tag> value = list.getValue();
@@ -850,20 +774,6 @@ public class MCAFile2LevelDB extends MapConverter {
         return getSectionKey(chunk.getX(), chunk.getZ(), layer, dimension);
     }
 
-    private static byte[] getSectionKey(int x, int z, int layer, int dimension) {
-        if (dimension == 0) {
-            byte[] key = Tag.SubChunkPrefix.fill(x, z, new byte[10]);
-            key[9] = (byte) layer;
-            return key;
-        }
-        byte[] key = new byte[14];
-        Tag.SubChunkPrefix.fill(x, z, key);
-        key[12] = key[8];
-        key[8] = (byte) dimension;
-        key[13] = (byte) layer;
-        return key;
-    }
-
     private byte[] getKey(MCAChunk chunk, Tag tag, int dimension) {
         if (dimension == 0) {
             return tag.fill(chunk.getX(), chunk.getZ(), new byte[9]);
@@ -873,5 +783,65 @@ public class MCAFile2LevelDB extends MapConverter {
         key[12] = key[8];
         key[8] = (byte) dimension;
         return key;
+    }
+
+    private class FileCache implements Comparable<FileCache>, Closeable {
+        private final File file;
+        int numKeys = 0;
+        private FaweOutputStream os;
+        private int id;
+
+        public FileCache(int id) throws IOException {
+            this.id = id;
+            this.file = new File(getFolderTo() + File.separator + "cache" + File.separator + Integer.toHexString(id));
+        }
+
+        public void update(byte[] key, byte[] value) throws IOException {
+            numKeys++;
+            try {
+                updateUnsafe(key, value);
+            } catch (NullPointerException e) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+                this.os = new FaweOutputStream(new BufferedOutputStream(new ZstdOutputStream(new LZ4BlockOutputStream(new FileOutputStream(file)))));
+                updateUnsafe(key, value);
+            }
+        }
+
+        private void updateUnsafe(byte[] key, byte[] value) throws IOException {
+            os.writeVarInt(key.length);
+            os.write(key);
+            os.writeVarInt(value.length);
+            os.write(value);
+        }
+
+        @Override
+        public void close() throws IOException {
+            try {
+                this.os.close();
+
+                FaweInputStream in = new FaweInputStream(new ZstdInputStream(new LZ4BlockInputStream(new BufferedInputStream(new FileInputStream(file)))));
+                for (int i = 0; i < numKeys; i++) {
+                    int len = in.readVarInt();
+                    byte[] key = new byte[len];
+                    in.readFully(key);
+
+                    len = in.readVarInt();
+                    byte[] value = new byte[len];
+                    in.readFully(value);
+                    db.put(key, value);
+                }
+                in.close();
+                file.delete();
+            } catch (Throwable e) {
+                e.printStackTrace();
+                throw e;
+            }
+        }
+
+        @Override
+        public int compareTo(FileCache other) {
+            return Integer.compareUnsigned(this.id, other.id);
+        }
     }
 }

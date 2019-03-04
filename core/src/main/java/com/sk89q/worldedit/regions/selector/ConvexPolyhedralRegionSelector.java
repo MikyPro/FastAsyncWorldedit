@@ -21,11 +21,8 @@ package com.sk89q.worldedit.regions.selector;
 
 import com.boydti.fawe.config.BBC;
 import com.google.common.base.Optional;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.IncompleteRegionException;
-import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.internal.cui.CUIRegion;
 import com.sk89q.worldedit.internal.cui.SelectionPointEvent;
@@ -36,13 +33,9 @@ import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.regions.polyhedron.Triangle;
 import com.sk89q.worldedit.regions.selector.limit.SelectorLimits;
 import com.sk89q.worldedit.world.World;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -109,6 +102,10 @@ public class ConvexPolyhedralRegionSelector extends com.sk89q.worldedit.regions.
 
             learnChanges();
         }
+    }
+
+    public static Class<?> inject() {
+        return ConvexPolyhedralRegionSelector.class;
     }
 
     @Nullable
@@ -191,12 +188,11 @@ public class ConvexPolyhedralRegionSelector extends com.sk89q.worldedit.regions.
     public List<String> getInformationLines() {
         List<String> ret = new ArrayList<String>();
 
-        ret.add("Vertices: "+region.getVertices().size());
-        ret.add("Triangles: "+region.getTriangles().size());
+        ret.add("Vertices: " + region.getVertices().size());
+        ret.add("Triangles: " + region.getTriangles().size());
 
         return ret;
     }
-
 
     @Override
     public void explainPrimarySelection(Actor player, LocalSession session, Vector pos) {
@@ -275,9 +271,5 @@ public class ConvexPolyhedralRegionSelector extends com.sk89q.worldedit.regions.
             session.dispatchCUIEvent(player, new SelectionPointEvent(0, region.getMinimumPoint(), getArea()));
             session.dispatchCUIEvent(player, new SelectionPointEvent(1, region.getMaximumPoint(), getArea()));
         }
-    }
-
-    public static Class<?> inject() {
-        return ConvexPolyhedralRegionSelector.class;
     }
 }

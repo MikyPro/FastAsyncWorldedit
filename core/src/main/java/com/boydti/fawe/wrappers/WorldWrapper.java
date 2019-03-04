@@ -3,13 +3,7 @@ package com.boydti.fawe.wrappers;
 import com.boydti.fawe.object.RunnableVal;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.TaskManager;
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BaseItem;
 import com.sk89q.worldedit.blocks.BaseItemStack;
@@ -26,12 +20,17 @@ import com.sk89q.worldedit.util.TreeGenerator;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.WorldData;
-import java.util.List;
+
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class WorldWrapper extends LocalWorld {
 
     private final World parent;
+
+    private WorldWrapper(World parent) {
+        this.parent = parent;
+    }
 
     public static WorldWrapper wrap(World world) {
         if (world == null) {
@@ -49,15 +48,10 @@ public class WorldWrapper extends LocalWorld {
         }
         if (world instanceof LocalWorldAdapter) {
             return unwrap(LocalWorldAdapter.unwrap(world));
-        }
-        else if (world instanceof EditSession) {
+        } else if (world instanceof EditSession) {
             return unwrap(((EditSession) world).getWorld());
         }
         return world;
-    }
-
-    private WorldWrapper(World parent) {
-        this.parent = parent;
     }
 
     public World getParent() {

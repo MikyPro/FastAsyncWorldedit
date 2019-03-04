@@ -61,17 +61,17 @@ public class MemoryConfiguration extends MemorySection implements Configuration 
     }
 
     @Override
+    public Configuration getDefaults() {
+        return defaults;
+    }
+
+    @Override
     public void setDefaults(final Configuration defaults) {
         if (defaults == null) {
             throw new NullPointerException("Defaults may not be null");
         }
 
         this.defaults = defaults;
-    }
-
-    @Override
-    public Configuration getDefaults() {
-        return defaults;
     }
 
     @Override

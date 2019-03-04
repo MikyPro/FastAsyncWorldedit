@@ -24,21 +24,10 @@ import com.boydti.fawe.object.brush.InspectBrush;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalConfiguration;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.ItemType;
-import com.sk89q.worldedit.command.tool.BlockDataCyler;
-import com.sk89q.worldedit.command.tool.BlockReplacer;
-import com.sk89q.worldedit.command.tool.DistanceWand;
-import com.sk89q.worldedit.command.tool.FloatingTreeRemover;
-import com.sk89q.worldedit.command.tool.FloodFillTool;
-import com.sk89q.worldedit.command.tool.LongRangeBuildTool;
-import com.sk89q.worldedit.command.tool.QueryTool;
-import com.sk89q.worldedit.command.tool.TreePlanter;
+import com.sk89q.worldedit.command.tool.*;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.util.TreeGenerator;
@@ -50,6 +39,10 @@ public class ToolCommands {
 
     public ToolCommands(WorldEdit we) {
         this.we = we;
+    }
+
+    public static Class<?> inject() {
+        return ToolCommands.class;
     }
 
     @Command(
@@ -181,9 +174,5 @@ public class ToolCommands {
         session.setTool(new LongRangeBuildTool(primary, secondary), player);
         BBC.TOOL_LRBUILD_BOUND.send(player, ItemType.toHeldName(player.getItemInHand()));
         BBC.TOOL_LRBUILD_INFO.send(player, ItemType.toName(secondary.getType()), ItemType.toName(primary.getType()));
-    }
-
-    public static Class<?> inject() {
-        return ToolCommands.class;
     }
 }

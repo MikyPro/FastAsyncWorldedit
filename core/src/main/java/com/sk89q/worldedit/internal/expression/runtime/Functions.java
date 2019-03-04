@@ -26,12 +26,9 @@ import com.sk89q.worldedit.internal.expression.runtime.Function.Dynamic;
 import com.sk89q.worldedit.math.noise.PerlinNoise;
 import com.sk89q.worldedit.math.noise.RidgedMultiFractalNoise;
 import com.sk89q.worldedit.math.noise.VoronoiNoise;
+
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Contains all functions that can be used in expressions.
@@ -39,66 +36,38 @@ import java.util.Random;
 @SuppressWarnings("UnusedDeclaration")
 public final class Functions {
 
-    private static class Overload {
-        private final Method method;
-        private final int mask;
-        private final boolean isSetter;
-
-        private Overload(Method method) throws IllegalArgumentException {
-            this.method = method;
-
-            boolean isSetter = false;
-            int accum = 0;
-            Class<?>[] parameters = method.getParameterTypes();
-            for (Class<?> parameter : parameters) {
-                if (isSetter) {
-                    throw new IllegalArgumentException("Method takes arguments that can't be cast to RValue.");
-                }
-
-                if (double.class.equals(parameter)) {
-                    isSetter = true;
-                    continue;
-                }
-
-                if (!RValue.class.isAssignableFrom(parameter)) {
-                    throw new IllegalArgumentException("Method takes arguments that can't be cast to RValue.");
-                }
-
-                accum <<= 2;
-
-                if (LValue.class.isAssignableFrom(parameter)) {
-                    accum |= 3;
-                } else {
-                    accum |= 1;
-                }
-            }
-            mask = accum;
-            this.isSetter = isSetter;
+    private static final Map<String, List<Overload>> functions = new HashMap<String, List<Overload>>();
+    private static final Map<Integer, double[]> gmegabuf = new HashMap<Integer, double[]>();
+    private static final Random random = new Random();
+    private static final ThreadLocal<PerlinNoise> localPerlin = new ThreadLocal<PerlinNoise>() {
+        @Override
+        protected PerlinNoise initialValue() {
+            return new PerlinNoise();
         }
+    };
+    private static final ThreadLocal<VoronoiNoise> localVoronoi = new ThreadLocal<VoronoiNoise>() {
+        @Override
+        protected VoronoiNoise initialValue() {
+            return new VoronoiNoise();
+        }
+    };
+    private static final ThreadLocal<RidgedMultiFractalNoise> localRidgedMulti = new ThreadLocal<RidgedMultiFractalNoise>() {
+        @Override
+        protected RidgedMultiFractalNoise initialValue() {
+            return new RidgedMultiFractalNoise();
+        }
+    };
 
-        public boolean matches(boolean isSetter, RValue... args) {
-            if (this.isSetter != isSetter) {
-                return false;
+    static {
+        for (Method method : Functions.class.getMethods()) {
+            try {
+                addFunction(method);
+            } catch (IllegalArgumentException ignored) {
             }
-
-            if (this.method.getParameterTypes().length != args.length) { // TODO: optimize
-                return false;
-            }
-
-            int accum = 0;
-            for (RValue argument : args) {
-                accum <<= 2;
-
-                if (argument instanceof LValue) {
-                    accum |= 3;
-                } else {
-                    accum |= 1;
-                }
-            }
-
-            return (accum & mask) == mask;
         }
     }
+
+    private final Map<Integer, double[]> megabuf = new HashMap<Integer, double[]>();
 
     public static Function getFunction(int position, String name, RValue... args) throws NoSuchMethodException {
         final Method getter = getMethod(name, false, args);
@@ -123,18 +92,6 @@ public final class Functions {
         throw new NoSuchMethodException(); // TODO: return null (check for side-effects first)
     }
 
-    private static final Map<String, List<Overload>> functions = new HashMap<String, List<Overload>>();
-
-    static {
-        for (Method method : Functions.class.getMethods()) {
-            try {
-                addFunction(method);
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-    }
-
-
     public static void addFunction(Method method) throws IllegalArgumentException {
         final String methodName = method.getName();
 
@@ -148,7 +105,6 @@ public final class Functions {
         overloads.add(overload);
     }
 
-
     public static double sin(RValue x) throws EvaluationException {
         return Math.sin(x.getValue());
     }
@@ -160,7 +116,6 @@ public final class Functions {
     public static double tan(RValue x) throws EvaluationException {
         return Math.tan(x.getValue());
     }
-
 
     public static double asin(RValue x) throws EvaluationException {
         return Math.asin(x.getValue());
@@ -178,7 +133,6 @@ public final class Functions {
         return Math.atan2(y.getValue(), x.getValue());
     }
 
-
     public static double sinh(RValue x) throws EvaluationException {
         return Math.sinh(x.getValue());
     }
@@ -191,7 +145,6 @@ public final class Functions {
         return Math.tanh(x.getValue());
     }
 
-
     public static double sqrt(RValue x) throws EvaluationException {
         return Math.sqrt(x.getValue());
     }
@@ -199,7 +152,6 @@ public final class Functions {
     public static double cbrt(RValue x) throws EvaluationException {
         return Math.cbrt(x.getValue());
     }
-
 
     public static double abs(RValue x) throws EvaluationException {
         return Math.abs(x.getValue());
@@ -221,7 +173,6 @@ public final class Functions {
         return Math.max(a.getValue(), Math.max(b.getValue(), c.getValue()));
     }
 
-
     public static double ceil(RValue x) throws EvaluationException {
         return Math.ceil(x.getValue());
     }
@@ -238,7 +189,6 @@ public final class Functions {
         return Math.round(x.getValue());
     }
 
-
     public static double exp(RValue x) throws EvaluationException {
         return Math.exp(x.getValue());
     }
@@ -254,7 +204,6 @@ public final class Functions {
     public static double log10(RValue x) throws EvaluationException {
         return Math.log10(x.getValue());
     }
-
 
     public static double rotate(LValue x, LValue y, RValue angle) throws EvaluationException {
         final double f = angle.getValue();
@@ -278,14 +227,6 @@ public final class Functions {
         y.assign(tmp);
 
         return 0.0;
-    }
-
-
-    private static final Map<Integer, double[]> gmegabuf = new HashMap<Integer, double[]>();
-    private final Map<Integer, double[]> megabuf = new HashMap<Integer, double[]>();
-
-    public Map<Integer, double[]> getMegabuf() {
-        return megabuf;
     }
 
     private static double[] getSubBuffer(Map<Integer, double[]> megabuf, Integer key) {
@@ -372,9 +313,6 @@ public final class Functions {
         return closestIndex;
     }
 
-
-    private static final Random random = new Random();
-
     @Dynamic
     public static double random() {
         return random.nextDouble();
@@ -384,13 +322,6 @@ public final class Functions {
     public static double randint(RValue max) throws EvaluationException {
         return random.nextInt((int) Math.floor(max.getValue()));
     }
-
-    private static final ThreadLocal<PerlinNoise> localPerlin = new ThreadLocal<PerlinNoise>() {
-        @Override
-        protected PerlinNoise initialValue() {
-            return new PerlinNoise();
-        }
-    };
 
     public static double perlin(RValue seed, RValue x, RValue y, RValue z, RValue frequency, RValue octaves, RValue persistence) throws EvaluationException {
         PerlinNoise perlin = localPerlin.get();
@@ -405,13 +336,6 @@ public final class Functions {
         return perlin.noise(new Vector(x.getValue(), y.getValue(), z.getValue()));
     }
 
-    private static final ThreadLocal<VoronoiNoise> localVoronoi = new ThreadLocal<VoronoiNoise>() {
-        @Override
-        protected VoronoiNoise initialValue() {
-            return new VoronoiNoise();
-        }
-    };
-
     public static double voronoi(RValue seed, RValue x, RValue y, RValue z, RValue frequency) throws EvaluationException {
         VoronoiNoise voronoi = localVoronoi.get();
         try {
@@ -422,13 +346,6 @@ public final class Functions {
         }
         return voronoi.noise(new Vector(x.getValue(), y.getValue(), z.getValue()));
     }
-
-    private static final ThreadLocal<RidgedMultiFractalNoise> localRidgedMulti = new ThreadLocal<RidgedMultiFractalNoise>() {
-        @Override
-        protected RidgedMultiFractalNoise initialValue() {
-            return new RidgedMultiFractalNoise();
-        }
-    };
 
     public static double ridgedmulti(RValue seed, RValue x, RValue y, RValue z, RValue frequency, RValue octaves) throws EvaluationException {
         RidgedMultiFractalNoise ridgedMulti = localRidgedMulti.get();
@@ -509,5 +426,70 @@ public final class Functions {
 
     public static Class<?> inject() {
         return Functions.class;
+    }
+
+    public Map<Integer, double[]> getMegabuf() {
+        return megabuf;
+    }
+
+    private static class Overload {
+        private final Method method;
+        private final int mask;
+        private final boolean isSetter;
+
+        private Overload(Method method) throws IllegalArgumentException {
+            this.method = method;
+
+            boolean isSetter = false;
+            int accum = 0;
+            Class<?>[] parameters = method.getParameterTypes();
+            for (Class<?> parameter : parameters) {
+                if (isSetter) {
+                    throw new IllegalArgumentException("Method takes arguments that can't be cast to RValue.");
+                }
+
+                if (double.class.equals(parameter)) {
+                    isSetter = true;
+                    continue;
+                }
+
+                if (!RValue.class.isAssignableFrom(parameter)) {
+                    throw new IllegalArgumentException("Method takes arguments that can't be cast to RValue.");
+                }
+
+                accum <<= 2;
+
+                if (LValue.class.isAssignableFrom(parameter)) {
+                    accum |= 3;
+                } else {
+                    accum |= 1;
+                }
+            }
+            mask = accum;
+            this.isSetter = isSetter;
+        }
+
+        public boolean matches(boolean isSetter, RValue... args) {
+            if (this.isSetter != isSetter) {
+                return false;
+            }
+
+            if (this.method.getParameterTypes().length != args.length) { // TODO: optimize
+                return false;
+            }
+
+            int accum = 0;
+            for (RValue argument : args) {
+                accum <<= 2;
+
+                if (argument instanceof LValue) {
+                    accum |= 3;
+                } else {
+                    accum |= 1;
+                }
+            }
+
+            return (accum & mask) == mask;
+        }
     }
 }

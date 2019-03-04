@@ -33,6 +33,10 @@ public class BlockWorldVector extends WorldVector {
         super(world, x, y, z);
     }
 
+    public static Class<?> inject() {
+        return BlockWorldVector.class;
+    }
+
     public boolean equals(Object obj) {
         if (!(obj instanceof Vector)) {
             return false;
@@ -45,9 +49,5 @@ public class BlockWorldVector extends WorldVector {
     @Override
     public int hashCode() {
         return ((int) getX() ^ ((int) getZ() << 16)) ^ ((int) getY() << 30);
-    }
-
-    public static Class<?> inject() {
-        return BlockWorldVector.class;
     }
 }

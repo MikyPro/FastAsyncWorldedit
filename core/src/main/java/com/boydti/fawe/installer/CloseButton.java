@@ -1,6 +1,6 @@
 package com.boydti.fawe.installer;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class CloseButton extends InteractiveButton {

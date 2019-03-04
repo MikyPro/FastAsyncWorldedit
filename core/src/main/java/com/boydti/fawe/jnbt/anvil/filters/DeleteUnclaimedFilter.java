@@ -6,6 +6,7 @@ import com.boydti.fawe.jnbt.anvil.MCAFile;
 import com.boydti.fawe.regions.FaweMaskManager;
 import com.boydti.fawe.regions.general.RegionFilter;
 import com.sk89q.worldedit.world.World;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 
 public class DeleteUnclaimedFilter extends DeleteUninhabitedFilter {
     private ArrayList<RegionFilter> filters = new ArrayList<>();
+
     public DeleteUnclaimedFilter(World world, long fileDuration, long inhabitedTicks, long chunkInactivity) {
         super(fileDuration, inhabitedTicks, chunkInactivity);
         for (FaweMaskManager m : FaweAPI.getMaskManagers()) {

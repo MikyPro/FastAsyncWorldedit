@@ -34,6 +34,10 @@ public class CommandListBox extends MessageBox {
         super(title);
     }
 
+    public static Class<?> inject() {
+        return CommandListBox.class;
+    }
+
     public CommandListBox appendCommand(String alias, String description) {
         return appendCommand(alias, description, true);
     }
@@ -45,9 +49,5 @@ public class CommandListBox extends MessageBox {
         getContents().append((allowed ? BBC.HELP_ITEM_ALLOWED : BBC.HELP_ITEM_DENIED).format(alias, description));
         first = false;
         return this;
-    }
-
-    public static Class<?> inject() {
-        return CommandListBox.class;
     }
 }

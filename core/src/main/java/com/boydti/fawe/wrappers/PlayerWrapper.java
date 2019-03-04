@@ -5,15 +5,7 @@ import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.object.RunnableVal;
 import com.boydti.fawe.util.EditSessionBuilder;
 import com.boydti.fawe.util.TaskManager;
-import com.sk89q.worldedit.BlockWorldVector;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.PlayerDirection;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.WorldVector;
-import com.sk89q.worldedit.WorldVectorFace;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockType;
 import com.sk89q.worldedit.entity.BaseEntity;
@@ -26,9 +18,10 @@ import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.TargetBlock;
 import com.sk89q.worldedit.util.auth.AuthorizationException;
 import com.sk89q.worldedit.world.World;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public class PlayerWrapper extends AbstractPlayerActor {
     private final Player parent;

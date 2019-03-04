@@ -42,6 +42,10 @@ public class WorldEditExpressionEnvironment implements ExpressionEnvironment {
         this.zero2 = zero.add(0.5, 0.5, 0.5);
     }
 
+    public static Class<?> inject() {
+        return WorldEditExpressionEnvironment.class;
+    }
+
     @Override
     public BaseBlock getBlock(double x, double y, double z) {
         x = x * unit.getX() + zero2.getX();
@@ -65,9 +69,5 @@ public class WorldEditExpressionEnvironment implements ExpressionEnvironment {
 
     public void setCurrentBlock(Vector current) {
         this.current = current;
-    }
-
-    public static Class<?> inject() {
-        return WorldEditExpressionEnvironment.class;
     }
 }

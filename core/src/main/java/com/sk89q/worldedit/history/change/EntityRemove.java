@@ -25,7 +25,6 @@ import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.history.UndoContext;
 import com.sk89q.worldedit.util.Location;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -50,6 +49,10 @@ public class EntityRemove implements Change {
         this.state = state;
     }
 
+    public static Class<?> inject() {
+        return EntityRemove.class;
+    }
+
     @Override
     public void undo(UndoContext context) throws WorldEditException {
         entity = checkNotNull(context.getExtent()).createEntity(location, state);
@@ -61,9 +64,5 @@ public class EntityRemove implements Change {
             entity.remove();
             entity = null;
         }
-    }
-
-    public static Class<?> inject() {
-        return EntityRemove.class;
     }
 }

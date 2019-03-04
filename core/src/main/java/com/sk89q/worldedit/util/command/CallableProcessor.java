@@ -8,5 +8,4 @@ public interface CallableProcessor<T> {
     public Object process(CommandLocals locals, T value) throws CommandException, WorldEditException;
 
 
-
 }

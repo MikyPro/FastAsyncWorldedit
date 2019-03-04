@@ -9,11 +9,6 @@ public class FaweException extends RuntimeException {
         this.message = reason;
     }
 
-    @Override
-    public String getMessage() {
-        return message == null ? null : message.format();
-    }
-
     public static FaweException get(Throwable e) {
         if (e instanceof FaweException) {
             return (FaweException) e;
@@ -23,6 +18,21 @@ public class FaweException extends RuntimeException {
             return null;
         }
         return get(cause);
+    }
+
+    @Override
+    public String getMessage() {
+        return message == null ? null : message.format();
+    }
+
+    /**
+     * Faster exception throwing if you don't fill the stacktrace
+     *
+     * @return
+     */
+    @Override
+    public Throwable fillInStackTrace() {
+        return this;
     }
 
     /**
@@ -39,15 +49,5 @@ public class FaweException extends RuntimeException {
         public FaweBlockBagException() {
             super(BBC.WORLDEDIT_SOME_FAILS_BLOCKBAG);
         }
-    }
-
-    /**
-     * Faster exception throwing if you don't fill the stacktrace
-     *
-     * @return
-     */
-    @Override
-    public Throwable fillInStackTrace() {
-        return this;
     }
 }

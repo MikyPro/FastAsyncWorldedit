@@ -17,6 +17,7 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 
 /**
  * An implementation of a {@link Spline} using a Clipboard as source for the structure.
+ *
  * @author Schuwi
  * @version 1.0
  */
@@ -35,6 +36,7 @@ public class ClipboardSpline extends Spline {
      * Constructor without position-correction. Use this constructor for an interpolation implementation which does not need position-correction.
      * <p>
      * Be advised that currently subsequent changes to the interpolation parameters may not be supported.
+     *
      * @param editSession     The EditSession which will be used when pasting the clipboard content
      * @param clipboardHolder The clipboard that will be pasted along the spline
      * @param interpolation   An implementation of the interpolation algorithm used to calculate the curve
@@ -56,6 +58,7 @@ public class ClipboardSpline extends Spline {
      * 0.25 * 40 = 10 units of curve length between these two positions.
      * <p>
      * Be advised that currently subsequent changes to the interpolation parameters may not be supported.
+     *
      * @param editSession     The EditSession which will be used when pasting the clipboard content
      * @param clipboardHolder The clipboard that will be pasted along the spline
      * @param interpolation   An implementation of the interpolation algorithm used to calculate the curve

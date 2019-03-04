@@ -27,7 +27,6 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -48,6 +47,10 @@ public class MaskingExtent extends AbstractDelegateExtent {
         super(extent);
         checkNotNull(mask);
         this.mask = mask;
+    }
+
+    public static Class<?> inject() {
+        return MaskingExtent.class;
     }
 
     /**
@@ -82,10 +85,6 @@ public class MaskingExtent extends AbstractDelegateExtent {
     @Override
     public boolean setBiome(int x, int y, int z, BaseBiome biome) {
         return mask.test(mutable.setComponents(x, y, z)) && super.setBiome(x, y, z, biome);
-    }
-
-    public static Class<?> inject() {
-        return MaskingExtent.class;
     }
 
 }

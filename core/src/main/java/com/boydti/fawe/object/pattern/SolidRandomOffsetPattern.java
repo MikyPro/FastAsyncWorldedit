@@ -9,6 +9,7 @@ import com.sk89q.worldedit.blocks.BlockType;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.pattern.AbstractPattern;
 import com.sk89q.worldedit.function.pattern.Pattern;
+
 import java.io.IOException;
 import java.util.SplittableRandom;
 

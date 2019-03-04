@@ -115,6 +115,10 @@ public enum PlayerDirection {
         return dir;
     }
 
+    public static Class<?> inject() {
+        return PlayerDirection.class;
+    }
+
     public Vector vector() {
         return dir;
     }
@@ -126,9 +130,5 @@ public enum PlayerDirection {
 
     public boolean isOrthogonal() {
         return isOrthogonal;
-    }
-
-    public static Class<?> inject() {
-        return PlayerDirection.class;
     }
 }

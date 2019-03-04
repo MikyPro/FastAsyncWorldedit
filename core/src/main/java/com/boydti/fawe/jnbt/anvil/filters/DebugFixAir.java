@@ -7,6 +7,7 @@ import com.boydti.fawe.jnbt.anvil.MCAFilterCounter;
 import com.boydti.fawe.object.RunnableVal;
 import com.boydti.fawe.object.number.MutableLong;
 import com.sk89q.worldedit.blocks.BlockID;
+
 import java.util.Arrays;
 
 public class DebugFixAir extends MCAFilterCounter {
@@ -70,7 +71,7 @@ public class DebugFixAir extends MCAFilterCounter {
     @Override
     public void finishFile(MCAFile file, MutableLong cache) {
         Fawe.debug(" - apply " + file.getFile());
-        boolean[] deleteFile = { true };
+        boolean[] deleteFile = {true};
         file.forEachCachedChunk(new RunnableVal<MCAChunk>() {
             @Override
             public void run(MCAChunk value) {

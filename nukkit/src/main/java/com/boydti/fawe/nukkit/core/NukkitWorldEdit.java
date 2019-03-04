@@ -36,17 +36,13 @@ import com.sk89q.worldedit.event.platform.CommandEvent;
 import com.sk89q.worldedit.event.platform.PlatformReadyEvent;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extension.platform.CommandManager;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
 import java.util.Arrays;
 import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -55,22 +51,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class NukkitWorldEdit extends PluginBase {
 
-    private Logger logger;
-
     private static NukkitWorldEdit inst;
-
-    public static NukkitWorldEdit inst() {
-        return inst;
-    }
-
+    private Logger logger;
     private NukkitPlatform platform;
-
     private NukkitConfiguration config;
-
     private File workingDir;
 
     public NukkitWorldEdit() {
         inst = this;
+    }
+
+    public static NukkitWorldEdit inst() {
+        return inst;
     }
 
     @Override
@@ -137,13 +129,15 @@ public class NukkitWorldEdit extends PluginBase {
                 } finally {
                     try {
                         input.close();
-                    } catch (IOException ignored) {}
+                    } catch (IOException ignored) {
+                    }
 
                     try {
                         if (output != null) {
                             output.close();
                         }
-                    } catch (IOException ignored) {}
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         }

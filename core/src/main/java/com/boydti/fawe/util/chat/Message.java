@@ -5,6 +5,7 @@ import com.boydti.fawe.config.BBC;
 import com.boydti.fawe.object.FawePlayer;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.extension.platform.Actor;
+
 import java.util.Objects;
 
 public class Message {
@@ -99,7 +100,7 @@ public class Message {
         for (int i = 0; i < options.length; i++) {
             if (i != 0) text(" &8|&7 ");
             text("&7[&a" + options[i] + "&7]")
-            .cmdTip(prefix + options[i] + suffix);
+                    .cmdTip(prefix + options[i] + suffix);
         }
         return this;
     }

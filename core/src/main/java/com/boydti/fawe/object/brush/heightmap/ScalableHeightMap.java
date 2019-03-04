@@ -6,6 +6,7 @@ import com.boydti.fawe.util.MathMan;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
 import java.io.IOException;
@@ -16,34 +17,12 @@ public class ScalableHeightMap implements com.boydti.fawe.object.brush.heightmap
     public int size2;
     public int size;
 
-    public enum Shape {
-        CONE,
-        CYLINDER,
-    }
-
     public ScalableHeightMap() {
         setSize(5);
     }
 
     public ScalableHeightMap(int size) {
         setSize(size);
-    }
-
-    @Override
-    public void setSize(int size) {
-        this.size = size;
-        this.size2 = size * size;
-    }
-
-    @Override
-    public double getHeight(int x, int z) {
-        int dx = Math.abs(x);
-        int dz = Math.abs(z);
-        int d2 = dx * dx + dz * dz;
-        if (d2 > size2) {
-            return 0;
-        }
-        return Math.max(0, size - MathMan.sqrtApprox(d2));
     }
 
     public static ScalableHeightMap fromShape(Shape shape) {
@@ -109,5 +88,27 @@ public class ScalableHeightMap implements com.boydti.fawe.object.brush.heightmap
             }
         }
         return new ArrayHeightMap(array);
+    }
+
+    @Override
+    public void setSize(int size) {
+        this.size = size;
+        this.size2 = size * size;
+    }
+
+    @Override
+    public double getHeight(int x, int z) {
+        int dx = Math.abs(x);
+        int dz = Math.abs(z);
+        int d2 = dx * dx + dz * dz;
+        if (d2 > size2) {
+            return 0;
+        }
+        return Math.max(0, size - MathMan.sqrtApprox(d2));
+    }
+
+    public enum Shape {
+        CONE,
+        CYLINDER,
     }
 }

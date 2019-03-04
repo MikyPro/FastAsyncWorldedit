@@ -8,12 +8,12 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.AbstractDelegateExtent;
 import com.sk89q.worldedit.extent.Extent;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -41,6 +41,10 @@ public class BlockBagExtent extends AbstractDelegateExtent {
         checkNotNull(blockBag);
         this.blockBag = blockBag;
         this.mine = mine;
+    }
+
+    public static Class<?> inject() {
+        return BlockBagExtent.class;
     }
 
     /**
@@ -111,9 +115,5 @@ public class BlockBagExtent extends AbstractDelegateExtent {
             }
         }
         return getExtent().setBlock(x, y, z, block);
-    }
-
-    public static Class<?> inject() {
-        return BlockBagExtent.class;
     }
 }

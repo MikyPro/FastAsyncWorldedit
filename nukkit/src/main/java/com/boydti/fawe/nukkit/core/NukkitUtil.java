@@ -25,16 +25,14 @@ import cn.nukkit.block.Block;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.BlockWorldVector;
-import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldVector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.util.Location;
 
 public final class NukkitUtil {
+
+    public static final double EQUALS_PRECISION = 0.0001;
 
     private NukkitUtil() {
     }
@@ -110,8 +108,6 @@ public final class NukkitUtil {
         if (Math.abs(a.getZ() - b.getZ()) > EQUALS_PRECISION) return false;
         return true;
     }
-
-    public static final double EQUALS_PRECISION = 0.0001;
 
     public static cn.nukkit.level.Location toLocation(Location location) {
         return new cn.nukkit.level.Location(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), toLevel((LocalWorld) location.getExtent()));

@@ -11,16 +11,11 @@ import com.boydti.fawe.util.StringMan;
 import com.boydti.fawe.util.chat.Message;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public enum BBC {
 
@@ -336,10 +331,12 @@ public enum BBC {
     TIP_REGEN_1("Tip: Use a seed with /regen [biome] [seed]", "Tips"),
 
     TIP_BIOME_PATTERN("Tip: The &c#biome[forest]&7 pattern can be used in any command", "Tips"),
-    TIP_BIOME_MASK("Tip: Restrict to a biome with the `$jungle` mask", "Tips"),;
+    TIP_BIOME_MASK("Tip: Restrict to a biome with the `$jungle` mask", "Tips"),
+    ;
 
 
     private static final HashMap<String, String> replacements = new HashMap<>();
+
     static {
         for (final char letter : "1234567890abcdefklmnor".toCharArray()) {
             replacements.put("&" + letter, "\u00a7" + letter);
@@ -348,6 +345,7 @@ public enum BBC {
         replacements.put("\\n", "\n");
         replacements.put("&-", "\n");
     }
+
     /**
      * Translated
      */
@@ -396,24 +394,6 @@ public enum BBC {
      */
     BBC(final String d, final String cat) {
         this(d, true, cat.toLowerCase());
-    }
-
-    public String f(final Object... args) {
-        return format(args);
-    }
-
-    public String format(final Object... args) {
-        String m = this.s;
-        for (int i = args.length - 1; i >= 0; i--) {
-            if (args[i] == null) {
-                continue;
-            }
-            m = m.replace("%s" + i, args[i].toString());
-        }
-        if (args.length > 0) {
-            m = m.replace("%s", args[0].toString());
-        }
-        return m;
     }
 
     public static void load(final File file) {
@@ -473,19 +453,6 @@ public enum BBC {
         }
     }
 
-    @Override
-    public String toString() {
-        return s();
-    }
-
-    public boolean isEmpty() {
-        return length() == 0;
-    }
-
-    public int length() {
-        return toString().length();
-    }
-
     public static String color(String string) {
         return StringMan.replaceFromMap(string, replacements);
     }
@@ -495,65 +462,8 @@ public enum BBC {
         return StringMan.removeFromSet(string, replacements.keySet());
     }
 
-    public String s() {
-        return this.s;
-    }
-
-    public Message m(Object... args) {
-        return new Message(this, args);
-    }
-
-    public String original() {
-        return d;
-    }
-
-    public boolean usePrefix() {
-        return this.prefix;
-    }
-
-    public String getCat() {
-        return this.cat;
-    }
-
-    public BBC or(BBC... others) {
-        int index = PseudoRandom.random.nextInt(others.length + 1);
-        return index == 0 ? this : others[index - 1];
-    }
-
-    public void send(Object actor, final Object... args) {
-        if (isEmpty()) {
-            return;
-        }
-        if (actor == null) {
-            Fawe.debug(this.format(args));
-        } else {
-            try {
-                Method method = actor.getClass().getMethod("print", String.class);
-                method.setAccessible(true);
-                method.invoke(actor, (PREFIX.isEmpty() ? "" : PREFIX.s() + " ") + this.format(args));
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static String getPrefix() {
         return (PREFIX.isEmpty() ? "" : PREFIX.s() + " ");
-    }
-
-    public void send(final FawePlayer<?> player, final Object... args) {
-        if (isEmpty()) {
-            return;
-        }
-        if (player == null) {
-            Fawe.debug(this.format(args));
-        } else {
-            player.sendMessage((PREFIX.isEmpty() ? "" : PREFIX.s() + " ") + this.format(args));
-        }
     }
 
     public static char getCode(String name) {
@@ -657,7 +567,7 @@ public enum BBC {
     }
 
     private static Object[] append(StringBuilder builder, Map<String, Object> obj, String color, Map<String, Boolean> properties) {
-        Object[] style = new Object[] { color, properties };
+        Object[] style = new Object[]{color, properties};
         for (Map.Entry<String, Object> entry : obj.entrySet()) {
             switch (entry.getKey()) {
                 case "text":
@@ -707,7 +617,8 @@ public enum BBC {
     public static String jsonToString(String text) {
         Gson gson = new Gson();
         StringBuilder builder = new StringBuilder();
-        Map<String, Object> obj = gson.fromJson(text, new TypeToken<Map<String, Object>>() {}.getType());
+        Map<String, Object> obj = gson.fromJson(text, new TypeToken<Map<String, Object>>() {
+        }.getType());
         HashMap<String, Boolean> properties = new HashMap<>();
         properties.put("bold", false);
         properties.put("italic", false);
@@ -738,6 +649,94 @@ public enum BBC {
                 hasColor = true;
             }
             newline = true;
+        }
+    }
+
+    public String f(final Object... args) {
+        return format(args);
+    }
+
+    public String format(final Object... args) {
+        String m = this.s;
+        for (int i = args.length - 1; i >= 0; i--) {
+            if (args[i] == null) {
+                continue;
+            }
+            m = m.replace("%s" + i, args[i].toString());
+        }
+        if (args.length > 0) {
+            m = m.replace("%s", args[0].toString());
+        }
+        return m;
+    }
+
+    @Override
+    public String toString() {
+        return s();
+    }
+
+    public boolean isEmpty() {
+        return length() == 0;
+    }
+
+    public int length() {
+        return toString().length();
+    }
+
+    public String s() {
+        return this.s;
+    }
+
+    public Message m(Object... args) {
+        return new Message(this, args);
+    }
+
+    public String original() {
+        return d;
+    }
+
+    public boolean usePrefix() {
+        return this.prefix;
+    }
+
+    public String getCat() {
+        return this.cat;
+    }
+
+    public BBC or(BBC... others) {
+        int index = PseudoRandom.random.nextInt(others.length + 1);
+        return index == 0 ? this : others[index - 1];
+    }
+
+    public void send(Object actor, final Object... args) {
+        if (isEmpty()) {
+            return;
+        }
+        if (actor == null) {
+            Fawe.debug(this.format(args));
+        } else {
+            try {
+                Method method = actor.getClass().getMethod("print", String.class);
+                method.setAccessible(true);
+                method.invoke(actor, (PREFIX.isEmpty() ? "" : PREFIX.s() + " ") + this.format(args));
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void send(final FawePlayer<?> player, final Object... args) {
+        if (isEmpty()) {
+            return;
+        }
+        if (player == null) {
+            Fawe.debug(this.format(args));
+        } else {
+            player.sendMessage((PREFIX.isEmpty() ? "" : PREFIX.s() + " ") + this.format(args));
         }
     }
 }

@@ -5,8 +5,9 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.mask.Mask2D;
 import com.sk89q.worldedit.function.mask.SolidBlockMask;
-import java.util.Arrays;
+
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 public class AngleMask extends SolidBlockMask implements ResettableMask {
     public static double ADJACENT_MOD = 0.5;
@@ -21,7 +22,17 @@ public class AngleMask extends SolidBlockMask implements ResettableMask {
     protected final int distance;
 
     protected transient MutableBlockVector mutable = new MutableBlockVector();
-
+    protected transient int cacheCenX;
+    protected transient int cacheCenZ;
+    protected transient int cacheBotX = Integer.MIN_VALUE;
+    protected transient int cacheBotZ = Integer.MIN_VALUE;
+    protected transient int cacheCenterZ;
+    protected transient byte[] cacheHeights;
+    protected transient int lastY;
+    protected transient int lastX = Integer.MIN_VALUE;
+    protected transient int lastZ = Integer.MIN_VALUE;
+    protected transient boolean foundY;
+    protected transient boolean lastValue;
     public AngleMask(Extent extent, double min, double max, boolean overlay, int distance) {
         super(extent);
         this.mask = new CachedMask(new SolidBlockMask(extent));
@@ -45,20 +56,6 @@ public class AngleMask extends SolidBlockMask implements ResettableMask {
             Arrays.fill(cacheHeights, (byte) 0);
         }
     }
-
-    protected transient int cacheCenX;
-    protected transient int cacheCenZ;
-    protected transient int cacheBotX = Integer.MIN_VALUE;
-    protected transient int cacheBotZ = Integer.MIN_VALUE;
-    protected transient int cacheCenterZ;
-
-    protected transient byte[] cacheHeights;
-
-    protected transient int lastY;
-    protected transient int lastX = Integer.MIN_VALUE;
-    protected transient int lastZ = Integer.MIN_VALUE;
-    protected transient boolean foundY;
-    protected transient boolean lastValue;
 
     public int getHeight(int x, int y, int z) {
 //        return getExtent().getNearestSurfaceTerrainBlock(x, z, y, 0, maxY);
@@ -95,7 +92,7 @@ public class AngleMask extends SolidBlockMask implements ResettableMask {
         double slope;
         boolean aboveMin;
         lastY = y;
-        slope = Math.abs(getHeight(x + distance, y, z) - getHeight(x -distance, y, z)) * ADJACENT_MOD;
+        slope = Math.abs(getHeight(x + distance, y, z) - getHeight(x - distance, y, z)) * ADJACENT_MOD;
         if (checkFirst) {
             if (slope >= min) {
                 return lastValue = true;

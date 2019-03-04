@@ -15,6 +15,12 @@ import com.boydti.fawe.util.TaskManager;
 import com.google.common.collect.MapMaker;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.worldedit.blocks.BaseBlock;
+import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Biome;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
@@ -22,65 +28,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
-import org.bukkit.Chunk;
-import org.bukkit.ChunkSnapshot;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Biome;
 
 public class BukkitQueue_All extends BukkitQueue_0<ChunkSnapshot, ChunkSnapshot, ChunkSnapshot> {
 
     public static int ALLOCATE;
-    private ConcurrentMap<Long, ChunkSnapshot> chunkCache = new MapMaker()
-            .weakValues()
-            .makeMap();
-
-    public BukkitQueue_All(com.sk89q.worldedit.world.World world) {
-        super(world);
-        if (Settings.IMP.QUEUE.EXTRA_TIME_MS != Integer.MIN_VALUE) {
-            ALLOCATE = Settings.IMP.QUEUE.EXTRA_TIME_MS;
-            Settings.IMP.QUEUE.EXTRA_TIME_MS = Integer.MIN_VALUE;
-            Settings.IMP.QUEUE.PARALLEL_THREADS = 1;
-        }
-    }
-
-    public BukkitQueue_All(String world) {
-        super(world);
-        if (Settings.IMP.QUEUE.EXTRA_TIME_MS != Integer.MIN_VALUE) {
-            ALLOCATE = Settings.IMP.QUEUE.EXTRA_TIME_MS;
-            Settings.IMP.QUEUE.EXTRA_TIME_MS = Integer.MIN_VALUE;
-            Settings.IMP.QUEUE.PARALLEL_THREADS = 1;
-        }
-    }
-
-    @Override
-    public boolean queueChunkLoad(int cx, int cz, RunnableVal<ChunkSnapshot> operation) {
-        if (PAPER) {
-            try {
-                new PaperChunkCallback(getImpWorld(), cx, cz) {
-                    @Override
-                    public void onLoad(Chunk chunk) {
-                        try {
-                            ChunkSnapshot snapshot = chunk.getChunkSnapshot();
-                            operation.run(snapshot);
-                        } catch (Throwable e) {
-                            PAPER = false;
-                        }
-                    }
-                };
-                return true;
-            } catch (Throwable ignore) {
-                PAPER = false;
-            }
-        }
-        return super.queueChunkLoad(cx, cz);
-    }
-
-    @Override
-    public Relighter getRelighter() {
-        return NullRelighter.INSTANCE;
-    }
-
     private static Class<?> classRegionFileCache;
     private static Class<?> classRegionFile;
     private static Class<?> classCraftChunk;
@@ -129,6 +80,59 @@ public class BukkitQueue_All extends BukkitQueue_0<ChunkSnapshot, ChunkSnapshot,
         }
     }
 
+    private ConcurrentMap<Long, ChunkSnapshot> chunkCache = new MapMaker()
+            .weakValues()
+            .makeMap();
+    private int skip;
+    private Field fieldNeighbors;
+    private Method chunkGetHandle;
+
+    public BukkitQueue_All(com.sk89q.worldedit.world.World world) {
+        super(world);
+        if (Settings.IMP.QUEUE.EXTRA_TIME_MS != Integer.MIN_VALUE) {
+            ALLOCATE = Settings.IMP.QUEUE.EXTRA_TIME_MS;
+            Settings.IMP.QUEUE.EXTRA_TIME_MS = Integer.MIN_VALUE;
+            Settings.IMP.QUEUE.PARALLEL_THREADS = 1;
+        }
+    }
+
+    public BukkitQueue_All(String world) {
+        super(world);
+        if (Settings.IMP.QUEUE.EXTRA_TIME_MS != Integer.MIN_VALUE) {
+            ALLOCATE = Settings.IMP.QUEUE.EXTRA_TIME_MS;
+            Settings.IMP.QUEUE.EXTRA_TIME_MS = Integer.MIN_VALUE;
+            Settings.IMP.QUEUE.PARALLEL_THREADS = 1;
+        }
+    }
+
+    @Override
+    public boolean queueChunkLoad(int cx, int cz, RunnableVal<ChunkSnapshot> operation) {
+        if (PAPER) {
+            try {
+                new PaperChunkCallback(getImpWorld(), cx, cz) {
+                    @Override
+                    public void onLoad(Chunk chunk) {
+                        try {
+                            ChunkSnapshot snapshot = chunk.getChunkSnapshot();
+                            operation.run(snapshot);
+                        } catch (Throwable e) {
+                            PAPER = false;
+                        }
+                    }
+                };
+                return true;
+            } catch (Throwable ignore) {
+                PAPER = false;
+            }
+        }
+        return super.queueChunkLoad(cx, cz);
+    }
+
+    @Override
+    public Relighter getRelighter() {
+        return NullRelighter.INSTANCE;
+    }
+
     @Override
     public boolean setMCA(int mcaX, int mcaZ, RegionWrapper allowed, Runnable whileLocked, boolean saveChunks, boolean load) {
         if (classRegionFileCache == null) {
@@ -170,7 +174,7 @@ public class BukkitQueue_All extends BukkitQueue_0<ChunkSnapshot, ChunkSnapshot,
                         Object nmsWorld = methodGetHandleWorld.invoke(world);
                         Object chunkProviderServer = fieldChunkProvider.get(nmsWorld);
                         Object chunkRegionLoader = fieldChunkLoader.get(chunkProviderServer);
-                        while ((boolean) methodFlush.invoke(chunkRegionLoader));
+                        while ((boolean) methodFlush.invoke(chunkRegionLoader)) ;
 
                         if (unloaded != null) {
                             Map regionMap = (Map) fieldRegionMap.get(null);
@@ -332,25 +336,22 @@ public class BukkitQueue_All extends BukkitQueue_0<ChunkSnapshot, ChunkSnapshot,
     @Override
     public boolean supports(Capability capability) {
         switch (capability) {
-            case CHANGE_TASKS: return getAdapter() != null;
+            case CHANGE_TASKS:
+                return getAdapter() != null;
         }
         return super.supports(capability);
     }
-
-    private int skip;
 
     @Override
     public void startSet(boolean parallel) {
         super.startSet(true);
     }
 
-    private Field fieldNeighbors;
-    private Method chunkGetHandle;
-
     /**
      * Exploiting a bug in the vanilla lighting algorithm for faster block placement
-     *  - Could have been achieved without reflection by force unloading specific chunks
-     *  - Much faster just setting the variable manually though
+     * - Could have been achieved without reflection by force unloading specific chunks
+     * - Much faster just setting the variable manually though
+     *
      * @param chunk
      * @return
      */
@@ -367,8 +368,9 @@ public class BukkitQueue_All extends BukkitQueue_0<ChunkSnapshot, ChunkSnapshot,
             }
             Object value = fieldNeighbors.get(nmsChunk);
             fieldNeighbors.set(nmsChunk, 0);
-            return new Object[] {nmsChunk, value};
-        } catch (Throwable ignore) {}
+            return new Object[]{nmsChunk, value};
+        } catch (Throwable ignore) {
+        }
         return null;
     }
 
@@ -396,7 +398,8 @@ public class BukkitQueue_All extends BukkitQueue_0<ChunkSnapshot, ChunkSnapshot,
         if (disableResult != null) {
             try {
                 fieldNeighbors.set(disableResult[0], 0x739C0);
-            } catch (Throwable ignore) {}
+            } catch (Throwable ignore) {
+            }
         }
     }
 

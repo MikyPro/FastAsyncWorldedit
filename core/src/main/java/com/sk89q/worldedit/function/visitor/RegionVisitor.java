@@ -34,6 +34,7 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.function.operation.RunContext;
 import com.sk89q.worldedit.regions.Region;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -46,8 +47,8 @@ public class RegionVisitor implements Operation {
     public final Iterable<? extends Vector> iterable;
     public final RegionFunction function;
     private final MappedFaweQueue queue;
-    private boolean useCuboidIterator = false;
     public int affected = 0;
+    private boolean useCuboidIterator = false;
 
     /**
      * Deprecated in favor of the other constructors which will preload chunks during iteration
@@ -73,6 +74,10 @@ public class RegionVisitor implements Operation {
         this.iterable = iterable;
         this.function = function;
         this.queue = hasQueue != null && hasQueue.getQueue() instanceof MappedFaweQueue ? (MappedFaweQueue) hasQueue.getQueue() : null;
+    }
+
+    public static Class<?> inject() {
+        return Operations.class;
     }
 
     /**
@@ -196,9 +201,5 @@ public class RegionVisitor implements Operation {
     @Override
     public void addStatusMessages(final List<String> messages) {
         messages.add(BBC.VISITOR_BLOCK.format(getAffected()));
-    }
-
-    public static Class<?> inject() {
-        return Operations.class;
     }
 }

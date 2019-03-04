@@ -14,7 +14,11 @@ import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.history.changeset.ChangeSet;
 import com.sk89q.worldedit.util.Location;
-import java.awt.Graphics2D;
+import net.jpountz.lz4.*;
+
+import javax.annotation.Nullable;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Array;
@@ -27,6 +31,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ForkJoinPool;
@@ -35,11 +40,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.zip.*;
-import javax.annotation.Nullable;
-import javax.imageio.ImageIO;
-import net.jpountz.lz4.*;
 
 public class MainUtil {
+    private static final LZ4Factory FACTORY = LZ4Factory.fastestInstance();
+    private static final LZ4Compressor COMPRESSOR = FACTORY.fastCompressor();
+    private static final LZ4FastDecompressor DECOMPRESSOR = FACTORY.fastDecompressor();
+    private static final Class[] parameters = new Class[]{URL.class};
+
     /*
      * Generic non plugin related utils
      *  e.g. sending messages
@@ -121,7 +128,7 @@ public class MainUtil {
         List<String> parameterNames = new ArrayList<>();
 
         for (Parameter parameter : parameters) {
-            if(!parameter.isNamePresent()) {
+            if (!parameter.isNamePresent()) {
                 throw new IllegalArgumentException("Parameter names are not present!");
             }
 
@@ -269,10 +276,6 @@ public class MainUtil {
     public static FaweOutputStream getCompressedOS(OutputStream os, int amount) throws IOException {
         return getCompressedOS(os, amount, Settings.IMP.HISTORY.BUFFER_SIZE);
     }
-
-    private static final LZ4Factory FACTORY = LZ4Factory.fastestInstance();
-    private static final LZ4Compressor COMPRESSOR = FACTORY.fastCompressor();
-    private static final LZ4FastDecompressor DECOMPRESSOR = FACTORY.fastDecompressor();
 
     public static int getMaxCompressedLength(int size) {
         return LZ4Utils.maxCompressedLength(size);
@@ -491,8 +494,6 @@ public class MainUtil {
         }
     }
 
-    private static final Class[] parameters = new Class[]{URL.class};
-
     public static ClassLoader loadURLClasspath(URL u) throws IOException {
         ClassLoader sysloader = ClassLoader.getSystemClassLoader();
 
@@ -597,12 +598,12 @@ public class MainUtil {
     }
 
     public static Thread[] getThreads() {
-        ThreadGroup rootGroup = Thread.currentThread( ).getThreadGroup( );
+        ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
         ThreadGroup parentGroup;
-        while ( ( parentGroup = rootGroup.getParent() ) != null ) {
+        while ((parentGroup = rootGroup.getParent()) != null) {
             rootGroup = parentGroup;
         }
-        Thread[] threads = new Thread[ rootGroup.activeCount() ];
+        Thread[] threads = new Thread[rootGroup.activeCount()];
         if (threads.length != 0) {
             while (rootGroup.enumerate(threads, true) == threads.length) {
                 threads = new Thread[threads.length * 2];
@@ -1141,10 +1142,6 @@ public class MainUtil {
         return false;
     }
 
-    public enum OS {
-        LINUX, SOLARIS, WINDOWS, MACOS, UNKNOWN;
-    }
-
     public static File getWorkingDirectory(String applicationName) {
         String userHome = System.getProperty("user.home", ".");
         File workingDirectory = null;
@@ -1194,5 +1191,9 @@ public class MainUtil {
             return OS.LINUX;
         }
         return OS.UNKNOWN;
+    }
+
+    public enum OS {
+        LINUX, SOLARIS, WINDOWS, MACOS, UNKNOWN;
     }
 }

@@ -24,13 +24,13 @@ public class DelegateClipboardHolder extends ClipboardHolder {
     }
 
     @Override
-    public void setTransform(Transform transform) {
-        parent.setTransform(transform);
+    public Transform getTransform() {
+        return parent.getTransform();
     }
 
     @Override
-    public Transform getTransform() {
-        return parent.getTransform();
+    public void setTransform(Transform transform) {
+        parent.setTransform(transform);
     }
 
     @Override

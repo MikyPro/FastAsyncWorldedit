@@ -29,6 +29,10 @@ public class RecursivePickaxe implements BlockTool {
         this.range = range;
     }
 
+    public static Class<?> inject() {
+        return RecursivePickaxe.class;
+    }
+
     @Override
     public boolean canUse(Actor player) {
         return player.hasPermission("worldedit.superpickaxe.recursive");
@@ -62,9 +66,5 @@ public class RecursivePickaxe implements BlockTool {
         session.remember(editSession);
 
         return true;
-    }
-
-    public static Class<?> inject() {
-        return RecursivePickaxe.class;
     }
 }

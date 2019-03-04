@@ -5,21 +5,20 @@ import com.boydti.fawe.object.PseudoRandom;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockID;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
 import java.io.FileNotFoundException;
 
 public class RandomTextureUtil extends CachedTextureUtil {
 
     private final int grassColor;
-
-    public RandomTextureUtil(TextureUtil parent) throws FileNotFoundException {
-        super(parent);
-        this.grassColor = parent.getColor(FaweCache.getBlock(BlockID.GRASS, 0));
-    }
-
     private int index;
     private int[] biomeMixBuffer = new int[3];
     private Int2ObjectOpenHashMap<Integer> offsets = new Int2ObjectOpenHashMap<>();
     private Int2ObjectOpenHashMap<int[]> biomeMixes = new Int2ObjectOpenHashMap<>();
+    public RandomTextureUtil(TextureUtil parent) throws FileNotFoundException {
+        super(parent);
+        this.grassColor = parent.getColor(FaweCache.getBlock(BlockID.GRASS, 0));
+    }
 
     protected int addRandomColor(int c1, int c2) {
         int red1 = (c1 >> 16) & 0xFF;

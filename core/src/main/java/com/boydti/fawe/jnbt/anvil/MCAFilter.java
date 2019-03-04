@@ -2,6 +2,7 @@ package com.boydti.fawe.jnbt.anvil;
 
 import com.boydti.fawe.object.collection.IterableThreadLocal;
 import com.sk89q.worldedit.blocks.BaseBlock;
+
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.ForkJoinPool;
@@ -18,6 +19,7 @@ public class MCAFilter<T> extends IterableThreadLocal<T> {
 
     /**
      * Check whether this .mca file should be read
+     *
      * @param path
      * @param attr
      * @return

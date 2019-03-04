@@ -8,6 +8,7 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
+
 import java.io.IOException;
 
 public class AngleColorPattern extends DataAnglePattern {

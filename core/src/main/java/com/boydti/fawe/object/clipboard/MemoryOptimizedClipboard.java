@@ -16,49 +16,45 @@ import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.world.biome.BaseBiome;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 public class MemoryOptimizedClipboard extends FaweClipboard {
 
     public static final int BLOCK_SIZE = 1048576;
     public static final int BLOCK_MASK = 1048575;
     public static final int BLOCK_SHIFT = 20;
-
+    private final HashMap<IntegerTrio, CompoundTag> nbtMapLoc;
+    private final HashMap<Integer, CompoundTag> nbtMapIndex;
+    private final HashSet<ClipboardEntity> entities;
+    int saves = 0;
     private int length;
     private int height;
     private int width;
     private int area;
     private int volume;
-
     private byte[][] ids;
     private byte[][] datas;
     private byte[][] add;
-
     private byte[] buffer = new byte[MainUtil.getMaxCompressedLength(BLOCK_SIZE)];
     private byte[] biomes = null;
-
-    private final HashMap<IntegerTrio, CompoundTag> nbtMapLoc;
-    private final HashMap<Integer, CompoundTag> nbtMapIndex;
-
-    private final HashSet<ClipboardEntity> entities;
-
     private int lastIdsI = -1;
     private int lastDatasI = -1;
     private int lastAddI = -1;
-
     private byte[] lastIds;
     private byte[] lastDatas;
     private byte[] lastAdd;
-
     private boolean saveIds = false;
     private boolean saveDatas = false;
     private boolean saveAdd = false;
-
     private int compressionLevel;
+    private int lastI;
+    private int lastIMin;
+    private int lastIMax;
+    private int ylast;
+    private int ylasti;
+    private int zlast;
+    private int zlasti;
 
     public MemoryOptimizedClipboard(int width, int height, int length) {
         this(width, height, length, Settings.IMP.CLIPBOARD.COMPRESSION_LEVEL);
@@ -155,8 +151,6 @@ public class MemoryOptimizedClipboard extends FaweClipboard {
         return lastIds[index & BLOCK_MASK] & 0xFF;
     }
 
-    int saves = 0;
-
     private void saveIds() {
         if (saveIds && lastIds != null) {
             ids[lastIdsI] = MainUtil.compress(lastIds, buffer, compressionLevel);
@@ -197,6 +191,11 @@ public class MemoryOptimizedClipboard extends FaweClipboard {
     }
 
     @Override
+    public Vector getDimensions() {
+        return new Vector(width, height, length);
+    }
+
+    @Override
     public void setDimensions(Vector dimensions) {
         width = dimensions.getBlockX();
         height = dimensions.getBlockY();
@@ -216,11 +215,6 @@ public class MemoryOptimizedClipboard extends FaweClipboard {
         }
     }
 
-    @Override
-    public Vector getDimensions() {
-        return new Vector(width, height, length);
-    }
-
     public int getAdd(int index) {
         int i = index >> BLOCK_SHIFT;
         if (i == lastAddI) {
@@ -238,11 +232,6 @@ public class MemoryOptimizedClipboard extends FaweClipboard {
         lastAdd = MainUtil.decompress(compressed, lastAdd, BLOCK_SIZE, compressionLevel);
         return lastAdd[index & BLOCK_MASK] & 0xFF;
     }
-
-
-    private int lastI;
-    private int lastIMin;
-    private int lastIMax;
 
     public int getLocalIndex(int index) {
         if (index < lastIMin || index > lastIMax) {
@@ -381,11 +370,6 @@ public class MemoryOptimizedClipboard extends FaweClipboard {
         }
         return new ArrayList<>(nbtMapIndex.values());
     }
-
-    private int ylast;
-    private int ylasti;
-    private int zlast;
-    private int zlasti;
 
     public int getIndex(int x, int y, int z) {
         return x + ((ylast == y) ? ylasti : (ylasti = (ylast = y) * area)) + ((zlast == z) ? zlasti : (zlasti = (zlast = z) * width));

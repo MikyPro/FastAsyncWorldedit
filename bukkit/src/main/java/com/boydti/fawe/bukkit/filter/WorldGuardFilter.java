@@ -12,7 +12,6 @@ import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.World;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class WorldGuardFilter extends CuboidRegionFilter {
@@ -24,6 +23,7 @@ public class WorldGuardFilter extends CuboidRegionFilter {
         checkNotNull(world);
         this.world = world;
     }
+
     @Override
     public void calculateRegions() {
         TaskManager.IMP.sync(new RunnableVal<Object>() {

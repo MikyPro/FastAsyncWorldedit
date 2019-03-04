@@ -24,7 +24,10 @@ import com.boydti.fawe.FaweVersion;
 import com.boydti.fawe.config.BBC;
 import com.boydti.fawe.config.Settings;
 import com.boydti.fawe.object.FawePlayer;
-import com.boydti.fawe.util.*;
+import com.boydti.fawe.util.IncendoPaster;
+import com.boydti.fawe.util.StringMan;
+import com.boydti.fawe.util.TaskManager;
+import com.boydti.fawe.util.Updater;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandContext;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
@@ -37,6 +40,7 @@ import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extension.platform.Capability;
 import com.sk89q.worldedit.extension.platform.Platform;
 import com.sk89q.worldedit.extension.platform.PlatformManager;
+
 import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -51,6 +55,10 @@ public class WorldEditCommands {
 
     public WorldEditCommands(WorldEdit we) {
         this.we = we;
+    }
+
+    public static Class<WorldEditCommands> inject() {
+        return WorldEditCommands.class;
     }
 
     @Command(
@@ -246,9 +254,5 @@ public class WorldEditCommands {
     )
     public void help(Actor actor, CommandContext args) throws WorldEditException {
         UtilityCommands.help(args, we, actor);
-    }
-
-    public static Class<WorldEditCommands> inject() {
-        return WorldEditCommands.class;
     }
 }

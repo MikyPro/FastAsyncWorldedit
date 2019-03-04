@@ -21,12 +21,7 @@ package com.sk89q.worldedit.regions.selector;
 
 import com.boydti.fawe.config.BBC;
 import com.google.common.base.Optional;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.IncompleteRegionException;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.internal.cui.CUIRegion;
 import com.sk89q.worldedit.internal.cui.SelectionMinMaxEvent;
@@ -37,10 +32,10 @@ import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
 import com.sk89q.worldedit.regions.selector.limit.SelectorLimits;
 import com.sk89q.worldedit.world.World;
+
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -115,17 +110,21 @@ public class Polygonal2DRegionSelector extends com.sk89q.worldedit.regions.Polyg
     /**
      * Create a new selector.
      *
-     * @param world the world
+     * @param world  the world
      * @param points a list of points
-     * @param minY the minimum Y
-     * @param maxY the maximum Y
+     * @param minY   the minimum Y
+     * @param maxY   the maximum Y
      */
     public Polygonal2DRegionSelector(@Nullable World world, List<BlockVector2D> points, int minY, int maxY) {
         checkNotNull(points);
-        
+
         final BlockVector2D pos2D = points.get(0);
         pos1 = new BlockVector(pos2D.getX(), minY, pos2D.getZ());
         region = new Polygonal2DRegion(world, points, minY, maxY);
+    }
+
+    public static Class<?> inject() {
+        return Polygonal2DRegionSelector.class;
     }
 
     @Nullable
@@ -292,9 +291,5 @@ public class Polygonal2DRegionSelector extends com.sk89q.worldedit.regions.Polyg
     @Override
     public String getLegacyTypeID() {
         return "polygon2d";
-    }
-
-    public static Class<?> inject() {
-        return Polygonal2DRegionSelector.class;
     }
 }

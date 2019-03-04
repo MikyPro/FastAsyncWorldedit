@@ -1,11 +1,11 @@
 package com.boydti.fawe.installer;
 
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import javax.swing.JButton;
 
 public class InteractiveButton extends JButton implements ActionListener, MouseListener {
     private Color background;

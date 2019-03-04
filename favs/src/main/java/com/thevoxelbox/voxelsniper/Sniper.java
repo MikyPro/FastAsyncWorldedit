@@ -1,26 +1,26 @@
 /**
- This file is part of VoxelSniper, licensed under the MIT License (MIT).
-
- Copyright (c) The VoxelBox <http://thevoxelbox.com>
- Copyright (c) contributors
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
+ * This file is part of VoxelSniper, licensed under the MIT License (MIT).
+ * <p>
+ * Copyright (c) The VoxelBox <http://thevoxelbox.com>
+ * Copyright (c) contributors
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
 package com.thevoxelbox.voxelsniper;
@@ -54,11 +54,6 @@ import com.thevoxelbox.voxelsniper.brush.perform.PerformBrush;
 import com.thevoxelbox.voxelsniper.brush.perform.Performer;
 import com.thevoxelbox.voxelsniper.event.SniperMaterialChangedEvent;
 import com.thevoxelbox.voxelsniper.event.SniperReplaceMaterialChangedEvent;
-
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -71,12 +66,19 @@ import org.bukkit.event.block.Action;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginManager;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class Sniper {
-    private VoxelSniper plugin;
     private final UUID player;
+    private VoxelSniper plugin;
     private boolean enabled = true;
-//    private LinkedList<FaweChangeSet> undoList = new LinkedList<>();
+    //    private LinkedList<FaweChangeSet> undoList = new LinkedList<>();
     private Map<String, SniperTool> tools = new HashMap<>();
+    // Added
+    private AsyncWorld permanentWorld;
 
     public Sniper(VoxelSniper plugin, Player player) {
         Preconditions.checkNotNull(plugin);
@@ -87,6 +89,10 @@ public class Sniper {
         sniperTool.assignAction(SnipeAction.ARROW, Material.ARROW);
         sniperTool.assignAction(SnipeAction.GUNPOWDER, Material.SULPHUR);
         tools.put(null, sniperTool);
+    }
+
+    public static Class<?> inject() {
+        return Sniper.class;
     }
 
     public String getCurrentToolId() {
@@ -105,9 +111,6 @@ public class Sniper {
         }
         return null;
     }
-
-    // Added
-    private AsyncWorld permanentWorld;
 
     public void storeUndo(Undo undo) {
     }
@@ -429,7 +432,8 @@ public class Sniper {
                     Method methodFireEvent = clazz.getDeclaredMethod("fireEvent", Event.class);
                     methodFireEvent.setAccessible(true);
                     methodFireEvent.invoke(plm, event);
-                } catch (Throwable ignore) {}
+                } catch (Throwable ignore) {
+                }
             }
         }
     }
@@ -521,7 +525,7 @@ public class Sniper {
                     BBC.COMMAND_UNDO_ERROR.send(fp);
                 }
             }
-        }, true, false));
+        }, true, false)) ;
     }
 
     public void reset(String toolId) {
@@ -661,9 +665,5 @@ public class Sniper {
                 return null;
             }
         }
-    }
-
-    public static Class<?> inject() {
-        return Sniper.class;
     }
 }

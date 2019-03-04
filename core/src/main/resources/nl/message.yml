@@ -64,7 +64,7 @@ web:
   download_link: '%s'
 worldedit:
   general:
-    mask_disabled: Global mask uitgeschakeld 
+    mask_disabled: Global mask uitgeschakeld
     mask: Global mask is gezet
     texture_disabled: Texturing reset
     texture_set: Texturing tot %s1 gezet
@@ -139,7 +139,7 @@ worldedit:
       &cEr zijn betere brushes hier voor te gebruiken e.g.
       &8 - &7//br height [radius=5] [#clipboard|file=null] [rotation=0] [yscale=1.00]
     brush_copy: Links klik de fundering van de constructie om te kopieëren, rechts klik om te plakken. Verhoog
-     de brush Settings als dat mogelijk is.
+      de brush Settings als dat mogelijk is.
     brush_height_invalid: Onvalide hoogte map file (%s0)
     brush_smooth: Gebruik de blend brush om caves en hangende dingen glad te krijgen.'
     brush_spline: Klik Om een bevestigingspunt te zetten, klik hetzelfde punt om het af te ronden.
@@ -160,7 +160,7 @@ worldedit:
     brush_transform: Brush transform gezet
     brush_material: Brush material gezet
   rollback:
-   rollback_element: aan %s0 het ontdaan maken.
+    rollback_element: aan %s0 het ontdaan maken.
   tool:
     tool_inspect: Inspect tool gebonden aan %s0.
     tool_inspect_info: '&7%s0 veranderd %s1 to %s2 %s3 geleden'

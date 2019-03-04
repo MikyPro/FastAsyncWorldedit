@@ -22,8 +22,8 @@ package com.sk89q.worldedit.bukkit;
 import com.boydti.fawe.Fawe;
 import com.boydti.fawe.bukkit.FaweBukkit;
 import com.boydti.fawe.bukkit.v0.BukkitQueue_0;
-import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BaseItemStack;
 import com.sk89q.worldedit.blocks.LazyBlock;
@@ -34,11 +34,6 @@ import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.util.TreeGenerator;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.WorldData;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.logging.Level;
-import javax.annotation.Nullable;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -50,23 +45,68 @@ import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.logging.Level;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
-
-import com.sk89q.worldedit.util.Location;
 
 public class BukkitWorld extends LocalWorld {
 
     private static final Map<Integer, Effect> effects = new HashMap<Integer, Effect>();
+    /**
+     * An EnumMap that stores which WorldEdit TreeTypes apply to which Bukkit TreeTypes
+     */
+    private static final EnumMap<TreeGenerator.TreeType, TreeType> treeTypeMapping =
+            new EnumMap<TreeGenerator.TreeType, TreeType>(TreeGenerator.TreeType.class);
+    private static Method ADAPT_ENTITY;
+
     static {
         for (Effect effect : Effect.values()) {
             effects.put(effect.getId(), effect);
         }
     }
 
-    private WeakReference<World> worldRef;
+    static {
+        try {
+            Class<?> clazz = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
+            ADAPT_ENTITY = clazz.getDeclaredMethod("adapt", Entity.class);
+            ADAPT_ENTITY.setAccessible(true);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static {
+        for (TreeGenerator.TreeType type : TreeGenerator.TreeType.values()) {
+            try {
+                TreeType bukkitType = TreeType.valueOf(type.name());
+                treeTypeMapping.put(type, bukkitType);
+            } catch (IllegalArgumentException e) {
+                // Unhandled TreeType
+            }
+        }
+        // Other mappings for WE-specific values
+        treeTypeMapping.put(TreeGenerator.TreeType.SHORT_JUNGLE, TreeType.SMALL_JUNGLE);
+        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM, TreeType.BROWN_MUSHROOM);
+        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM_REDWOOD, TreeType.REDWOOD);
+        treeTypeMapping.put(TreeGenerator.TreeType.PINE, TreeType.REDWOOD);
+        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM_BIRCH, TreeType.BIRCH);
+        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM_JUNGLE, TreeType.JUNGLE);
+        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM_MUSHROOM, TreeType.BROWN_MUSHROOM);
+        for (TreeGenerator.TreeType type : TreeGenerator.TreeType.values()) {
+            if (treeTypeMapping.get(type) == null) {
+                WorldEdit.logger.severe("No TreeType mapping for TreeGenerator.TreeType." + type);
+            }
+        }
+    }
+
     private final String worldNameRef;
+    private WeakReference<World> worldRef;
+
+    ;
 
     /**
      * Construct the object.
@@ -77,6 +117,45 @@ public class BukkitWorld extends LocalWorld {
     public BukkitWorld(World world) {
         this.worldRef = new WeakReference<World>(world);
         this.worldNameRef = world.getName();
+    }
+
+    private static BukkitImplAdapter getAdapter() {
+        return BukkitQueue_0.getAdapter();
+    }
+
+    private static com.sk89q.worldedit.entity.Entity adapt(Entity ent) {
+        try {
+            if (ent == null) return null;
+            return (com.sk89q.worldedit.entity.Entity) ADAPT_ENTITY.invoke(null, ent);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static org.bukkit.Location adapt(org.bukkit.World world, Vector position) {
+        checkNotNull(world);
+        checkNotNull(position);
+        return new org.bukkit.Location(
+                world,
+                position.getX(), position.getY(), position.getZ());
+    }
+
+    private static org.bukkit.Location adapt(org.bukkit.World world, Location location) {
+        checkNotNull(world);
+        checkNotNull(location);
+        return new org.bukkit.Location(
+                world,
+                location.getX(), location.getY(), location.getZ(),
+                location.getYaw(),
+                location.getPitch());
+    }
+
+    public static TreeType toBukkitTreeType(TreeGenerator.TreeType type) {
+        return treeTypeMapping.get(type);
+    }
+
+    public static Class<?> inject() {
+        return BukkitWorld.class;
     }
 
     @Override
@@ -138,7 +217,7 @@ public class BukkitWorld extends LocalWorld {
                     }
                 }
         }
-    };
+    }
 
     @Nullable
     @Override
@@ -153,48 +232,6 @@ public class BukkitWorld extends LocalWorld {
             }
         } else {
             return null;
-        }
-    }
-
-    private static BukkitImplAdapter getAdapter() {
-        return BukkitQueue_0.getAdapter();
-    }
-
-    private static com.sk89q.worldedit.entity.Entity adapt(Entity ent) {
-        try {
-            if (ent == null) return null;
-            return (com.sk89q.worldedit.entity.Entity) ADAPT_ENTITY.invoke(null, ent);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static org.bukkit.Location adapt(org.bukkit.World world, Vector position) {
-        checkNotNull(world);
-        checkNotNull(position);
-        return new org.bukkit.Location(
-                world,
-                position.getX(), position.getY(), position.getZ());
-    }
-
-    private static org.bukkit.Location adapt(org.bukkit.World world, Location location) {
-        checkNotNull(world);
-        checkNotNull(location);
-        return new org.bukkit.Location(
-                world,
-                location.getX(), location.getY(), location.getZ(),
-                location.getYaw(),
-                location.getPitch());
-    }
-
-    private static Method ADAPT_ENTITY;
-    static {
-        try {
-            Class<?> clazz = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
-            ADAPT_ENTITY = clazz.getDeclaredMethod("adapt", Entity.class);
-            ADAPT_ENTITY.setAccessible(true);
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -346,40 +383,6 @@ public class BukkitWorld extends LocalWorld {
         return generateTree(TreeGenerator.TreeType.TALL_REDWOOD, editSession, pt);
     }
 
-    /**
-     * An EnumMap that stores which WorldEdit TreeTypes apply to which Bukkit TreeTypes
-     */
-    private static final EnumMap<TreeGenerator.TreeType, TreeType> treeTypeMapping =
-            new EnumMap<TreeGenerator.TreeType, TreeType>(TreeGenerator.TreeType.class);
-
-    static {
-        for (TreeGenerator.TreeType type : TreeGenerator.TreeType.values()) {
-            try {
-                TreeType bukkitType = TreeType.valueOf(type.name());
-                treeTypeMapping.put(type, bukkitType);
-            } catch (IllegalArgumentException e) {
-                // Unhandled TreeType
-            }
-        }
-        // Other mappings for WE-specific values
-        treeTypeMapping.put(TreeGenerator.TreeType.SHORT_JUNGLE, TreeType.SMALL_JUNGLE);
-        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM, TreeType.BROWN_MUSHROOM);
-        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM_REDWOOD, TreeType.REDWOOD);
-        treeTypeMapping.put(TreeGenerator.TreeType.PINE, TreeType.REDWOOD);
-        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM_BIRCH, TreeType.BIRCH);
-        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM_JUNGLE, TreeType.JUNGLE);
-        treeTypeMapping.put(TreeGenerator.TreeType.RANDOM_MUSHROOM, TreeType.BROWN_MUSHROOM);
-        for (TreeGenerator.TreeType type : TreeGenerator.TreeType.values()) {
-            if (treeTypeMapping.get(type) == null) {
-                WorldEdit.logger.severe("No TreeType mapping for TreeGenerator.TreeType." + type);
-            }
-        }
-    }
-
-    public static TreeType toBukkitTreeType(TreeGenerator.TreeType type) {
-        return treeTypeMapping.get(type);
-    }
-
     @Override
     public boolean generateTree(TreeGenerator.TreeType type, EditSession editSession, Vector pt) {
         World world = getWorld();
@@ -524,9 +527,5 @@ public class BukkitWorld extends LocalWorld {
         } else {
             return false;
         }
-    }
-
-    public static Class<?> inject() {
-        return BukkitWorld.class;
     }
 }

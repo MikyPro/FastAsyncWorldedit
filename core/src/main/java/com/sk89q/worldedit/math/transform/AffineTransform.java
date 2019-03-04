@@ -3,6 +3,7 @@ package com.sk89q.worldedit.math.transform;
 import com.sk89q.worldedit.MutableBlockVector;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.math.MathUtils;
+
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -96,6 +97,10 @@ public class AffineTransform implements Transform, Serializable {
     // ===================================================================
     // accessors
 
+    public static Class<?> inject() {
+        return AffineTransform.class;
+    }
+
     @Override
     public boolean isIdentity() {
         if (m00 != 1)
@@ -155,6 +160,9 @@ public class AffineTransform implements Transform, Serializable {
                 + m02 * (m10 * m21 - m20 * m11);
     }
 
+    // ===================================================================
+    // general methods
+
     /**
      * Computes the inverse affine transform.
      */
@@ -178,9 +186,6 @@ public class AffineTransform implements Transform, Serializable {
                 (m00 * (m21 * m13 - m11 * m23) + m01 * (m10 * m23 - m20 * m13)
                         - m03 * (m10 * m21 - m20 * m11)) / det);
     }
-
-    // ===================================================================
-    // general methods
 
     /**
      * Returns the affine transform created by applying first the affine
@@ -322,9 +327,5 @@ public class AffineTransform implements Transform, Serializable {
     private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         mutable = new MutableBlockVector();
-    }
-
-    public static Class<?> inject() {
-        return AffineTransform.class;
     }
 }

@@ -2,6 +2,7 @@ package com.boydti.fawe.object;
 
 import com.sk89q.jnbt.NBTOutputStream;
 import com.sk89q.jnbt.Tag;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -9,6 +10,7 @@ import java.io.OutputStream;
 public class FaweOutputStream extends DataOutputStream {
 
     private final OutputStream parent;
+    private NBTOutputStream nbtOut;
 
     public FaweOutputStream(OutputStream parent) {
         super(parent);
@@ -37,7 +39,7 @@ public class FaweOutputStream extends DataOutputStream {
     }
 
     public void writeVarInt(int i) throws IOException {
-        while((i & -128) != 0) {
+        while ((i & -128) != 0) {
             this.writeByte(i & 127 | 128);
             i >>>= 7;
         }
@@ -47,12 +49,10 @@ public class FaweOutputStream extends DataOutputStream {
     public void write(long[] data) throws IOException {
         this.writeVarInt(data.length);
 
-        for(int j = 0; j < data.length; ++j) {
+        for (int j = 0; j < data.length; ++j) {
             this.writeLong(data[j]);
         }
     }
-
-    private NBTOutputStream nbtOut;
 
     public void writeNBT(String name, Tag tag) throws IOException {
         if (nbtOut == null) {

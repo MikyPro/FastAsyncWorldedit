@@ -13,16 +13,14 @@
  */
 package com.boydti.fawe.object.io.zstd;
 
-class FrameHeader
-{
+class FrameHeader {
     final long headerSize;
     final int windowSize;
     final long contentSize;
     final long dictionaryId;
     final boolean hasChecksum;
 
-    public FrameHeader(long headerSize, int windowSize, long contentSize, long dictionaryId, boolean hasChecksum)
-    {
+    public FrameHeader(long headerSize, int windowSize, long contentSize, long dictionaryId, boolean hasChecksum) {
         this.headerSize = headerSize;
         this.windowSize = windowSize;
         this.contentSize = contentSize;

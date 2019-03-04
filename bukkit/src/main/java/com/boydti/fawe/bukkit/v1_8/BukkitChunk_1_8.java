@@ -13,13 +13,14 @@ import com.sk89q.jnbt.ListTag;
 import com.sk89q.jnbt.StringTag;
 import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.internal.Constants;
-import java.util.*;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+
+import java.util.*;
 
 public class BukkitChunk_1_8 extends CharFaweChunk<Chunk, BukkitQueue18R3> {
     /**
@@ -283,7 +284,7 @@ public class BukkitChunk_1_8 extends CharFaweChunk<Chunk, BukkitQueue18R3> {
             // Set biomes
             if (this.biomes != null) {
                 byte[] currentBiomes = nmsChunk.getBiomeIndex();
-                for (int i = 0 ; i < this.biomes.length; i++) {
+                for (int i = 0; i < this.biomes.length; i++) {
                     byte biome = this.biomes[i];
                     if (biome != 0) {
                         if (biome == -1) biome = 0;

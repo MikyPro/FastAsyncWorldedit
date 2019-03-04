@@ -16,7 +16,6 @@ package net.jpountz.lz4;
 
 import java.nio.ByteOrder;
 
-
 import static net.jpountz.lz4.LZ4Constants.*;
 import static net.jpountz.util.UnsafeUtils.*;
 import static net.jpountz.util.Utils.NATIVE_BYTE_ORDER;

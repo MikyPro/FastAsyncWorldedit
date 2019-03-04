@@ -33,6 +33,10 @@ import com.sk89q.worldedit.world.World;
  */
 public class SinglePickaxe implements BlockTool {
 
+    public static Class<?> inject() {
+        return SinglePickaxe.class;
+    }
+
     @Override
     public boolean canUse(Actor player) {
         return player.hasPermission("worldedit.superpickaxe");
@@ -60,9 +64,5 @@ public class SinglePickaxe implements BlockTool {
         }
 
         return true;
-    }
-
-    public static Class<?> inject() {
-        return SinglePickaxe.class;
     }
 }

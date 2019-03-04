@@ -17,8 +17,8 @@ import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import com.sk89q.jnbt.NBTInputStream;
 import com.sk89q.jnbt.NBTOutputStream;
-import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BlockID;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.event.platform.InputType;
@@ -33,6 +33,7 @@ import com.sk89q.worldedit.world.registry.WorldData;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+
 import java.io.*;
 import java.net.URI;
 import java.nio.file.LinkOption;
@@ -58,6 +59,18 @@ public class SchemVis extends ImmutableVirtualWorld {
     private final BlockVector2D chunkOffset;
     private BlockVector2D lastPosition;
 
+    public SchemVis(FawePlayer player) {
+        this.files = new Long2ObjectOpenHashMap<>();
+        this.chunks = new Long2ObjectOpenHashMap<>();
+        this.player = player;
+        this.worldData = player.getWorld().getWorldData();
+
+        // Set the origin to somewhere around where the player currently is
+        FaweLocation pos = player.getLocation();
+        this.origin = player.getPlayer().getLocation();
+        this.chunkOffset = new BlockVector2D(pos.x >> 4, pos.z >> 4);
+    }
+
     public static SchemVis create(FawePlayer player, Collection<File> files) throws IOException {
         checkNotNull(player);
         checkNotNull(files);
@@ -68,18 +81,6 @@ public class SchemVis extends ImmutableVirtualWorld {
         visExtent.bind();
         visExtent.update();
         return visExtent;
-    }
-
-    public SchemVis(FawePlayer player) {
-        this.files = new Long2ObjectOpenHashMap<>();
-        this.chunks = new Long2ObjectOpenHashMap<>();
-        this.player = player;
-        this.worldData = player.getWorld().getWorldData();
-
-        // Set the origin to somewhere around where the player currently is
-        FaweLocation pos = player.getLocation();
-        this.origin = player.getPlayer().getLocation();
-        this.chunkOffset = new BlockVector2D(pos.x >> 4,pos.z >> 4);
     }
 
     private Set<File> getFiles(BlockVector2D chunkPosA, BlockVector2D chunkPosB) {
@@ -100,7 +101,7 @@ public class SchemVis extends ImmutableVirtualWorld {
 
     private File getRealFile(File cached) {
         String fileName = cached.getName();
-        return  new File(cached.getParentFile(), fileName.substring(1, fileName.length() - 7));
+        return new File(cached.getParentFile(), fileName.substring(1, fileName.length() - 7));
     }
 
     @Override
@@ -191,7 +192,8 @@ public class SchemVis extends ImmutableVirtualWorld {
                                     }
                                 }
                             }
-                            for (long curChunkPos : toSend) send(packetQueue, MathMan.unpairIntX(curChunkPos), MathMan.unpairIntY(curChunkPos));
+                            for (long curChunkPos : toSend)
+                                send(packetQueue, MathMan.unpairIntX(curChunkPos), MathMan.unpairIntY(curChunkPos));
                         }
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -231,6 +233,7 @@ public class SchemVis extends ImmutableVirtualWorld {
 
     /**
      * Send a chunk
+     *
      * @param packetQueue
      * @param chunkX
      * @param chunkZ
@@ -251,6 +254,7 @@ public class SchemVis extends ImmutableVirtualWorld {
 
     /**
      * The offset for this virtual world
+     *
      * @return offset vector
      */
     @Override
@@ -275,6 +279,7 @@ public class SchemVis extends ImmutableVirtualWorld {
 
     /**
      * Replace the blocks with glass, to indicate it's been selected
+     *
      * @param chunk
      */
     private void select(MCAChunk chunk) {
@@ -291,6 +296,7 @@ public class SchemVis extends ImmutableVirtualWorld {
 
     /**
      * Cache a chunk
+     *
      * @param file
      * @param chunk
      */
@@ -312,6 +318,7 @@ public class SchemVis extends ImmutableVirtualWorld {
 
     /**
      * Get the next free position for a schematic of the provided dimensions
+     *
      * @param schemDimensions
      * @return
      */
@@ -504,6 +511,7 @@ public class SchemVis extends ImmutableVirtualWorld {
 
     /**
      * Return a lazily evaluated chunk
+     *
      * @param chunkX
      * @param chunkZ
      * @return lazy chunk
@@ -593,6 +601,7 @@ public class SchemVis extends ImmutableVirtualWorld {
 
     /**
      * Closes this virtual world and sends the normal world chunks to the player
+     *
      * @throws IOException
      */
     @Override

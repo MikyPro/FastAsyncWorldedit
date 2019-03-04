@@ -65,7 +65,7 @@ public class BrushListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         Location from = event.getFrom();
         Location to = event.getTo();
-        if ((from.getYaw() != to.getYaw() &&  from.getPitch() != to.getPitch()) || from.getBlockX() != to.getBlockX() || from.getBlockZ() != to.getBlockZ() || from.getBlockY() != to.getBlockY()) {
+        if ((from.getYaw() != to.getYaw() && from.getPitch() != to.getPitch()) || from.getBlockX() != to.getBlockX() || from.getBlockZ() != to.getBlockZ() || from.getBlockY() != to.getBlockY()) {
             Player bukkitPlayer = event.getPlayer();
             FawePlayer<Object> fp = FawePlayer.wrap(bukkitPlayer);
             com.sk89q.worldedit.entity.Player player = fp.getPlayer();

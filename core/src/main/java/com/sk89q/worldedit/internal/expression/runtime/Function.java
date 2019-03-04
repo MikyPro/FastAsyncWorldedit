@@ -21,6 +21,7 @@ package com.sk89q.worldedit.internal.expression.runtime;
 
 import com.sk89q.worldedit.internal.expression.Expression;
 import com.sk89q.worldedit.internal.expression.parser.ParserException;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
@@ -31,27 +32,13 @@ import java.lang.reflect.Method;
  */
 public class Function extends Node {
 
-    /**
-     * Add this annotation on functions that don't always return the same value
-     * for the same inputs and on functions with side-effects.
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface Dynamic {
-    }
-
     public final Method method;
     public final RValue[] args;
-
     public Function(int position, Method method, RValue... args) {
         super(position);
         this.method = method;
         this.method.setAccessible(true);
         this.args = args;
-    }
-
-    @Override
-    public final double getValue() throws EvaluationException {
-        return invokeMethod(method, args);
     }
 
     public static double invokeMethod(Method method, Object[] args) throws EvaluationException {
@@ -65,6 +52,15 @@ public class Function extends Node {
         } catch (IllegalAccessException e) {
             throw new EvaluationException(-1, "Internal error while evaluating expression", e);
         }
+    }
+
+    public static Class<?> inject() {
+        return Function.class;
+    }
+
+    @Override
+    public final double getValue() throws EvaluationException {
+        return invokeMethod(method, args);
     }
 
     @Override
@@ -121,7 +117,11 @@ public class Function extends Node {
         return this;
     }
 
-    public static Class<?> inject() {
-        return Function.class;
+    /**
+     * Add this annotation on functions that don't always return the same value
+     * for the same inputs and on functions with side-effects.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Dynamic {
     }
 }

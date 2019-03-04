@@ -8,9 +8,10 @@ import com.boydti.fawe.util.ExtentTraverser;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.Vector2D;
 import com.sk89q.worldedit.extent.Extent;
-import java.util.Iterator;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Iterator;
 
 public class FastChunkIterator implements Iterable<Vector2D> {
 

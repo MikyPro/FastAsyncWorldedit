@@ -9,6 +9,8 @@ import com.google.common.collect.Iterators;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.worldedit.history.change.Change;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +20,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public class AnvilHistory extends FaweChangeSet implements IAnvilHistory {
     private final File folder;
@@ -45,7 +46,7 @@ public class AnvilHistory extends FaweChangeSet implements IAnvilHistory {
     public boolean addFileChange(File originalMCAFile) {
         try {
             Files.move(originalMCAFile.toPath(), Paths.get(folder.getPath(), originalMCAFile.getName()), StandardCopyOption.ATOMIC_MOVE);
-            if (size != -1)  size++;
+            if (size != -1) size++;
         } catch (IOException e) {
             e.printStackTrace();
             originalMCAFile.delete();

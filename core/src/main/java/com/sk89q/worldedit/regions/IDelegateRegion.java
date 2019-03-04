@@ -2,10 +2,11 @@ package com.sk89q.worldedit.regions;
 
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.world.World;
+
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 public interface IDelegateRegion extends Region {
 

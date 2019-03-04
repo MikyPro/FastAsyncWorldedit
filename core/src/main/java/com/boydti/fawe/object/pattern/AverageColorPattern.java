@@ -7,12 +7,13 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
-import java.awt.Color;
+
+import java.awt.*;
 import java.io.IOException;
 
 public class AverageColorPattern extends AbstractExtentPattern {
-    private transient TextureHolder holder;
     private final int color;
+    private transient TextureHolder holder;
 
     public AverageColorPattern(Extent extent, int color, TextureHolder util) {
         super(extent);

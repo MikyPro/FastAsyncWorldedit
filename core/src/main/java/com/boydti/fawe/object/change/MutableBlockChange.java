@@ -16,7 +16,8 @@ public class MutableBlockChange implements Change {
     public int x;
     public short id;
     public byte data;
-
+    private FaweQueue queue;
+    private boolean checkedQueue;
 
     public MutableBlockChange(int x, int y, int z, short id, byte data) {
         this.x = x;
@@ -35,9 +36,6 @@ public class MutableBlockChange implements Change {
     public void redo(UndoContext context) throws WorldEditException {
         create(context);
     }
-
-    private FaweQueue queue;
-    private boolean checkedQueue;
 
     public void create(UndoContext context) {
         if (queue != null) {

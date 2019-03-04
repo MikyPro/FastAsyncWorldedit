@@ -8,12 +8,13 @@ import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.wrappers.PlayerWrapper;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.forge.ForgeWorldEdit;
-import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentBase;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+
+import java.util.UUID;
 
 public class ForgePlayer extends FawePlayer<EntityPlayerMP> {
     public ForgePlayer(EntityPlayerMP parent) {

@@ -32,15 +32,15 @@ public class FallbackRegistrationListener implements Listener {
         this.commandRegistration = commandRegistration;
     }
 
+    public static Class<?> inject() {
+        return FallbackRegistrationListener.class;
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         if (commandRegistration.dispatch(event.getPlayer(), event.getMessage().substring(1))) {
             event.setCancelled(true);
         }
-    }
-
-    public static Class<?> inject() {
-        return FallbackRegistrationListener.class;
     }
 
 }

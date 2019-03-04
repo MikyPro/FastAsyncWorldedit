@@ -5,9 +5,9 @@ package com.boydti.fawe.configuration;
  * com.boydti.fawe.configuration.Configuration}
  */
 public class ConfigurationOptions {
+    private final Configuration configuration;
     private char pathSeparator = '.';
     private boolean copyDefaults = false;
-    private final Configuration configuration;
 
     protected ConfigurationOptions(final Configuration configuration) {
         this.configuration = configuration;

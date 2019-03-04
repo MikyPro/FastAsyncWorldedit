@@ -27,8 +27,8 @@ import com.sk89q.worldedit.event.Event;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.world.World;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.sk89q.worldedit.EditSession.Stage;
@@ -85,12 +85,16 @@ public class EditSessionEvent extends Event implements Cancellable {
         this.stage = stage;
     }
 
-    public void setEditSession(EditSession session) {
-        this.session = session;
+    public static Class<?> inject() {
+        return EditSessionEvent.class;
     }
 
     public EditSession getEditSession() {
         return session;
+    }
+
+    public void setEditSession(EditSession session) {
+        this.session = session;
     }
 
     /**
@@ -134,15 +138,6 @@ public class EditSessionEvent extends Event implements Cancellable {
     }
 
     /**
-     * Get the stage that is being wrapped.
-     *
-     * @return the stage
-     */
-    public Stage getStage() {
-        return stage;
-    }
-
-    /**
      * Set a new extent that should be used. It should wrap the extent
      * returned from {@link #getExtent()}.
      *
@@ -151,6 +146,15 @@ public class EditSessionEvent extends Event implements Cancellable {
     public void setExtent(Extent extent) {
         checkNotNull(extent);
         this.extent = extent;
+    }
+
+    /**
+     * Get the stage that is being wrapped.
+     *
+     * @return the stage
+     */
+    public Stage getStage() {
+        return stage;
     }
 
     @Override
@@ -173,9 +177,5 @@ public class EditSessionEvent extends Event implements Cancellable {
         EditSessionEvent clone = new EditSessionEvent(world, actor, maxBlocks, stage);
         clone.setEditSession(session);
         return clone;
-    }
-
-    public static Class<?> inject() {
-        return EditSessionEvent.class;
     }
 }

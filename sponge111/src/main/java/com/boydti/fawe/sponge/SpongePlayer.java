@@ -7,8 +7,6 @@ import com.boydti.fawe.wrappers.FakePlayer;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.extension.platform.Capability;
 import com.sk89q.worldedit.extension.platform.Platform;
-import java.lang.reflect.Method;
-import java.util.UUID;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
@@ -16,6 +14,9 @@ import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import java.lang.reflect.Method;
+import java.util.UUID;
 
 public class SpongePlayer extends FawePlayer<Player> {
     public SpongePlayer(final Player parent) {

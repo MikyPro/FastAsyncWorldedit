@@ -7,13 +7,13 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.util.SplittableRandom;
 
 public class RandomOffsetTransform extends ResettableExtent {
+    private final int dx, dy, dz;
     private transient SplittableRandom random;
     private transient MutableBlockVector2D mutable = new MutableBlockVector2D();
-
-    private final int dx, dy, dz;
 
     public RandomOffsetTransform(Extent parent, int dx, int dy, int dz) {
         super(parent);

@@ -31,6 +31,10 @@ import com.sk89q.worldedit.command.UtilityCommands;
 @Link(clazz = UtilityCommands.class, value = "patterns")
 public interface Pattern extends com.sk89q.worldedit.patterns.Pattern {
 
+    public static Class<Pattern> inject() {
+        return Pattern.class;
+    }
+
     /**
      * Return a {@link BaseBlock} for the given position.
      *
@@ -51,9 +55,5 @@ public interface Pattern extends com.sk89q.worldedit.patterns.Pattern {
     @Override
     default BaseBlock next(int x, int y, int z) {
         return apply(x, y, z);
-    }
-
-    public static Class<Pattern> inject() {
-        return Pattern.class;
     }
 }

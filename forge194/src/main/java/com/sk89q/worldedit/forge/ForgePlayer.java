@@ -19,7 +19,6 @@
 
 package com.sk89q.worldedit.forge;
 
-import com.boydti.fawe.FaweCache;
 import com.boydti.fawe.forge.ForgePlayerBlockBag;
 import com.sk89q.util.StringUtil;
 import com.sk89q.worldedit.EditSession;
@@ -33,10 +32,7 @@ import com.sk89q.worldedit.internal.LocalWorldAdapter;
 import com.sk89q.worldedit.internal.cui.CUIEvent;
 import com.sk89q.worldedit.session.SessionKey;
 import com.sk89q.worldedit.util.Location;
-
 import io.netty.buffer.Unpooled;
-import java.util.UUID;
-import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -45,6 +41,9 @@ import net.minecraft.network.play.server.SPacketCustomPayload;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+
+import javax.annotation.Nullable;
+import java.util.UUID;
 
 public class ForgePlayer extends AbstractPlayerActor {
 
@@ -55,6 +54,10 @@ public class ForgePlayer extends AbstractPlayerActor {
         this.platform = platform;
         this.player = player;
         ThreadSafeCache.getInstance().getOnlineIds().add(getUniqueId());
+    }
+
+    public static Class<ForgePlayer> inject() {
+        return ForgePlayer.class;
     }
 
     @Override
@@ -73,7 +76,6 @@ public class ForgePlayer extends AbstractPlayerActor {
         ItemStack is = this.player.getHeldItem(EnumHand.MAIN_HAND);
         return is == null ? EditSession.nullBlock : new BaseBlock(Item.getIdFromItem(is.getItem()), is.isItemStackDamageable() ? 0 : is.getItemDamage());
     }
-
 
     @Override
     public String getName() {
@@ -228,9 +230,5 @@ public class ForgePlayer extends AbstractPlayerActor {
             return true;
         }
 
-    }
-
-    public static Class<ForgePlayer> inject() {
-        return ForgePlayer.class;
     }
 }

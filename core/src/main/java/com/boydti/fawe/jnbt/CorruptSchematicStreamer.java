@@ -14,6 +14,7 @@ import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.regions.CuboidRegion;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -26,9 +27,6 @@ import java.util.zip.GZIPInputStream;
 
 public class CorruptSchematicStreamer {
 
-    private final InputStream stream;
-    private final UUID uuid;
-    private FaweClipboard fc;
     final AtomicInteger volume = new AtomicInteger();
     final AtomicInteger width = new AtomicInteger();
     final AtomicInteger height = new AtomicInteger();
@@ -39,6 +37,9 @@ public class CorruptSchematicStreamer {
     final AtomicInteger originX = new AtomicInteger();
     final AtomicInteger originY = new AtomicInteger();
     final AtomicInteger originZ = new AtomicInteger();
+    private final InputStream stream;
+    private final UUID uuid;
+    private FaweClipboard fc;
 
     public CorruptSchematicStreamer(InputStream rootStream, UUID uuid) {
         this.stream = rootStream;

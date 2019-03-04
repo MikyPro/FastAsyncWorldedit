@@ -7,13 +7,18 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.mask.Mask;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class SourceMaskExtent extends TemporalExtent {
     private Mask mask;
     private MutableBlockVector mutable = new MutableBlockVector();
 
+
+    public SourceMaskExtent(Extent extent, Mask mask) {
+        super(extent);
+        checkNotNull(mask);
+        this.mask = mask;
+    }
 
     /**
      * Get the mask.
@@ -30,12 +35,6 @@ public class SourceMaskExtent extends TemporalExtent {
      * @param mask a mask
      */
     public void setMask(Mask mask) {
-        checkNotNull(mask);
-        this.mask = mask;
-    }
-
-    public SourceMaskExtent(Extent extent, Mask mask) {
-        super(extent);
         checkNotNull(mask);
         this.mask = mask;
     }

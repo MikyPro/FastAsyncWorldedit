@@ -1,12 +1,12 @@
 package com.boydti.fawe.object.brush.heightmap;
 
 public class AverageHeightMapFilter {
-    private int[] inData;
-    private int[] buffer;
     private final int width;
     private final int height;
     private final int minY;
     private final int maxY;
+    private int[] inData;
+    private int[] buffer;
 
     public AverageHeightMapFilter(int[] inData, int width, int height, int minY, int maxY) {
         this.inData = inData;

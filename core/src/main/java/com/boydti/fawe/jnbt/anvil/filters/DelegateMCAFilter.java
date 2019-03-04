@@ -5,6 +5,7 @@ import com.boydti.fawe.jnbt.anvil.MCAFile;
 import com.boydti.fawe.jnbt.anvil.MCAFilter;
 import com.boydti.fawe.jnbt.anvil.MCAQueue;
 import com.sk89q.worldedit.blocks.BaseBlock;
+
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Spliterator;
@@ -13,6 +14,10 @@ import java.util.function.Consumer;
 
 public class DelegateMCAFilter<T> extends MCAFilter<T> {
     private final MCAFilter<T> filter;
+
+    public DelegateMCAFilter(MCAFilter<T> filter) {
+        this.filter = filter;
+    }
 
     @Override
     public void withPool(ForkJoinPool pool, MCAQueue queue) {
@@ -92,10 +97,6 @@ public class DelegateMCAFilter<T> extends MCAFilter<T> {
     @Override
     public void set(T value) {
         filter.set(value);
-    }
-
-    public DelegateMCAFilter(MCAFilter<T> filter) {
-        this.filter = filter;
     }
 
     public MCAFilter<T> getFilter() {

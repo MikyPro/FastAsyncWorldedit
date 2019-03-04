@@ -7,6 +7,7 @@ import com.boydti.fawe.object.RunnableVal;
 import com.boydti.fawe.util.MathMan;
 import com.boydti.fawe.util.SetQueue;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.Collection;
@@ -21,11 +22,6 @@ import java.util.concurrent.TimeUnit;
 public class WeakFaweQueueMap implements IFaweQueueMap {
 
     private final MappedFaweQueue parent;
-
-    public WeakFaweQueueMap(MappedFaweQueue parent) {
-        this.parent = parent;
-    }
-
     public final Long2ObjectOpenHashMap<Reference<FaweChunk>> blocks = new Long2ObjectOpenHashMap<Reference<FaweChunk>>() {
         @Override
         public Reference<FaweChunk> put(Long key, Reference<FaweChunk> value) {
@@ -46,6 +42,13 @@ public class WeakFaweQueueMap implements IFaweQueueMap {
             }
         }
     };
+    private FaweChunk lastWrappedChunk;
+    private int lastX = Integer.MIN_VALUE;
+    private int lastZ = Integer.MIN_VALUE;
+
+    public WeakFaweQueueMap(MappedFaweQueue parent) {
+        this.parent = parent;
+    }
 
     @Override
     public Collection<FaweChunk> getFaweCunks() {
@@ -132,7 +135,6 @@ public class WeakFaweQueueMap implements IFaweQueueMap {
         }
     }
 
-
     @Override
     public void clear() {
         blocks.clear();
@@ -146,10 +148,6 @@ public class WeakFaweQueueMap implements IFaweQueueMap {
     private FaweChunk getNewFaweChunk(int cx, int cz) {
         return parent.getFaweChunk(cx, cz);
     }
-
-    private FaweChunk lastWrappedChunk;
-    private int lastX = Integer.MIN_VALUE;
-    private int lastZ = Integer.MIN_VALUE;
 
     @Override
     public boolean next(int amount, long time) {

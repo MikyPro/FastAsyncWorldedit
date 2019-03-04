@@ -16,11 +16,7 @@ package net.jpountz.lz4;
 
 import net.jpountz.util.SafeUtils;
 
-
-import static net.jpountz.lz4.LZ4Constants.LAST_LITERALS;
-import static net.jpountz.lz4.LZ4Constants.ML_BITS;
-import static net.jpountz.lz4.LZ4Constants.ML_MASK;
-import static net.jpountz.lz4.LZ4Constants.RUN_MASK;
+import static net.jpountz.lz4.LZ4Constants.*;
 
 enum LZ4SafeUtils {
     ;
@@ -158,6 +154,12 @@ enum LZ4SafeUtils {
         return dOff;
     }
 
+    static void copyTo(Match m1, Match m2) {
+        m2.len = m1.len;
+        m2.start = m1.start;
+        m2.ref = m1.ref;
+    }
+
     static class Match {
         int start, ref, len;
 
@@ -170,12 +172,6 @@ enum LZ4SafeUtils {
         int end() {
             return start + len;
         }
-    }
-
-    static void copyTo(Match m1, Match m2) {
-        m2.len = m1.len;
-        m2.start = m1.start;
-        m2.ref = m1.ref;
     }
 
 }

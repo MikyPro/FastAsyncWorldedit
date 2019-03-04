@@ -18,22 +18,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockCanBuildEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockDispenseEvent;
-import org.bukkit.event.block.BlockExpEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockFadeEvent;
-import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockGrowEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.event.block.LeavesDecayEvent;
-import org.bukkit.event.block.NotePlayEvent;
-import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
@@ -45,8 +30,19 @@ import org.bukkit.util.Vector;
 
 public abstract class ChunkListener implements Listener {
 
+    public static boolean physicsFreeze = false;
+    public static boolean itemFreeze = false;
+    protected final Long2ObjectOpenHashMap<Boolean> badChunks = new Long2ObjectOpenHashMap<>();
     protected int rateLimit = 0;
+    protected int physSkip;
+    protected boolean physCancel;
+    protected long physCancelPair;
+    protected long physStart;
+    protected long physTick;
     private int[] badLimit = new int[]{Settings.IMP.TICK_LIMITER.PHYSICS_MS, Settings.IMP.TICK_LIMITER.FALLING, Settings.IMP.TICK_LIMITER.ITEMS};
+    private Long2ObjectOpenHashMap<int[]> counter = new Long2ObjectOpenHashMap<>();
+    private int lastX = Integer.MIN_VALUE, lastZ = Integer.MIN_VALUE;
+    private int[] lastCount;
 
     public ChunkListener() {
         if (Settings.IMP.TICK_LIMITER.ENABLED) {
@@ -56,7 +52,8 @@ public abstract class ChunkListener implements Listener {
             try {
                 Fawe.debug("Detected " + BlockExplodeEvent.class);
                 plm.registerEvents(new ChunkListener_8Plus(this), plugin);
-            } catch (Throwable ignore) {}
+            } catch (Throwable ignore) {
+            }
             TaskManager.IMP.repeat(new Runnable() {
                 @Override
                 public void run() {
@@ -82,15 +79,8 @@ public abstract class ChunkListener implements Listener {
     }
 
     protected abstract int getDepth(Exception ex);
+
     protected abstract StackTraceElement getElement(Exception ex, int index);
-
-    public static boolean physicsFreeze = false;
-    public static boolean itemFreeze = false;
-
-    protected final Long2ObjectOpenHashMap<Boolean> badChunks = new Long2ObjectOpenHashMap<>();
-    private Long2ObjectOpenHashMap<int[]> counter = new Long2ObjectOpenHashMap<>();
-    private int lastX = Integer.MIN_VALUE, lastZ = Integer.MIN_VALUE;
-    private int[] lastCount;
 
     public int[] getCount(int cx, int cz) {
         if (lastX == cx && lastZ == cz) {
@@ -101,7 +91,7 @@ public abstract class ChunkListener implements Listener {
         long pair = MathMan.pairInt(cx, cz);
         int[] tmp = lastCount = counter.get(pair);
         if (tmp == null) {
-            lastCount = tmp =  new int[3];
+            lastCount = tmp = new int[3];
             counter.put(pair, tmp);
         }
         return tmp;
@@ -116,13 +106,6 @@ public abstract class ChunkListener implements Listener {
 
     }
 
-    protected int physSkip;
-    protected boolean physCancel;
-    protected long physCancelPair;
-
-    protected long physStart;
-    protected long physTick;
-
     public final void reset() {
         physSkip = 0;
         physStart = System.currentTimeMillis();
@@ -130,34 +113,54 @@ public abstract class ChunkListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockBurnEvent event) { reset(); }
+    public void event(BlockBurnEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockCanBuildEvent event) { reset(); }
+    public void event(BlockCanBuildEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockDamageEvent event) { reset(); }
+    public void event(BlockDamageEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockDispenseEvent event) { reset(); }
+    public void event(BlockDispenseEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockExpEvent event) { reset(); }
+    public void event(BlockExpEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockFadeEvent event) { reset(); }
+    public void event(BlockFadeEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockFromToEvent event) { reset(); }
+    public void event(BlockFromToEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockGrowEvent event) { reset(); }
+    public void event(BlockGrowEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockIgniteEvent event) { reset(); }
+    public void event(BlockIgniteEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockPlaceEvent event) { reset(); }
+    public void event(BlockPlaceEvent event) {
+        reset();
+    }
 
 //    @EventHandler(priority = EventPriority.LOWEST)
 //    public void event(BrewEvent event) { reset(); }
@@ -169,22 +172,34 @@ public abstract class ChunkListener implements Listener {
 //    public void event(CauldronLevelChangeEvent event ) { reset(); }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(FurnaceBurnEvent event) { reset(); }
+    public void event(FurnaceBurnEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(FurnaceSmeltEvent event) { reset(); }
+    public void event(FurnaceSmeltEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(LeavesDecayEvent event) { reset(); }
+    public void event(LeavesDecayEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(NotePlayEvent event) { reset(); }
+    public void event(NotePlayEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(SignChangeEvent event) { reset(); }
+    public void event(SignChangeEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
-    public void event(BlockRedstoneEvent event) { reset(); }
+    public void event(BlockRedstoneEvent event) {
+        reset();
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPhysics(BlockPhysicsEvent event) {
@@ -224,10 +239,10 @@ public abstract class ChunkListener implements Listener {
                 int cx = block.getX() >> 4;
                 int cz = block.getZ() >> 4;
                 physCancelPair = MathMan.pairInt(cx, cz);
-                    if (rateLimit <= 0) {
-                        rateLimit = 20;
-                        Fawe.debug("[FAWE `tick-limiter`] Detected and cancelled physics  lag source at " + block.getLocation());
-                    }
+                if (rateLimit <= 0) {
+                    rateLimit = 20;
+                    Fawe.debug("[FAWE `tick-limiter`] Detected and cancelled physics  lag source at " + block.getLocation());
+                }
                 cancelNearby(cx, cz);
                 event.setCancelled(true);
                 physCancel = true;
@@ -313,6 +328,7 @@ public abstract class ChunkListener implements Listener {
 
     /**
      * Prevent FireWorks from loading chunks
+     *
      * @param event
      */
     @EventHandler(priority = EventPriority.LOWEST)

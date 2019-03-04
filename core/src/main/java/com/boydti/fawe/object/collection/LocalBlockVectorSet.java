@@ -4,6 +4,7 @@ import com.boydti.fawe.util.MathMan;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.MutableBlockVector;
 import com.sk89q.worldedit.Vector;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,8 +15,8 @@ import java.util.Set;
  * - This will use 8 bytes for every 64 BlockVectors (about 800x less than a HashSet)
  */
 public class LocalBlockVectorSet implements Set<Vector> {
-    private int offsetX, offsetZ;
     private final SparseBitSet set;
+    private int offsetX, offsetZ;
 
     public LocalBlockVectorSet() {
         offsetX = offsetZ = Integer.MAX_VALUE;
@@ -324,14 +325,14 @@ public class LocalBlockVectorSet implements Set<Vector> {
         }
     }
 
-    public static abstract class BlockVectorSetVisitor {
-        public abstract void run(int x, int y, int z, int index);
-    }
-
     @Override
     public void clear() {
         offsetZ = Integer.MAX_VALUE;
         offsetX = Integer.MAX_VALUE;
         set.clear();
+    }
+
+    public static abstract class BlockVectorSetVisitor {
+        public abstract void run(int x, int y, int z, int index);
     }
 }

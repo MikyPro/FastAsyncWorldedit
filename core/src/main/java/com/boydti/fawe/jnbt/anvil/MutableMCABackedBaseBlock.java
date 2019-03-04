@@ -3,6 +3,7 @@ package com.boydti.fawe.jnbt.anvil;
 import com.boydti.fawe.FaweCache;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.worldedit.blocks.BaseBlock;
+
 import javax.annotation.Nullable;
 
 /**
@@ -22,10 +23,6 @@ public class MutableMCABackedBaseBlock extends BaseBlock {
         super(0);
     }
 
-    public void setChunk(MCAChunk chunk) {
-        this.chunk = chunk;
-    }
-
     public void setArrays(int layer) {
         ids = chunk.ids[layer];
         data = chunk.data[layer];
@@ -33,6 +30,10 @@ public class MutableMCABackedBaseBlock extends BaseBlock {
 
     public MCAChunk getChunk() {
         return chunk;
+    }
+
+    public void setChunk(MCAChunk chunk) {
+        this.chunk = chunk;
     }
 
     public void setX(int x) {
@@ -57,6 +58,12 @@ public class MutableMCABackedBaseBlock extends BaseBlock {
     }
 
     @Override
+    public void setId(int id) {
+        ids[index] = (byte) id;
+        chunk.setModified();
+    }
+
+    @Override
     public int getData() {
         if (!FaweCache.hasData(ids[index] & 0xFF)) {
             return 0;
@@ -70,18 +77,6 @@ public class MutableMCABackedBaseBlock extends BaseBlock {
         }
     }
 
-    @Nullable
-    @Override
-    public CompoundTag getNbtData() {
-        return chunk.getTile(x, y, z);
-    }
-
-    @Override
-    public void setId(int id) {
-        ids[index] = (byte) id;
-        chunk.setModified();
-    }
-
     @Override
     public void setData(int value) {
         int indexShift = index >> 1;
@@ -91,6 +86,12 @@ public class MutableMCABackedBaseBlock extends BaseBlock {
             data[indexShift] = (byte) (data[indexShift] & 15 | (value & 15) << 4);
         }
         chunk.setModified();
+    }
+
+    @Nullable
+    @Override
+    public CompoundTag getNbtData() {
+        return chunk.getTile(x, y, z);
     }
 
     @Override

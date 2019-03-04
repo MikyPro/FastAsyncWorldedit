@@ -27,11 +27,7 @@ import com.sk89q.worldedit.blocks.BaseItem;
 import com.sk89q.worldedit.blocks.BaseItemStack;
 import com.sk89q.worldedit.blocks.BlockID;
 import com.sk89q.worldedit.blocks.ItemType;
-import com.sk89q.worldedit.extent.inventory.BlockBag;
-import com.sk89q.worldedit.extent.inventory.BlockBagException;
-import com.sk89q.worldedit.extent.inventory.OutOfBlocksException;
-import com.sk89q.worldedit.extent.inventory.OutOfSpaceException;
-import com.sk89q.worldedit.extent.inventory.SlottableBlockBag;
+import com.sk89q.worldedit.extent.inventory.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -47,6 +43,10 @@ public class BukkitPlayerBlockBag extends BlockBag implements SlottableBlockBag 
      */
     public BukkitPlayerBlockBag(Player player) {
         this.player = player;
+    }
+
+    public static Class<?> inject() {
+        return BukkitPlayerBlockBag.class;
     }
 
     /**
@@ -119,13 +119,12 @@ public class BukkitPlayerBlockBag extends BlockBag implements SlottableBlockBag 
         return bukkitItem;
     }
 
-
     @Override
     public void fetchItem(BaseItem item) throws BlockBagException {
         final int id = item.getType();
         final int damage = item.getData();
         int amount = (item instanceof BaseItemStack) ? ((BaseItemStack) item).getAmount() : 1;
-        assert(amount == 1);
+        assert (amount == 1);
         boolean usesDamageValue = ItemType.usesDamageValue(id);
 
         if (id == BlockID.AIR) {
@@ -181,7 +180,7 @@ public class BukkitPlayerBlockBag extends BlockBag implements SlottableBlockBag 
         final int id = item.getType();
         final int damage = item.getData();
         int amount = (item instanceof BaseItemStack) ? ((BaseItemStack) item).getAmount() : 1;
-        assert(amount <= 64);
+        assert (amount <= 64);
         boolean usesDamageValue = ItemType.usesDamageValue(id);
 
         if (id == BlockID.AIR) {
@@ -257,9 +256,5 @@ public class BukkitPlayerBlockBag extends BlockBag implements SlottableBlockBag 
 
     @Override
     public void addSingleSourcePosition(WorldVector pos) {
-    }
-
-    public static Class<?> inject() {
-        return BukkitPlayerBlockBag.class;
     }
 }

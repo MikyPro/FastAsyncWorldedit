@@ -33,8 +33,6 @@ import com.sk89q.worldedit.internal.cui.CUIEvent;
 import com.sk89q.worldedit.session.SessionKey;
 import com.sk89q.worldedit.util.Location;
 import io.netty.buffer.Unpooled;
-import java.util.UUID;
-import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -44,6 +42,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 
+import javax.annotation.Nullable;
+import java.util.UUID;
+
 public class ForgePlayer extends AbstractPlayerActor {
 
     private final EntityPlayerMP player;
@@ -51,6 +52,10 @@ public class ForgePlayer extends AbstractPlayerActor {
     protected ForgePlayer(EntityPlayerMP player) {
         this.player = player;
         ThreadSafeCache.getInstance().getOnlineIds().add(getUniqueId());
+    }
+
+    public static Class<ForgePlayer> inject() {
+        return ForgePlayer.class;
     }
 
     @Override
@@ -223,9 +228,5 @@ public class ForgePlayer extends AbstractPlayerActor {
             return true;
         }
 
-    }
-
-    public static Class<ForgePlayer> inject() {
-        return ForgePlayer.class;
     }
 }

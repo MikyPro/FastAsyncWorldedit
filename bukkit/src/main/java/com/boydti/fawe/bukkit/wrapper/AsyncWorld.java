@@ -13,38 +13,10 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.adapter.BukkitImplAdapter;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.world.biome.BaseBiome;
-import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import org.bukkit.BlockChangeDelegate;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.ChunkSnapshot;
-import org.bukkit.Difficulty;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
-import org.bukkit.TreeType;
-import org.bukkit.World;
-import org.bukkit.WorldBorder;
-import org.bukkit.WorldCreator;
-import org.bukkit.WorldType;
+import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.LightningStrike;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.ItemStack;
@@ -54,14 +26,22 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 
+import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * Modify the world from an async thread<br>
- *  - Use world.commit() to execute all the changes<br>
- *  - Any Chunk/Block/BlockState objects returned should also be safe to use from the same async thread<br>
- *  - Only block read,write and biome write are fast, other methods will perform slower async<br>
- *  -
- *  @see #wrap(org.bukkit.World)
- *  @see #create(org.bukkit.WorldCreator)
+ * - Use world.commit() to execute all the changes<br>
+ * - Any Chunk/Block/BlockState objects returned should also be safe to use from the same async thread<br>
+ * - Only block read,write and biome write are fast, other methods will perform slower async<br>
+ * -
+ *
+ * @see #wrap(org.bukkit.World)
+ * @see #create(org.bukkit.WorldCreator)
  */
 public class AsyncWorld extends DelegateFaweQueue implements World, HasFaweQueue {
 
@@ -69,15 +49,10 @@ public class AsyncWorld extends DelegateFaweQueue implements World, HasFaweQueue
     private FaweQueue queue;
     private BukkitImplAdapter adapter;
 
-    @Override
-    public <T> void spawnParticle(Particle particle, double v, double v1, double v2, int i, double v3, double v4, double v5, double v6, T t) {
-        parent.spawnParticle(particle, v, v1, v2, i, v3, v4, v5, v6, t);
-    }
-
     /**
-     * @deprecated use {@link #wrap(org.bukkit.World)} instead
-     * @param parent Parent world
+     * @param parent    Parent world
      * @param autoQueue
+     * @deprecated use {@link #wrap(org.bukkit.World)} instead
      */
     @Deprecated
     public AsyncWorld(World parent, boolean autoQueue) {
@@ -89,9 +64,9 @@ public class AsyncWorld extends DelegateFaweQueue implements World, HasFaweQueue
     }
 
     /**
-     * @deprecated use {@link #wrap(org.bukkit.World)} instead
      * @param parent
      * @param queue
+     * @deprecated use {@link #wrap(org.bukkit.World)} instead
      */
     @Deprecated
     public AsyncWorld(World parent, FaweQueue queue) {
@@ -114,6 +89,7 @@ public class AsyncWorld extends DelegateFaweQueue implements World, HasFaweQueue
 
     /**
      * Wrap a world for async usage
+     *
      * @param world
      * @return
      */
@@ -122,6 +98,24 @@ public class AsyncWorld extends DelegateFaweQueue implements World, HasFaweQueue
             return (AsyncWorld) world;
         }
         return new AsyncWorld(world, false);
+    }
+
+    /**
+     * Create a world async (untested)
+     * - Only optimized for 1.10
+     *
+     * @param creator
+     * @return
+     */
+    public synchronized static AsyncWorld create(final WorldCreator creator) {
+        BukkitQueue_0 queue = (BukkitQueue_0) SetQueue.IMP.getNewQueue(creator.name(), true, false);
+        World world = queue.createWorld(creator);
+        return wrap(world);
+    }
+
+    @Override
+    public <T> void spawnParticle(Particle particle, double v, double v1, double v2, int i, double v3, double v4, double v5, double v6, T t) {
+        parent.spawnParticle(particle, v, v1, v2, i, v3, v4, v5, v6, t);
     }
 
     public void changeWorld(World world, FaweQueue queue) {
@@ -152,18 +146,6 @@ public class AsyncWorld extends DelegateFaweQueue implements World, HasFaweQueue
 
     public FaweQueue getQueue() {
         return queue;
-    }
-
-    /**
-     * Create a world async (untested)
-     *  - Only optimized for 1.10
-     * @param creator
-     * @return
-     */
-    public synchronized static AsyncWorld create(final WorldCreator creator) {
-        BukkitQueue_0 queue = (BukkitQueue_0) SetQueue.IMP.getNewQueue(creator.name(), true, false);
-        World world = queue.createWorld(creator);
-        return wrap(world);
     }
 
     public Operation commit() {
@@ -493,7 +475,7 @@ public class AsyncWorld extends DelegateFaweQueue implements World, HasFaweQueue
         return TaskManager.IMP.sync(new RunnableVal<Boolean>() {
             @Override
             public void run(Boolean value) {
-               this.value = parent.regenerateChunk(x, z);
+                this.value = parent.regenerateChunk(x, z);
             }
         });
     }
@@ -965,13 +947,13 @@ public class AsyncWorld extends DelegateFaweQueue implements World, HasFaweQueue
     }
 
     @Override
-    public void setDifficulty(Difficulty difficulty) {
-        parent.setDifficulty(difficulty);
+    public Difficulty getDifficulty() {
+        return parent.getDifficulty();
     }
 
     @Override
-    public Difficulty getDifficulty() {
-        return parent.getDifficulty();
+    public void setDifficulty(Difficulty difficulty) {
+        parent.setDifficulty(difficulty);
     }
 
     @Override

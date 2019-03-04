@@ -12,7 +12,6 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class FaweQueueDelegateExtent extends DelegateFaweQueue {

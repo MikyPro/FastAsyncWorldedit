@@ -3,6 +3,7 @@ package com.boydti.fawe.bukkit.v1_12.packet;
 import com.boydti.fawe.object.FaweChunk;
 import com.boydti.fawe.object.FaweOutputStream;
 import com.boydti.fawe.object.io.FastByteArrayOutputStream;
+
 import java.util.function.Function;
 
 public class FaweChunkPacket implements Function<byte[], byte[]> {

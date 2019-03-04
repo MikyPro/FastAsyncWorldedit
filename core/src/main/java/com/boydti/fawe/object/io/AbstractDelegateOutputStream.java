@@ -6,6 +6,10 @@ import java.io.OutputStream;
 public class AbstractDelegateOutputStream extends OutputStream {
     private final OutputStream parent;
 
+    public AbstractDelegateOutputStream(OutputStream os) {
+        this.parent = os;
+    }
+
     @Override
     public void write(int b) throws IOException {
         parent.write(b);
@@ -29,9 +33,5 @@ public class AbstractDelegateOutputStream extends OutputStream {
     @Override
     public void close() throws IOException {
         parent.close();
-    }
-
-    public AbstractDelegateOutputStream(OutputStream os) {
-        this.parent = os;
     }
 }

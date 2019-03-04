@@ -19,32 +19,16 @@
 
 package com.sk89q.worldedit.util.command.parametric;
 
-import com.boydti.fawe.command.SuggestInputParseException;
 import com.google.common.primitives.Chars;
-import com.sk89q.minecraft.util.commands.Command;
-import com.sk89q.minecraft.util.commands.CommandContext;
-import com.sk89q.minecraft.util.commands.CommandException;
-import com.sk89q.minecraft.util.commands.CommandLocals;
-import com.sk89q.minecraft.util.commands.CommandPermissions;
-import com.sk89q.minecraft.util.commands.CommandPermissionsException;
-import com.sk89q.minecraft.util.commands.SuggestionContext;
-import com.sk89q.minecraft.util.commands.WrappedCommandException;
-import com.sk89q.worldedit.util.command.CommandCallable;
-import com.sk89q.worldedit.util.command.InvalidUsageException;
-import com.sk89q.worldedit.util.command.MissingParameterException;
-import com.sk89q.worldedit.util.command.Parameter;
-import com.sk89q.worldedit.util.command.SimpleDescription;
-import com.sk89q.worldedit.util.command.UnconsumedParameterException;
+import com.sk89q.minecraft.util.commands.*;
+import com.sk89q.worldedit.util.command.*;
 import com.sk89q.worldedit.util.command.binding.Switch;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The implementation of a {@link CommandCallable} for the {@link ParametricBuilder}.
@@ -181,6 +165,30 @@ public class ParametricCallable extends AParametricCallable {
         // Get permissions annotation
         commandPermissions = method.getAnnotation(CommandPermissions.class);
         this.definition = definition;
+    }
+
+    /**
+     * Generate a name for a parameter.
+     *
+     * @param type       the type
+     * @param classifier the classifier
+     * @param index      the index
+     * @return a generated name
+     */
+    public static String generateName(Type type, Annotation classifier, int index) {
+        if (classifier != null) {
+            return classifier.annotationType().getSimpleName().toLowerCase();
+        } else {
+            if (type instanceof Class<?>) {
+                return ((Class<?>) type).getSimpleName().toLowerCase();
+            } else {
+                return "unknown" + index;
+            }
+        }
+    }
+
+    public static Class<ParametricCallable> inject() {
+        return ParametricCallable.class;
     }
 
     @Override
@@ -338,30 +346,5 @@ public class ParametricCallable extends AParametricCallable {
     @Override
     public String toString() {
         return method.toGenericString();
-    }
-
-    /**
-     * Generate a name for a parameter.
-     *
-     * @param type       the type
-     * @param classifier the classifier
-     * @param index      the index
-     * @return a generated name
-     */
-    public static String generateName(Type type, Annotation classifier, int index) {
-        if (classifier != null) {
-            return classifier.annotationType().getSimpleName().toLowerCase();
-        } else {
-            if (type instanceof Class<?>) {
-                return ((Class<?>) type).getSimpleName().toLowerCase();
-            } else {
-                return "unknown" + index;
-            }
-        }
-    }
-
-
-    public static Class<ParametricCallable> inject() {
-        return ParametricCallable.class;
     }
 }

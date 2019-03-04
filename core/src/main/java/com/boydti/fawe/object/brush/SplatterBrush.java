@@ -14,6 +14,7 @@ import com.sk89q.worldedit.function.mask.SolidBlockMask;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.function.visitor.RecursiveVisitor;
+
 import java.util.Arrays;
 
 public class SplatterBrush extends ScatterBrush {

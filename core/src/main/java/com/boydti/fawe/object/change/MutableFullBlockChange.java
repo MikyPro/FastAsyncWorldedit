@@ -22,6 +22,8 @@ public class MutableFullBlockChange implements Change {
     public BlockBag blockBag;
     public boolean allowFetch;
     public boolean allowStore;
+    private FaweQueue queue;
+    private boolean checkedQueue;
 
     public MutableFullBlockChange(BlockBag blockBag, int mode, boolean redo) {
         this.blockBag = blockBag;
@@ -38,9 +40,6 @@ public class MutableFullBlockChange implements Change {
     public void redo(UndoContext context) throws WorldEditException {
         create(context);
     }
-
-    private FaweQueue queue;
-    private boolean checkedQueue;
 
     public void create(UndoContext context) {
         if (queue != null) {

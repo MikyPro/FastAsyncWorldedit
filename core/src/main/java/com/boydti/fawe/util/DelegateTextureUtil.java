@@ -1,6 +1,7 @@
 package com.boydti.fawe.util;
 
 import com.sk89q.worldedit.blocks.BaseBlock;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,6 +13,10 @@ public class DelegateTextureUtil extends TextureUtil {
     public DelegateTextureUtil(TextureUtil parent) throws FileNotFoundException {
         super(parent.getFolder());
         this.parent = parent;
+    }
+
+    public static int hueDistance(int red1, int green1, int blue1, int red2, int green2, int blue2) {
+        return TextureUtil.hueDistance(red1, green1, blue1, red2, green2, blue2);
     }
 
     @Override
@@ -117,10 +122,6 @@ public class DelegateTextureUtil extends TextureUtil {
     @Override
     public long colorDistance(int red1, int green1, int blue1, int c2) {
         return parent.colorDistance(red1, green1, blue1, c2);
-    }
-
-    public static int hueDistance(int red1, int green1, int blue1, int red2, int green2, int blue2) {
-        return TextureUtil.hueDistance(red1, green1, blue1, red2, green2, blue2);
     }
 
     @Override

@@ -6,14 +6,15 @@ import com.boydti.fawe.object.RegionWrapper;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.Perm;
 import com.massivecraft.factions.FLocation;
-import java.lang.reflect.Method;
-import java.util.List;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class FactionsOneFeature extends BukkitMaskManager implements Listener {
 

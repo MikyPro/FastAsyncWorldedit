@@ -14,8 +14,12 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.extent.AbstractDelegateExtent;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.regions.Region;
+
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class WEManager {

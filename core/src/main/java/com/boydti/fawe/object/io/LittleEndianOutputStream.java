@@ -1,10 +1,6 @@
 package com.boydti.fawe.object.io;
 
-import java.io.DataOutput;
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UTFDataFormatException;
+import java.io.*;
 
 public class LittleEndianOutputStream extends FilterOutputStream implements DataOutput {
 
@@ -17,8 +13,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * Creates a new little endian output stream and chains it to the
      * output stream specified by the out argument.
      *
-     * @param   out   the underlying output stream.
-     * @see     java.io.FilterOutputStream#out
+     * @param out the underlying output stream.
+     * @see java.io.FilterOutputStream#out
      */
     public LittleEndianOutputStream(OutputStream out) {
         super(out);
@@ -27,8 +23,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
     /**
      * Writes the specified byte value to the underlying output stream.
      *
-     * @param      b   the <code>byte</code> value to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param b the <code>byte</code> value to be written.
+     * @throws IOException if the underlying stream throws an IOException.
      */
     public synchronized void write(int b) throws IOException {
         out.write(b);
@@ -39,10 +35,10 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * Writes <code>length</code> bytes from the specified byte array
      * starting at <code>offset</code> to the underlying output stream.
      *
-     * @param      data     the data.
-     * @param      offset   the start offset in the data.
-     * @param      length   the number of bytes to write.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param data   the data.
+     * @param offset the start offset in the data.
+     * @param length the number of bytes to write.
+     * @throws IOException if the underlying stream throws an IOException.
      */
     public synchronized void write(byte[] data, int offset, int length)
             throws IOException {
@@ -56,8 +52,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * a single byte. If the argument is true, the byte value 1 is written.
      * If the argument is false, the byte value <code>0</code> in written.
      *
-     * @param      b   the <code>boolean</code> value to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param b the <code>boolean</code> value to be written.
+     * @throws IOException if the underlying stream throws an IOException.
      */
     public void writeBoolean(boolean b) throws IOException {
 
@@ -69,8 +65,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
     /**
      * Writes out a <code>byte</code> to the underlying output stream
      *
-     * @param      b   the <code>byte</code> value to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param b the <code>byte</code> value to be written.
+     * @throws IOException if the underlying stream throws an IOException.
      */
     public void writeByte(int b) throws IOException {
         out.write(b);
@@ -81,8 +77,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * Writes a two byte <code>short</code> to the underlying output stream in
      * little endian order, low byte first.
      *
-     * @param      s   the <code>short</code> to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param s the <code>short</code> to be written.
+     * @throws IOException if the underlying stream throws an IOException.
      */
     public void writeShort(int s) throws IOException {
 
@@ -96,8 +92,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * Writes a two byte <code>char</code> to the underlying output stream
      * in little endian order, low byte first.
      *
-     * @param      c   the <code>char</code> value to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param c the <code>char</code> value to be written.
+     * @throws IOException if the underlying stream throws an IOException.
      */
     public void writeChar(int c) throws IOException {
 
@@ -111,8 +107,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * Writes a four-byte <code>int</code> to the underlying output stream
      * in little endian order, low byte first, high byte last
      *
-     * @param      i   the <code>int</code> to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param i the <code>int</code> to be written.
+     * @throws IOException if the underlying stream throws an IOException.
      */
     public void writeInt(int i) throws IOException {
 
@@ -128,8 +124,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * Writes an eight-byte <code>long</code> to the underlying output stream
      * in little endian order, low byte first, high byte last
      *
-     * @param      l   the <code>long</code> to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param l the <code>long</code> to be written.
+     * @throws IOException if the underlying stream throws an IOException.
      */
     public void writeLong(long l) throws IOException {
 
@@ -149,8 +145,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * Writes a 4 byte Java float to the underlying output stream in
      * little endian order.
      *
-     * @param      f   the <code>float</code> value to be written.
-     * @exception  IOException  if an I/O error occurs.
+     * @param f the <code>float</code> value to be written.
+     * @throws IOException if an I/O error occurs.
      */
     public final void writeFloat(float f) throws IOException {
 
@@ -162,8 +158,8 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * Writes an 8 byte Java double to the underlying output stream in
      * little endian order.
      *
-     * @param      d   the <code>double</code> value to be written.
-     * @exception  IOException  if an I/O error occurs.
+     * @param d the <code>double</code> value to be written.
+     * @throws IOException if an I/O error occurs.
      */
     public final void writeDouble(double d) throws IOException {
 
@@ -176,10 +172,10 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * bytes. Each character is written to the data output stream as
      * if by the <code>writeByte()</code> method.
      *
-     * @param      s   the <code>String</code> value to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
-     * @see        java.io.DataOutputStream#writeByte(int)
-     * @see        java.io.DataOutputStream#out
+     * @param s the <code>String</code> value to be written.
+     * @throws IOException if the underlying stream throws an IOException.
+     * @see java.io.DataOutputStream#writeByte(int)
+     * @see java.io.DataOutputStream#out
      */
     public void writeBytes(String s) throws IOException {
 
@@ -195,10 +191,10 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * characters. Each character is written to the data output stream as
      * if by the <code>writeChar</code> method.
      *
-     * @param      s   a <code>String</code> value to be written.
-     * @exception  IOException  if the underlying stream throws an IOException.
-     * @see        java.io.DataOutputStream#writeChar(int)
-     * @see        java.io.DataOutputStream#out
+     * @param s a <code>String</code> value to be written.
+     * @throws IOException if the underlying stream throws an IOException.
+     * @see java.io.DataOutputStream#writeChar(int)
+     * @see java.io.DataOutputStream#out
      */
     public void writeChars(String s) throws IOException {
 
@@ -222,17 +218,17 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * in the string. Next each character of the string is written
      * using the UTF-8 encoding for the character.
      *
-     * @param      s   the string to be written.
-     * @exception  UTFDataFormatException if the string is longer than
-     *             65,535 characters.
-     * @exception  IOException  if the underlying stream throws an IOException.
+     * @param s the string to be written.
+     * @throws UTFDataFormatException if the string is longer than
+     *                                65,535 characters.
+     * @throws IOException            if the underlying stream throws an IOException.
      */
     public void writeUTF(String s) throws IOException {
 
         int numchars = s.length();
         int numbytes = 0;
 
-        for (int i = 0 ; i < numchars ; i++) {
+        for (int i = 0; i < numchars; i++) {
             int c = s.charAt(i);
             if ((c >= 0x0001) && (c <= 0x007F)) numbytes++;
             else if (c > 0x07FF) numbytes += 3;
@@ -243,19 +239,17 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
 
         out.write((numbytes >>> 8) & 0xFF);
         out.write(numbytes & 0xFF);
-        for (int i = 0 ; i < numchars ; i++) {
+        for (int i = 0; i < numchars; i++) {
             int c = s.charAt(i);
             if ((c >= 0x0001) && (c <= 0x007F)) {
                 out.write(c);
-            }
-            else if (c > 0x07FF) {
+            } else if (c > 0x07FF) {
                 out.write(0xE0 | ((c >> 12) & 0x0F));
-                out.write(0x80 | ((c >>  6) & 0x3F));
+                out.write(0x80 | ((c >> 6) & 0x3F));
                 out.write(0x80 | (c & 0x3F));
                 written += 2;
-            }
-            else {
-                out.write(0xC0 | ((c >>  6) & 0x1F));
+            } else {
+                out.write(0xC0 | ((c >> 6) & 0x1F));
                 out.write(0x80 | (c & 0x3F));
                 written += 1;
             }
@@ -270,8 +264,9 @@ public class LittleEndianOutputStream extends FilterOutputStream implements Data
      * (This class is not thread-safe with respect to this method. It is
      * possible that this number is temporarily less than the actual
      * number of bytes written.)
-     * @return  the value of the <code>written</code> field.
-     * @see     java.io.DataOutputStream#written
+     *
+     * @return the value of the <code>written</code> field.
+     * @see java.io.DataOutputStream#written
      */
     public int size() {
         return this.written;

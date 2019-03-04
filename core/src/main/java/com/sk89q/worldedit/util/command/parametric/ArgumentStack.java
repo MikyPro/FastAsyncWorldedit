@@ -23,6 +23,10 @@ import com.sk89q.minecraft.util.commands.CommandContext;
 
 public interface ArgumentStack {
 
+    static Class<ArgumentStack> inject0() {
+        return ArgumentStack.class;
+    }
+
     /**
      * Get the next string, which may come from the stack or a value flag.
      *
@@ -91,8 +95,4 @@ public interface ArgumentStack {
      * @return the consumed arguments
      */
     String reset();
-
-    static Class<ArgumentStack> inject0() {
-        return ArgumentStack.class;
-    }
 }

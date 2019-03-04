@@ -29,8 +29,8 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.function.operation.RunContext;
 import com.sk89q.worldedit.regions.FlatRegion;
-import java.util.List;
 
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -47,10 +47,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class LayerVisitor implements Operation {
 
     private final LayerFunction function;
-    private Mask2D mask = Masks.alwaysTrue2D();
     private final int minY;
     private final int maxY;
     private final Iterable<Vector2D> iterator;
+    private Mask2D mask = Masks.alwaysTrue2D();
 
     /**
      * Create a new visitor.
@@ -68,6 +68,10 @@ public class LayerVisitor implements Operation {
         this.maxY = maxY;
         this.function = function;
         this.iterator = flatRegion.asFlatRegion();
+    }
+
+    public static Class<?> inject() {
+        return Operations.class;
     }
 
     /**
@@ -130,9 +134,5 @@ public class LayerVisitor implements Operation {
 
     @Override
     public void addStatusMessages(final List<String> messages) {
-    }
-
-    public static Class<?> inject() {
-        return Operations.class;
     }
 }

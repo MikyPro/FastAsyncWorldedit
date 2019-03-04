@@ -6,7 +6,6 @@ import com.boydti.fawe.example.NMSMappedFaweQueue;
 import com.boydti.fawe.object.FaweChunk;
 import com.boydti.fawe.object.FawePlayer;
 import com.boydti.fawe.object.brush.visualization.VisualChunk;
-import java.util.concurrent.atomic.LongAdder;
 import com.boydti.fawe.object.visitor.FaweChunkVisitor;
 import com.boydti.fawe.sponge.SpongePlayer;
 import com.boydti.fawe.util.MainUtil;
@@ -21,17 +20,6 @@ import com.sk89q.worldedit.world.biome.BaseBiome;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.block.state.IBlockState;
@@ -56,16 +44,19 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.BiomeCache;
 import net.minecraft.world.biome.BiomeProvider;
-import net.minecraft.world.chunk.BlockStateContainer;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.IChunkGenerator;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.chunk.NibbleArray;
+import net.minecraft.world.chunk.*;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraft.world.gen.ChunkProviderOverworld;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.WorldInfo;
 import org.spongepowered.api.Sponge;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.atomic.LongAdder;
 
 public class SpongeQueue_1_11 extends NMSMappedFaweQueue<World, net.minecraft.world.chunk.Chunk, ExtendedBlockStorage[], ExtendedBlockStorage> {
 
@@ -76,7 +67,8 @@ public class SpongeQueue_1_11 extends NMSMappedFaweQueue<World, net.minecraft.wo
 
     protected final static Field fieldId2ChunkMap;
     protected final static Field fieldChunkGenerator;
-
+    protected static final SpongeImplAdapter adapter;
+    protected final static IBlockState air = Blocks.AIR.getDefaultState();
     protected static Field fieldBiomes;
     protected static Field fieldSeed;
     protected static Field fieldBiomeCache;
@@ -84,10 +76,7 @@ public class SpongeQueue_1_11 extends NMSMappedFaweQueue<World, net.minecraft.wo
     protected static Field fieldGenLayer1;
     protected static Field fieldGenLayer2;
     protected static ExtendedBlockStorage emptySection;
-
     private static MutableGenLayer genLayer;
-
-    protected static final SpongeImplAdapter adapter;
 
     static {
         try {
@@ -124,6 +113,9 @@ public class SpongeQueue_1_11 extends NMSMappedFaweQueue<World, net.minecraft.wo
             throw new RuntimeException(e);
         }
     }
+
+    protected BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, 0, 0);
+    protected WorldServer nmsWorld;
 
     public SpongeQueue_1_11(com.sk89q.worldedit.world.World world) {
         super(world);
@@ -244,8 +236,6 @@ public class SpongeQueue_1_11 extends NMSMappedFaweQueue<World, net.minecraft.wo
             }
         }
     }
-
-    protected BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, 0, 0);
 
     @Override
     public CompoundTag getTileEntity(Chunk chunk, int x, int y, int z) {
@@ -471,8 +461,6 @@ public class SpongeQueue_1_11 extends NMSMappedFaweQueue<World, net.minecraft.wo
         return previous;
     }
 
-    protected final static IBlockState air = Blocks.AIR.getDefaultState();
-
     public void setPalette(ExtendedBlockStorage section, BlockStateContainer palette) throws NoSuchFieldException, IllegalAccessException {
         Field fieldSection = ExtendedBlockStorage.class.getDeclaredField("data");
         fieldSection.setAccessible(true);
@@ -556,7 +544,6 @@ public class SpongeQueue_1_11 extends NMSMappedFaweQueue<World, net.minecraft.wo
         return false;
     }
 
-
     @Override
     public FaweChunk<Chunk> getFaweChunk(int x, int z) {
         return new SpongeChunk_1_11(this, x, z);
@@ -594,8 +581,6 @@ public class SpongeQueue_1_11 extends NMSMappedFaweQueue<World, net.minecraft.wo
         pos.setPos(x, y, z);
         nmsWorld.checkLight(pos);
     }
-
-    protected WorldServer nmsWorld;
 
     @Override
     public net.minecraft.world.World getImpWorld() {

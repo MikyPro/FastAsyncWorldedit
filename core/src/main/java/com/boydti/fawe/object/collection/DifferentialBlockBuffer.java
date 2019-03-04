@@ -2,6 +2,7 @@ package com.boydti.fawe.object.collection;
 
 import com.boydti.fawe.object.FaweInputStream;
 import com.boydti.fawe.object.FaweOutputStream;
+
 import java.io.IOException;
 import java.lang.reflect.Array;
 
@@ -62,7 +63,8 @@ public final class DifferentialBlockBuffer implements DifferentialCollection<cha
 
     @Override
     public void undoChanges(FaweInputStream in) throws IOException {
-        if (changes != null && changes.length != 0) throw new IllegalStateException("There are uncommitted changes, please flush first");
+        if (changes != null && changes.length != 0)
+            throw new IllegalStateException("There are uncommitted changes, please flush first");
         boolean modified = in.readBoolean();
         if (modified) {
             int len = in.readVarInt();

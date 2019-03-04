@@ -1,26 +1,26 @@
 /**
- This file is part of VoxelSniper, licensed under the MIT License (MIT).
-
- Copyright (c) The VoxelBox <http://thevoxelbox.com>
- Copyright (c) contributors
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
+ * This file is part of VoxelSniper, licensed under the MIT License (MIT).
+ * <p>
+ * Copyright (c) The VoxelBox <http://thevoxelbox.com>
+ * Copyright (c) contributors
+ * <p>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * <p>
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * <p>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package com.thevoxelbox.voxelsniper;
 
@@ -93,6 +93,10 @@ public class SnipeData {
         this.owner = vs;
     }
 
+    public static Class<?> inject() {
+        return SnipeData.class;
+    }
+
     /**
      * Get the extent currently being used to set blocks
      * @return
@@ -135,10 +139,24 @@ public class SnipeData {
     }
 
     /**
+     * @param brushSize the brushSize to set
+     */
+    public final void setBrushSize(final int brushSize) {
+        this.brushSize = brushSize;
+    }
+
+    /**
      * @return the cCen
      */
     public final int getcCen() {
         return this.cCen;
+    }
+
+    /**
+     * @param cCen the cCen to set
+     */
+    public final void setcCen(final int cCen) {
+        this.cCen = cCen;
     }
 
     /**
@@ -149,10 +167,24 @@ public class SnipeData {
     }
 
     /**
+     * @param data the data to set
+     */
+    public final void setData(final byte data) {
+        this.data = data;
+    }
+
+    /**
      * @return the replaceData
      */
     public final byte getReplaceData() {
         return this.replaceData;
+    }
+
+    /**
+     * @param replaceData the replaceData to set
+     */
+    public final void setReplaceData(final byte replaceData) {
+        this.replaceData = replaceData;
     }
 
     /**
@@ -163,10 +195,24 @@ public class SnipeData {
     }
 
     /**
+     * @param replaceId the replaceId to set
+     */
+    public final void setReplaceId(final int replaceId) {
+        this.replaceId = replaceId;
+    }
+
+    /**
      * @return the voxelHeight
      */
     public final int getVoxelHeight() {
         return this.voxelHeight;
+    }
+
+    /**
+     * @param voxelHeight the voxelHeight to set
+     */
+    public final void setVoxelHeight(final int voxelHeight) {
+        this.voxelHeight = voxelHeight;
     }
 
     /**
@@ -177,6 +223,22 @@ public class SnipeData {
     }
 
     /**
+     * @param voxelId the voxelId to set
+     */
+    public final void setVoxelId(final int voxelId) {
+        if (WorldEdit.getInstance().getConfiguration().disallowedBlocks.contains(voxelId)) {
+            if (owner != null) {
+                Player plr = owner.getPlayer();
+                if (plr != null) {
+                    plr.sendMessage(ChatColor.RED + "You are not allowed to use '" + voxelId + "'");
+                    return;
+                }
+            }
+        }
+        this.voxelId = voxelId;
+    }
+
+    /**
      * @return the voxelList
      */
     public final VoxelList getVoxelList() {
@@ -184,10 +246,24 @@ public class SnipeData {
     }
 
     /**
+     * @param voxelList the voxelList to set
+     */
+    public final void setVoxelList(final VoxelList voxelList) {
+        this.voxelList = voxelList;
+    }
+
+    /**
      * @return the voxelMessage
      */
     public final Message getVoxelMessage() {
         return this.voxelMessage;
+    }
+
+    /**
+     * @param voxelMessage the voxelMessage to set
+     */
+    public final void setVoxelMessage(final Message voxelMessage) {
+        this.voxelMessage = voxelMessage;
     }
 
     /**
@@ -225,78 +301,6 @@ public class SnipeData {
         this.owner.getPlayer().sendMessage(message);
     }
 
-    /**
-     * @param brushSize the brushSize to set
-     */
-    public final void setBrushSize(final int brushSize) {
-        this.brushSize = brushSize;
-    }
-
-    /**
-     * @param cCen the cCen to set
-     */
-    public final void setcCen(final int cCen) {
-        this.cCen = cCen;
-    }
-
-    /**
-     * @param data the data to set
-     */
-    public final void setData(final byte data) {
-        this.data = data;
-    }
-
-    /**
-     * @param replaceData the replaceData to set
-     */
-    public final void setReplaceData(final byte replaceData) {
-        this.replaceData = replaceData;
-    }
-
-    /**
-     * @param replaceId the replaceId to set
-     */
-    public final void setReplaceId(final int replaceId) {
-        this.replaceId = replaceId;
-    }
-
-    /**
-     * @param voxelHeight the voxelHeight to set
-     */
-    public final void setVoxelHeight(final int voxelHeight) {
-        this.voxelHeight = voxelHeight;
-    }
-
-    /**
-     * @param voxelId the voxelId to set
-     */
-    public final void setVoxelId(final int voxelId) {
-        if (WorldEdit.getInstance().getConfiguration().disallowedBlocks.contains(voxelId)) {
-            if (owner != null) {
-                Player plr = owner.getPlayer();
-                if (plr != null) {
-                    plr.sendMessage(ChatColor.RED + "You are not allowed to use '" + voxelId + "'");
-                    return;
-                }
-            }
-        }
-        this.voxelId = voxelId;
-    }
-
-    /**
-     * @param voxelList the voxelList to set
-     */
-    public final void setVoxelList(final VoxelList voxelList) {
-        this.voxelList = voxelList;
-    }
-
-    /**
-     * @param voxelMessage the voxelMessage to set
-     */
-    public final void setVoxelMessage(final Message voxelMessage) {
-        this.voxelMessage = voxelMessage;
-    }
-
     public int getRange() {
         return range;
     }
@@ -319,9 +323,5 @@ public class SnipeData {
 
     public void setLightningEnabled(boolean lightning) {
         this.lightning = lightning;
-    }
-
-    public static Class<?> inject() {
-        return SnipeData.class;
     }
 }

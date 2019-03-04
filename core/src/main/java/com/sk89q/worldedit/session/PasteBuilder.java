@@ -34,7 +34,6 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.world.registry.WorldData;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -70,6 +69,10 @@ public class PasteBuilder {
         this.transform = holder.getTransform();
         this.targetExtent = targetExtent;
         this.targetWorldData = targetWorldData;
+    }
+
+    public static Class<?> inject() {
+        return PasteBuilder.class;
     }
 
     /**
@@ -137,9 +140,5 @@ public class PasteBuilder {
             copy.setSourceMask(new ExistingBlockMask(clipboard));
         }
         return copy;
-    }
-
-    public static Class<?> inject() {
-        return PasteBuilder.class;
     }
 }

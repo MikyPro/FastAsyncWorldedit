@@ -14,6 +14,8 @@ public class MutableChunkChange implements Change {
 
     public FaweChunk from;
     public FaweChunk to;
+    private FaweQueue queue;
+    private boolean checkedQueue;
 
     public MutableChunkChange(FaweChunk from, FaweChunk to) {
         this.from = from;
@@ -29,9 +31,6 @@ public class MutableChunkChange implements Change {
     public void redo(UndoContext context) throws WorldEditException {
         create(context, false);
     }
-
-    private FaweQueue queue;
-    private boolean checkedQueue;
 
     public void create(UndoContext context, boolean undo) {
         if (queue != null) {

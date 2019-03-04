@@ -9,10 +9,12 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.function.pattern.RandomPattern;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MappedReplacePatternFilter extends MCAFilterCounter {
+    private final MutableBlockVector mutable = new MutableBlockVector(0, 0, 0);
     private Pattern[] map = new Pattern[Character.MAX_VALUE + 1];
 
     public MappedReplacePatternFilter() {
@@ -50,8 +52,6 @@ public class MappedReplacePatternFilter extends MCAFilterCounter {
     public void addReplace(BaseBlock block, Pattern pattern) {
         map[block.getCombined()] = pattern;
     }
-
-    private final MutableBlockVector mutable = new MutableBlockVector(0, 0, 0);
 
     @Override
     public void applyBlock(int x, int y, int z, BaseBlock block, MutableLong ignore) {

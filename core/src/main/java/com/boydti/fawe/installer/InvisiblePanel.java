@@ -1,9 +1,7 @@
 package com.boydti.fawe.installer;
 
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.LayoutManager;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
 
 public class InvisiblePanel extends JPanel {
     public InvisiblePanel(LayoutManager layout) {

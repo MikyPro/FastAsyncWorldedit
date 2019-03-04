@@ -3,19 +3,12 @@ package com.boydti.fawe.nukkit.core;
 import cn.nukkit.Player;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.EntityLiving;
-import cn.nukkit.entity.item.EntityBoat;
-import cn.nukkit.entity.item.EntityFallingBlock;
-import cn.nukkit.entity.item.EntityItem;
-import cn.nukkit.entity.item.EntityMinecartEmpty;
-import cn.nukkit.entity.item.EntityPainting;
-import cn.nukkit.entity.item.EntityPrimedTNT;
-import cn.nukkit.entity.item.EntityXPOrb;
+import cn.nukkit.entity.item.*;
 import cn.nukkit.entity.passive.EntityAnimal;
 import cn.nukkit.entity.passive.EntityNPC;
 import cn.nukkit.entity.passive.EntityTameable;
 import cn.nukkit.entity.projectile.EntityProjectile;
 import com.sk89q.worldedit.entity.metadata.EntityType;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

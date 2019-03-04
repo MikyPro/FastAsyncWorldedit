@@ -15,13 +15,6 @@ import com.mojang.authlib.GameProfile;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.forge.ForgeWorld;
 import com.sk89q.worldedit.world.World;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.management.InstanceAlreadyExistsException;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -31,12 +24,17 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ModMetadata;
 import org.apache.logging.log4j.Logger;
 
+import javax.management.InstanceAlreadyExistsException;
+import java.io.File;
+import java.util.*;
+
 public class FaweForge implements IFawe {
 
     private final ForgeMain parent;
     private final File directory;
     private final Logger logger;
     private final ModMetadata mod;
+    private HashMap<String, FaweCommand> commands = new HashMap<>();
 
     public FaweForge(ForgeMain plugin, Logger logger, ModMetadata mod, File directory) {
         this.parent = plugin;
@@ -85,8 +83,6 @@ public class FaweForge implements IFawe {
         return directory;
     }
 
-    private HashMap<String, FaweCommand> commands = new HashMap<>();
-
     @Override
     public void setupCommand(String label, FaweCommand cmd) {
         this.commands.put(label, cmd);
@@ -132,8 +128,7 @@ public class FaweForge implements IFawe {
     public String getWorldName(World world) {
         if (world instanceof WorldWrapper) {
             return getWorldName(((WorldWrapper) world).getParent());
-        }
-        else if (world instanceof EditSession) {
+        } else if (world instanceof EditSession) {
             return getWorldName(((EditSession) world).getWorld());
         }
         return getWorldName(((ForgeWorld) world).getWorld());

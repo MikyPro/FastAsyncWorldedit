@@ -3,14 +3,10 @@ package com.boydti.fawe.installer;
 import com.boydti.fawe.FaweVersion;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.StringMan;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Toolkit;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,14 +20,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 
 public class InstallerFrame extends JFrame {
     private final InvisiblePanel loggerPanel;
@@ -44,6 +32,7 @@ public class InstallerFrame extends JFrame {
 
     private JTextArea loggerTextArea;
     private BrowseButton browse;
+    private boolean newLine = false;
 
     public InstallerFrame() throws Exception {
         final MovablePanel movable = new MovablePanel(this);
@@ -183,7 +172,9 @@ public class InstallerFrame extends JFrame {
         this.repaint();
     }
 
-    private boolean newLine = false;
+    public static void main(String[] args) throws Exception {
+        InstallerFrame window = new InstallerFrame();
+    }
 
     public void prompt(String message) {
         JOptionPane.showMessageDialog(null, message);
@@ -350,9 +341,5 @@ public class InstallerFrame extends JFrame {
             }
         });
         thread.start();
-    }
-
-    public static void main(String[] args) throws Exception {
-        InstallerFrame window = new InstallerFrame();
     }
 }

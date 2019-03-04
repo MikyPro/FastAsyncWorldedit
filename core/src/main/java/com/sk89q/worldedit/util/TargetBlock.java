@@ -19,7 +19,6 @@
 
 package com.sk89q.worldedit.util;
 
-import com.boydti.fawe.wrappers.WorldWrapper;
 import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BlockID;
 import com.sk89q.worldedit.blocks.BlockType;
@@ -57,8 +56,8 @@ public class TargetBlock {
     /**
      * Constructor requiring a player, max distance and a checking distance
      *
-     * @param player LocalPlayer to work with
-     * @param maxDistance how far it checks for blocks
+     * @param player        LocalPlayer to work with
+     * @param maxDistance   how far it checks for blocks
      * @param checkDistance how often to check for blocks, the smaller the more precise
      */
     public TargetBlock(LocalPlayer player, int maxDistance, double checkDistance) {
@@ -68,8 +67,8 @@ public class TargetBlock {
     /**
      * Constructor requiring a player, max distance and a checking distance
      *
-     * @param player LocalPlayer to work with
-     * @param maxDistance how far it checks for blocks
+     * @param player        LocalPlayer to work with
+     * @param maxDistance   how far it checks for blocks
      * @param checkDistance how often to check for blocks, the smaller the more precise
      */
     public TargetBlock(Player player, int maxDistance, double checkDistance) {
@@ -80,11 +79,11 @@ public class TargetBlock {
     /**
      * Set the values, all constructors uses this function
      *
-     * @param loc location of the view
-     * @param xRotation the X rotation
-     * @param yRotation the Y rotation
-     * @param maxDistance how far it checks for blocks
-     * @param viewHeight where the view is positioned in y-axis
+     * @param loc           location of the view
+     * @param xRotation     the X rotation
+     * @param yRotation     the Y rotation
+     * @param maxDistance   how far it checks for blocks
+     * @param viewHeight    where the view is positioned in y-axis
      * @param checkDistance how often to check for blocks, the smaller the more precise
      */
     private void setValues(Vector loc, double xRotation, double yRotation,

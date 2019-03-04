@@ -1,22 +1,21 @@
 package com.github.luben.zstd;
 
-import java.io.InputStream;
+import com.github.luben.zstd.util.Native;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
-import java.lang.IndexOutOfBoundsException;
-
-import com.github.luben.zstd.util.Native;
-import com.github.luben.zstd.Zstd;
+import java.io.InputStream;
 
 /**
  * InputStream filter that decompresses the data provided
  * by the underlying InputStream using Zstd compression.
- *
+ * <p>
  * It does not support mark/reset methods
- *
  */
 
 public class ZstdInputStream extends FilterInputStream {
+
+    private static final int srcBuffSize = (int) recommendedDInSize();
 
     static {
         Native.load();
@@ -28,19 +27,9 @@ public class ZstdInputStream extends FilterInputStream {
     private long srcPos = 0;
     private long srcSize = 0;
     private byte[] src = null;
-    private static final int srcBuffSize = (int) recommendedDInSize();
-
     private boolean isContinuous = false;
     private boolean frameFinished = false;
     private boolean isClosed = false;
-
-    /* JNI methods */
-    private static native long recommendedDInSize();
-    private static native long recommendedDOutSize();
-    private static native long createDStream();
-    private static native int  freeDStream(long stream);
-    private native int  initDStream(long stream);
-    private native int  decompressStream(long stream, byte[] dst, int dst_size, byte[] src, int src_size);
 
     // The main constuctor / legacy version dispatcher
     public ZstdInputStream(InputStream inStream) throws IOException {
@@ -59,19 +48,32 @@ public class ZstdInputStream extends FilterInputStream {
         }
     }
 
+    /* JNI methods */
+    private static native long recommendedDInSize();
+
+    private static native long recommendedDOutSize();
+
+    private static native long createDStream();
+
+    private static native int freeDStream(long stream);
+
+    private native int initDStream(long stream);
+
+    private native int decompressStream(long stream, byte[] dst, int dst_size, byte[] src, int src_size);
+
+    public boolean getContinuous() {
+        return this.isContinuous;
+    }
+
     /**
      * Don't break on unfinished frames
-     *
+     * <p>
      * Use case: decompressing files that are not
      * yet finished writing and compressing
      */
     public ZstdInputStream setContinuous(boolean b) {
         isContinuous = b;
         return this;
-    }
-
-    public boolean getContinuous() {
-        return this.isContinuous;
     }
 
     public int read(byte[] dst, int offset, int len) throws IOException {
@@ -97,7 +99,7 @@ public class ZstdInputStream extends FilterInputStream {
                     if (frameFinished) {
                         return -1;
                     } else if (isContinuous) {
-                        return (int)(dstPos - offset);
+                        return (int) (dstPos - offset);
                     } else {
                         throw new IOException("Read error or truncated source");
                     }
@@ -119,7 +121,7 @@ public class ZstdInputStream extends FilterInputStream {
                 if (Zstd.isError(size)) {
                     throw new IOException("Decompression error: " + Zstd.getErrorName(size));
                 }
-                return (int)(dstPos - offset);
+                return (int) (dstPos - offset);
             }
         }
         return len;

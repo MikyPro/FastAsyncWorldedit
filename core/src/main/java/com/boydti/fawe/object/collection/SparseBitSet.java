@@ -39,12 +39,13 @@ import java.io.Serializable;
  * <p>
  * A <code>SparseBitSet</code> is not safe for multithreaded use without
  * external synchronization.
- * @see <a href="https://github.com/brettwooldridge/SparseBitSet">source</a>
+ *
  * @author Bruce K. Haddon
  * @author Arthur van Hoff
  * @author Michael McCloskey
  * @author Martin Buchholz
  * @version 1.0, 2009-03-17
+ * @see <a href="https://github.com/brettwooldridge/SparseBitSet">source</a>
  * @since 1.6
  */
 public final class SparseBitSet implements Cloneable, Serializable {
@@ -105,17 +106,105 @@ public final class SparseBitSet implements Cloneable, Serializable {
         values appear to be a fair compromise. */
 
     /**
+     * The number of bits in a long value.
+     */
+    protected static final int LENGTH4 = Long.SIZE;
+    /**
+     * The number of bits in a positive integer, and the size of permitted index
+     * of a bit in the bit set.
+     */
+    protected static final int INDEX_SIZE = Integer.SIZE - 1;
+    /**
+     * The label (index) of a bit in the bit set is essentially broken into
+     * 4 "levels". Respectively (from the least significant end), level4, the
+     * address within word, the address within a level3 block, the address within
+     * a level2 area, and the level1 address of that area within the set.
+     * <p>
+     * LEVEL4 is the number of bits of the level4 address (number of bits need
+     * to address the bits in a long)
+     */
+    protected static final int LEVEL4 = 6;
+    /**
+     * LEVEL3 is the number of bits of the level3 address.
+     */
+    protected static final int LEVEL3 = 5; // Do not change!
+
+    //==============================================================================
+    //  The critical parameters. These are set up so that the compiler may
+    //  pre-compute all the values as compile-time constants.
+    //==============================================================================
+    /**
+     * LEVEL2 is the number of bits of the level2 address.
+     */
+    protected static final int LEVEL2 = 5; // Do not change!
+    /**
+     * LEVEL1 is the number of bits of the level1 address.
+     */
+    protected static final int LEVEL1 = INDEX_SIZE - LEVEL2 - LEVEL3 - LEVEL4;
+    /**
+     * MAX_LENGTH1 is the maximum number of entries in the level1 set array.
+     */
+    protected static final int MAX_LENGTH1 = 1 << LEVEL1;
+    /**
+     * LENGTH2 is the number of entries in the any level2 area.
+     */
+    protected static final int LENGTH2 = 1 << LEVEL2;
+    /**
+     * LENGTH3 is the number of entries in the any level3 block.
+     */
+    protected static final int LENGTH3 = 1 << LEVEL3;
+    /**
+     * The shift to create the word index. (I.e., move it to the right end)
+     */
+    protected static final int SHIFT3 = LEVEL4;
+    /**
+     * MASK3 is the mask to extract the LEVEL3 address from a word index
+     * (after shifting by SHIFT3).
+     */
+    protected static final int MASK3 = LENGTH3 - 1;
+    /**
+     * SHIFT2 is the shift to bring the level2 address (from the word index) to
+     * the right end (i.e., after shifting by SHIFT3).
+     */
+    protected static final int SHIFT2 = LEVEL3;
+    /**
+     * UNIT is the greatest number of bits that can be held in one level1 entry.
+     * That is, bits per word by words per level3 block by blocks per level2 area.
+     */
+
+    protected static final int UNIT = LENGTH2 * LENGTH3 * LENGTH4;
+    /**
+     * MASK2 is the mask to extract the LEVEL2 address from a word index
+     * (after shifting by SHIFT3 and SHIFT2).
+     */
+    protected static final int MASK2 = LENGTH2 - 1;
+    /**
+     * SHIFT1 is the shift to bring the level1 address (from the word index) to
+     * the right end (i.e., after shifting by SHIFT3).
+     */
+    protected static final int SHIFT1 = LEVEL2 + LEVEL3;
+    /**
+     * An empty level 3 block is kept for use when scanning. When a source block
+     * is needed, and there is not already one in the corresponding bit set, the
+     * ZERO_BLOCK is used (as a read-only block). It is a source of zero values
+     * so that code does not have to test for a null level3 block. This is a
+     * static block shared everywhere.
+     */
+    static final long[] ZERO_BLOCK = new long[LENGTH3];
+    /**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = -6663013367427929992L;
+    /**
+     * The compaction count default.
+     */
+    static int compactionCountDefault = 2; // Note: this is not final!
+    /**
      * This value controls for format of the toString() output.
      *
      * @see #toStringCompaction(int)
      */
     protected transient int compactionCount;
-
-    /**
-     * The compaction count default.
-     */
-    static int compactionCountDefault = 2; // Note: this is not final!
-
     /**
      * The storage for this SparseBitSet. The <i>i</i>th bit is stored in a word
      * represented by a long value, and is at bit position <code>i % 64</code>
@@ -127,6 +216,14 @@ public final class SparseBitSet implements Cloneable, Serializable {
      */
     protected transient long[][][] bits;
 
+    //=============================================================================
+    //  Stack structures used for recycling blocks
+    //=============================================================================
+    // private static final int STACK_SIZE = 1000;
+
+    // private static final long[][] stack = new long[STACK_SIZE][LENGTH3];
+
+    // private static int stackIndex = 0;
     /**
      * For the current size of the bits array, this is the maximum possible
      * length of the bit set, i.e., the index of the last possible bit, plus one.
@@ -136,97 +233,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
      * @see #length()
      */
     protected transient int bitsLength;
-
-    //==============================================================================
-    //  The critical parameters. These are set up so that the compiler may
-    //  pre-compute all the values as compile-time constants.
-    //==============================================================================
-    /**
-     * The number of bits in a long value.
-     */
-    protected static final int LENGTH4 = Long.SIZE;
-
-    /**
-     * The number of bits in a positive integer, and the size of permitted index
-     * of a bit in the bit set.
-     */
-    protected static final int INDEX_SIZE = Integer.SIZE - 1;
-
-    /**
-     * The label (index) of a bit in the bit set is essentially broken into
-     * 4 "levels". Respectively (from the least significant end), level4, the
-     * address within word, the address within a level3 block, the address within
-     * a level2 area, and the level1 address of that area within the set.
-     * <p>
-     * LEVEL4 is the number of bits of the level4 address (number of bits need
-     * to address the bits in a long)
-     */
-    protected static final int LEVEL4 = 6;
-
-    /**
-     * LEVEL3 is the number of bits of the level3 address.
-     */
-    protected static final int LEVEL3 = 5; // Do not change!
-    /**
-     * LEVEL2 is the number of bits of the level2 address.
-     */
-    protected static final int LEVEL2 = 5; // Do not change!
-    /**
-     * LEVEL1 is the number of bits of the level1 address.
-     */
-    protected static final int LEVEL1 = INDEX_SIZE - LEVEL2 - LEVEL3 - LEVEL4;
-
-    /**
-     * MAX_LENGTH1 is the maximum number of entries in the level1 set array.
-     */
-    protected static final int MAX_LENGTH1 = 1 << LEVEL1;
-
-    /**
-     * LENGTH2 is the number of entries in the any level2 area.
-     */
-    protected static final int LENGTH2 = 1 << LEVEL2;
-
-    /**
-     * LENGTH3 is the number of entries in the any level3 block.
-     */
-    protected static final int LENGTH3 = 1 << LEVEL3;
-
-    /**
-     * The shift to create the word index. (I.e., move it to the right end)
-     */
-    protected static final int SHIFT3 = LEVEL4;
-
-    /**
-     * MASK3 is the mask to extract the LEVEL3 address from a word index
-     * (after shifting by SHIFT3).
-     */
-    protected static final int MASK3 = LENGTH3 - 1;
-
-    /**
-     * SHIFT2 is the shift to bring the level2 address (from the word index) to
-     * the right end (i.e., after shifting by SHIFT3).
-     */
-    protected static final int SHIFT2 = LEVEL3;
-
-    /**
-     * UNIT is the greatest number of bits that can be held in one level1 entry.
-     * That is, bits per word by words per level3 block by blocks per level2 area.
-     */
-
-    protected static final int UNIT = LENGTH2 * LENGTH3 * LENGTH4;
-
-    /**
-     * MASK2 is the mask to extract the LEVEL2 address from a word index
-     * (after shifting by SHIFT3 and SHIFT2).
-     */
-    protected static final int MASK2 = LENGTH2 - 1;
-
-    /**
-     * SHIFT1 is the shift to bring the level1 address (from the word index) to
-     * the right end (i.e., after shifting by SHIFT3).
-     */
-    protected static final int SHIFT1 = LEVEL2 + LEVEL3;
-
     /**
      * Holds reference to the cache of statistics values computed by the
      * UpdateStrategy
@@ -235,34 +241,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
      * @see SparseBitSet.UpdateStrategy
      */
     protected transient Cache cache;
-
-    //=============================================================================
-    //  Stack structures used for recycling blocks
-    //=============================================================================
-    // private static final int STACK_SIZE = 1000;
-
-    // private static final long[][] stack = new long[STACK_SIZE][LENGTH3];
-
-    // private static int stackIndex = 0;
-
-    /**
-     * A spare level 3 block is kept for use when scanning. When a target block
-     * is needed, and there is not already one in the bit set, the spare is
-     * provided. If non-zero values are placed into this block, it is moved to the
-     * resulting set, and a new spare is acquired. Note: a new spare needs to
-     * be allocated when the set is cloned (so that the spare is not shared
-     * between two sets).
-     */
-    protected transient long[] spare;
-
-    /**
-     * An empty level 3 block is kept for use when scanning. When a source block
-     * is needed, and there is not already one in the corresponding bit set, the
-     * ZERO_BLOCK is used (as a read-only block). It is a source of zero values
-     * so that code does not have to test for a null level3 block. This is a
-     * static block shared everywhere.
-     */
-    static final long[] ZERO_BLOCK = new long[LENGTH3];
 
     /*  Programming notes:
 
@@ -319,6 +297,59 @@ public final class SparseBitSet implements Cloneable, Serializable {
         -(Integer.MAX_VALUE + 1), and thus appears to be less than 1, and thus the
         check picks up the other disallowed case. Let us hope the compiler never
         gets smart enough to try to do the apparent optimisation! */
+    /**
+     * A spare level 3 block is kept for use when scanning. When a target block
+     * is needed, and there is not already one in the bit set, the spare is
+     * provided. If non-zero values are placed into this block, it is moved to the
+     * resulting set, and a new spare is acquired. Note: a new spare needs to
+     * be allocated when the set is cloned (so that the spare is not shared
+     * between two sets).
+     */
+    protected transient long[] spare;
+    /**
+     * Word and block <b>and</b> strategy.
+     */
+    protected transient AndStrategy andStrategy;
+    /**
+     * Word and block <b>andNot</b> strategy.
+     */
+    protected transient AndNotStrategy andNotStrategy;
+    /**
+     * Word and block <b>clear</b> strategy.
+     */
+    protected transient ClearStrategy clearStrategy;
+    /**
+     * Word and block <b>copy</b> strategy.
+     */
+    protected transient CopyStrategy copyStrategy;
+    /**
+     * Word and block <b>equals</b> strategy.
+     */
+    protected transient EqualsStrategy equalsStrategy;
+    /**
+     * Word and block <b>flip</b> strategy.
+     */
+    protected transient FlipStrategy flipStrategy;
+    /**
+     * Word and block <b>intersects</b> strategy.
+     */
+    protected transient IntersectsStrategy intersectsStrategy;
+    /**
+     * Word and block <b>or</b> strategy.
+     */
+    protected transient OrStrategy orStrategy;
+    /**
+     * Word and block <b>set</b> strategy.
+     */
+    protected transient SetStrategy setStrategy;
+    /**
+     * Word and block <b>update</b> strategy.
+     */
+    protected transient UpdateStrategy updateStrategy;
+    /**
+     * Word and block <b>xor</b> strategy.
+     */
+    protected transient XorStrategy xorStrategy;
 
     /**
      * Constructor for a new (sparse) bit set. All bits initially are effectively
@@ -382,6 +413,109 @@ public final class SparseBitSet implements Cloneable, Serializable {
     }
 
     /**
+     * Performs a logical <b>AND</b> of the two given <code>SparseBitSet</code>s.
+     * The returned <code>SparseBitSet</code> is created so that each bit in it
+     * has the value <code>true</code> if and only if both the given sets
+     * initially had the corresponding bits <code>true</code>, otherwise
+     * <code>false</code>.
+     *
+     * @param a a SparseBitSet
+     * @param b another SparseBitSet
+     * @return a new SparseBitSet representing the <b>AND</b> of the two sets
+     * @since 1.6
+     */
+    public static SparseBitSet and(SparseBitSet a, SparseBitSet b) {
+        final SparseBitSet result = a.clone();
+        result.and(b);
+        return result;
+    }
+
+    /**
+     * Creates a bit set from thie first <code>SparseBitSet</code> whose
+     * corresponding bits are cleared by the set bits of the second
+     * <code>SparseBitSet</code>. The resulting bit set is created so that a bit
+     * in it has the value <code>true</code> if and only if the corresponding bit
+     * in the <code>SparseBitSet</code> of the first is set, and that same
+     * corresponding bit is not set in the <code>SparseBitSet</code> of the second
+     * argument.
+     *
+     * @param a a SparseBitSet
+     * @param b another SparseBitSet
+     * @return a new SparseBitSet representing the <b>AndNOT</b> of the
+     * two sets
+     * @since 1.6
+     */
+    public static SparseBitSet andNot(SparseBitSet a, SparseBitSet b) {
+        final SparseBitSet result = a.clone();
+        result.andNot(b);
+        return result;
+    }
+
+    /**
+     * Performs a logical <b>OR</b> of the two given <code>SparseBitSet</code>s.
+     * The returned <code>SparseBitSet</code> is created so that a bit in it has
+     * the value <code>true</code> if and only if it either had the value
+     * <code>true</code> in the set given by the first arguemetn or had the value
+     * <code>true</code> in the second argument, otherwise <code>false</code>.
+     *
+     * @param a a SparseBitSet
+     * @param b another SparseBitSet
+     * @return new SparseBitSet representing the <b>OR</b> of the two sets
+     * @since 1.6
+     */
+    public static SparseBitSet or(SparseBitSet a, SparseBitSet b) {
+        final SparseBitSet result = a.clone();
+        result.or(b);
+        return result;
+    }
+
+    /**
+     * Performs a logical <b>XOR</b> of the two given <code>SparseBitSet</code>s.
+     * The resulting bit set is created so that a bit in it has the value
+     * <code>true</code> if and only if one of the following statements holds:
+     * <ul>
+     * <li>A bit in the first argument has the value <code>true</code>, and the
+     * corresponding bit in the second argument has the value
+     * <code>false</code>.</li>
+     * <li>A bit in the first argument has the value <code>false</code>, and the
+     * corresponding bit in the second argument has the value
+     * <code>true</code>.</li></ul>
+     *
+     * @param a a SparseBitSet
+     * @param b another SparseBitSet
+     * @return a new SparseBitSet representing the <b>XOR</b> of the two sets
+     * @since 1.6
+     */
+    public static SparseBitSet xor(SparseBitSet a, SparseBitSet b) {
+        final SparseBitSet result = a.clone();
+        result.xor(b);
+        return result;
+    }
+
+    /**
+     * Throw the exception to indicate a range error. The <code>String</code>
+     * constructed reports all the possible errors in one message.
+     *
+     * @param i lower bound for a operation
+     * @param j upper bound for a operation
+     * @throws IndexOutOfBoundsException indicating the range is not valid
+     * @since 1.6
+     */
+    protected static final void throwIndexOutOfBoundsException(int i, int j)
+            throws IndexOutOfBoundsException {
+        String s = "";
+        if (i < 0)
+            s += "(i=" + i + ") < 0";
+        if (i == Integer.MAX_VALUE)
+            s += "(i=" + i + ")";
+        if (j < 0)
+            s += (s.length() == 0 ? "" : ", ") + "(j=" + j + ") < 0";
+        if (i > j)
+            s += (s.length() == 0 ? "" : ", ") + "(i=" + i + ") > (j=" + j + ")";
+        throw new IndexOutOfBoundsException(s);
+    }
+
+    /**
      * Performs a logical <b>AND</b> of the addressed target bit with the argument
      * value. This bit set is modified so that the addressed bit has the value
      * <code>true</code> if and only if it both initially had the value
@@ -437,24 +571,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
     }
 
     /**
-     * Performs a logical <b>AND</b> of the two given <code>SparseBitSet</code>s.
-     * The returned <code>SparseBitSet</code> is created so that each bit in it
-     * has the value <code>true</code> if and only if both the given sets
-     * initially had the corresponding bits <code>true</code>, otherwise
-     * <code>false</code>.
-     *
-     * @param a a SparseBitSet
-     * @param b another SparseBitSet
-     * @return a new SparseBitSet representing the <b>AND</b> of the two sets
-     * @since 1.6
-     */
-    public static SparseBitSet and(SparseBitSet a, SparseBitSet b) {
-        final SparseBitSet result = a.clone();
-        result.and(b);
-        return result;
-    }
-
-    /**
      * Performs a logical <b>AndNOT</b> of the addressed target bit with the
      * argument value. This bit set is modified so that the addressed bit has the
      * value <code>true</code> if and only if it both initially had the value
@@ -506,27 +622,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
      */
     public void andNot(SparseBitSet b) {
         setScanner(0, Math.min(bitsLength, b.bitsLength), b, andNotStrategy);
-    }
-
-    /**
-     * Creates a bit set from thie first <code>SparseBitSet</code> whose
-     * corresponding bits are cleared by the set bits of the second
-     * <code>SparseBitSet</code>. The resulting bit set is created so that a bit
-     * in it has the value <code>true</code> if and only if the corresponding bit
-     * in the <code>SparseBitSet</code> of the first is set, and that same
-     * corresponding bit is not set in the <code>SparseBitSet</code> of the second
-     * argument.
-     *
-     * @param a a SparseBitSet
-     * @param b another SparseBitSet
-     * @return a new SparseBitSet representing the <b>AndNOT</b> of the
-     * two sets
-     * @since 1.6
-     */
-    public static SparseBitSet andNot(SparseBitSet a, SparseBitSet b) {
-        final SparseBitSet result = a.clone();
-        result.andNot(b);
-        return result;
     }
 
     /**
@@ -1021,23 +1116,9 @@ public final class SparseBitSet implements Cloneable, Serializable {
         setScanner(0, b.bitsLength, b, orStrategy);
     }
 
-    /**
-     * Performs a logical <b>OR</b> of the two given <code>SparseBitSet</code>s.
-     * The returned <code>SparseBitSet</code> is created so that a bit in it has
-     * the value <code>true</code> if and only if it either had the value
-     * <code>true</code> in the set given by the first arguemetn or had the value
-     * <code>true</code> in the second argument, otherwise <code>false</code>.
-     *
-     * @param a a SparseBitSet
-     * @param b another SparseBitSet
-     * @return new SparseBitSet representing the <b>OR</b> of the two sets
-     * @since 1.6
-     */
-    public static SparseBitSet or(SparseBitSet a, SparseBitSet b) {
-        final SparseBitSet result = a.clone();
-        result.or(b);
-        return result;
-    }
+    //==============================================================================
+    //      Internal methods
+    //==============================================================================
 
     /**
      * Sets the bit at the specified index.
@@ -1141,6 +1222,10 @@ public final class SparseBitSet implements Cloneable, Serializable {
     public String statistics() {
         return statistics(null);
     }
+
+    //==============================================================================
+    //  Serialization/Deserialization methods
+    //==============================================================================
 
     /**
      * Determine, and create a String with the bit set statistics. The statistics
@@ -1310,6 +1395,10 @@ public final class SparseBitSet implements Cloneable, Serializable {
         compactionCount = count;
     }
 
+    //=============================================================================
+    //  Statistics enumeration
+    //=============================================================================
+
     /**
      * If <i>change</i> is <code>true</code>, the current value of the
      * <i>toStringCompaction</i>() value is made the default value for all
@@ -1326,6 +1415,10 @@ public final class SparseBitSet implements Cloneable, Serializable {
         if (change)
             compactionCountDefault = compactionCount;
     }
+
+    //=============================================================================
+    //  A set of cached statistics values, recomputed when necessary
+    //=============================================================================
 
     /**
      * Performs a logical <b>XOR</b> of the addressed target bit with the
@@ -1351,6 +1444,10 @@ public final class SparseBitSet implements Cloneable, Serializable {
         if (value)
             flip(i);
     }
+
+    //=============================================================================
+    //  Abstract Strategy super-class for Strategies describing logical operations
+    //=============================================================================
 
     /**
      * Performs a logical <b>XOR</b> of this bit set with the bit set argument
@@ -1378,6 +1475,10 @@ public final class SparseBitSet implements Cloneable, Serializable {
         setScanner(i, j, b, xorStrategy);
     }
 
+    //=============================================================================
+    //  Strategies based on the Strategy super-class describing logical operations
+    //=============================================================================
+
     /**
      * Performs a logical <b>XOR</b> of this bit set with the bit set argument.
      * This resulting bit set is computed so that a bit in it has the value
@@ -1397,55 +1498,7 @@ public final class SparseBitSet implements Cloneable, Serializable {
         setScanner(0, b.bitsLength, b, xorStrategy);
     }
 
-    /**
-     * Performs a logical <b>XOR</b> of the two given <code>SparseBitSet</code>s.
-     * The resulting bit set is created so that a bit in it has the value
-     * <code>true</code> if and only if one of the following statements holds:
-     * <ul>
-     * <li>A bit in the first argument has the value <code>true</code>, and the
-     * corresponding bit in the second argument has the value
-     * <code>false</code>.</li>
-     * <li>A bit in the first argument has the value <code>false</code>, and the
-     * corresponding bit in the second argument has the value
-     * <code>true</code>.</li></ul>
-     *
-     * @param a a SparseBitSet
-     * @param b another SparseBitSet
-     * @return a new SparseBitSet representing the <b>XOR</b> of the two sets
-     * @since 1.6
-     */
-    public static SparseBitSet xor(SparseBitSet a, SparseBitSet b) {
-        final SparseBitSet result = a.clone();
-        result.xor(b);
-        return result;
-    }
-
-    //==============================================================================
-    //      Internal methods
-    //==============================================================================
-
-    /**
-     * Throw the exception to indicate a range error. The <code>String</code>
-     * constructed reports all the possible errors in one message.
-     *
-     * @param i lower bound for a operation
-     * @param j upper bound for a operation
-     * @throws IndexOutOfBoundsException indicating the range is not valid
-     * @since 1.6
-     */
-    protected static final void throwIndexOutOfBoundsException(int i, int j)
-            throws IndexOutOfBoundsException {
-        String s = "";
-        if (i < 0)
-            s += "(i=" + i + ") < 0";
-        if (i == Integer.MAX_VALUE)
-            s += "(i=" + i + ")";
-        if (j < 0)
-            s += (s.length() == 0 ? "" : ", ") + "(j=" + j + ") < 0";
-        if (i > j)
-            s += (s.length() == 0 ? "" : ", ") + "(i=" + i + ") > (j=" + j + ")";
-        throw new IndexOutOfBoundsException(s);
-    }
+    //-----------------------------------------------------------------------------
 
     /**
      * Intializes all the additional objects required for correct operation.
@@ -1468,6 +1521,8 @@ public final class SparseBitSet implements Cloneable, Serializable {
         xorStrategy = new XorStrategy();
     }
 
+    //-----------------------------------------------------------------------------
+
     /**
      * Clear out a part of the set array with nulls, from the given start to the
      * end of the array. If the given parameter is beyond the end of the bits
@@ -1484,6 +1539,8 @@ public final class SparseBitSet implements Cloneable, Serializable {
             cache.hash = 0; //  Invalidate size, etc., values
         }
     }
+
+    //-----------------------------------------------------------------------------
 
     /**
      * Resize the bit array. Moves the entries in the the bits array of this
@@ -1521,6 +1578,8 @@ public final class SparseBitSet implements Cloneable, Serializable {
                     (newSize == MAX_LENGTH1 ? Integer.MAX_VALUE : newSize * UNIT);
         }
     }
+
+    //-----------------------------------------------------------------------------
 
     /**
      * Scans over the bit set (and a second bit set if part of the operation) are
@@ -1738,6 +1797,8 @@ public final class SparseBitSet implements Cloneable, Serializable {
         op.finish(a2CountLocal, a3CountLocal);
     }
 
+    //-----------------------------------------------------------------------------
+
     /**
      * The entirety of the bit set is examined, and the various statistics of
      * the bit set (size, length, cardinality, hashCode, etc.) are computed. Level
@@ -1752,9 +1813,7 @@ public final class SparseBitSet implements Cloneable, Serializable {
         setScanner(0, bitsLength, null, updateStrategy);
     }
 
-    //==============================================================================
-    //  Serialization/Deserialization methods
-    //==============================================================================
+    //-----------------------------------------------------------------------------
 
     /**
      * Save the state of the <code>SparseBitSet</code> instance to a stream
@@ -1811,11 +1870,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
     }
 
     /**
-     * serialVersionUID
-     */
-    private static final long serialVersionUID = -6663013367427929992L;
-
-    /**
      * Reconstitute the <code>SparseBitSet</code> instance from a stream
      * (<i>i.e.</i>, deserialize it).
      *
@@ -1862,9 +1916,7 @@ public final class SparseBitSet implements Cloneable, Serializable {
             throw new IOException("deserialized hashCode mis-match");
     }
 
-    //=============================================================================
-    //  Statistics enumeration
-    //=============================================================================
+    //-----------------------------------------------------------------------------
 
     /**
      * These enumeration values are used as labels for the values in the String
@@ -1931,9 +1983,7 @@ public final class SparseBitSet implements Cloneable, Serializable {
         Compaction_count_value // 10
     }
 
-    //=============================================================================
-    //  A set of cached statistics values, recomputed when necessary
-    //=============================================================================
+    //-----------------------------------------------------------------------------
 
     /**
      * This class holds the values related to various statistics kept about the
@@ -1995,9 +2045,7 @@ public final class SparseBitSet implements Cloneable, Serializable {
         protected transient int a3Count;
     }
 
-    //=============================================================================
-    //  Abstract Strategy super-class for Strategies describing logical operations
-    //=============================================================================
+    //-----------------------------------------------------------------------------
 
     /**
      * This strategy class is used by the setScanner to carry out the a variety
@@ -2132,9 +2180,7 @@ public final class SparseBitSet implements Cloneable, Serializable {
         }
     }
 
-    //=============================================================================
-    //  Strategies based on the Strategy super-class describing logical operations
-    //=============================================================================
+    //-----------------------------------------------------------------------------
 
     /**
      * And of two sets. Where the <i>a</i> set is zero, it remains zero (i.e.,
@@ -2186,8 +2232,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
         }
     }
 
-    //-----------------------------------------------------------------------------
-
     /**
      * AndNot of two sets. Where the <i>a</i> set is zero, it remains zero
      * (i.e., without entries or with zero words). On the other hand, where the
@@ -2238,8 +2282,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
         }
     }
 
-    //-----------------------------------------------------------------------------
-
     /**
      * Clear clears bits in the <i>a</i> set.
      * <p>
@@ -2277,8 +2319,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
         }
     }
 
-    //-----------------------------------------------------------------------------
-
     /**
      * Copies the needed parts of the <i>b</i> set to the <i>a</i> set.
      * <p>
@@ -2315,8 +2355,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
             return isZero;
         }
     }
-
-    //-----------------------------------------------------------------------------
 
     /**
      * Equals compares bits in the <i>a</i> set with those in the <i>b</i> set.
@@ -2370,8 +2408,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
         }
     }
 
-    //-----------------------------------------------------------------------------
-
     /**
      * Flip inverts the bits of the <i>a</i> set within the given range.
      * <p>
@@ -2408,8 +2444,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
             return isZero;
         }
     }
-
-    //-----------------------------------------------------------------------------
 
     /**
      * Intersect has a true result if any word in the <i>a</i> set has a bit
@@ -2512,8 +2546,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
         }
     }
 
-    //-----------------------------------------------------------------------------
-
     /**
      * Set creates entries everywhere within the range. Hence no empty level2
      * areas or level3 blocks are ignored, and no empty (all zero) blocks are
@@ -2552,8 +2584,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
             return false; // set always sets bits
         }
     }
-
-    //-----------------------------------------------------------------------------
 
     /**
      * Update the seven statistics that are computed for each set. These are
@@ -2711,8 +2741,6 @@ public final class SparseBitSet implements Cloneable, Serializable {
         }
     }
 
-    //-----------------------------------------------------------------------------
-
     /**
      * The XOR of level3 blocks is computed.
      * <p>
@@ -2751,50 +2779,4 @@ public final class SparseBitSet implements Cloneable, Serializable {
 
         }
     }
-
-    //-----------------------------------------------------------------------------
-    /**
-     * Word and block <b>and</b> strategy.
-     */
-    protected transient AndStrategy andStrategy;
-    /**
-     * Word and block <b>andNot</b> strategy.
-     */
-    protected transient AndNotStrategy andNotStrategy;
-    /**
-     * Word and block <b>clear</b> strategy.
-     */
-    protected transient ClearStrategy clearStrategy;
-    /**
-     * Word and block <b>copy</b> strategy.
-     */
-    protected transient CopyStrategy copyStrategy;
-    /**
-     * Word and block <b>equals</b> strategy.
-     */
-    protected transient EqualsStrategy equalsStrategy;
-    /**
-     * Word and block <b>flip</b> strategy.
-     */
-    protected transient FlipStrategy flipStrategy;
-    /**
-     * Word and block <b>intersects</b> strategy.
-     */
-    protected transient IntersectsStrategy intersectsStrategy;
-    /**
-     * Word and block <b>or</b> strategy.
-     */
-    protected transient OrStrategy orStrategy;
-    /**
-     * Word and block <b>set</b> strategy.
-     */
-    protected transient SetStrategy setStrategy;
-    /**
-     * Word and block <b>update</b> strategy.
-     */
-    protected transient UpdateStrategy updateStrategy;
-    /**
-     * Word and block <b>xor</b> strategy.
-     */
-    protected transient XorStrategy xorStrategy;
 }

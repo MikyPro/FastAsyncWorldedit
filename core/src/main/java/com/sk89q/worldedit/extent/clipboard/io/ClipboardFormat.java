@@ -45,13 +45,14 @@ import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.entity.Player;
-import com.sk89q.worldedit.event.extent.PlayerSaveClipboardEvent;
 import com.sk89q.worldedit.extension.platform.Actor;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.ClipboardFormats;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.registry.WorldData;
+
+import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -65,8 +66,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -246,7 +245,8 @@ public enum ClipboardFormat {
         public DiskOptimizedClipboard createUncompressedReadWrite(int width, int height, int length, File file) {
             return new DiskOptimizedClipboard(width, height, length, file);
         }
-    }),;
+    }),
+    ;
 
     private static final Map<String, ClipboardFormat> aliasMap;
 
@@ -267,42 +267,6 @@ public enum ClipboardFormat {
 
     ClipboardFormat(IClipboardFormat format) {
         this.format = format;
-    }
-
-    public URL uploadPublic(final Clipboard clipboard, String category, String user) {
-        // summary
-        // blocks
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        Vector dimensions = clipboard.getDimensions();
-        map.put("width", dimensions.getX());
-        map.put("height", dimensions.getY());
-        map.put("length", dimensions.getZ());
-        map.put("creator", user);
-        if (clipboard instanceof BlockArrayClipboard) {
-            FaweClipboard fc = ((BlockArrayClipboard) clipboard).IMP;
-            final int[] ids = new int[4096];
-            fc.streamIds(new NBTStreamer.ByteReader() {
-                @Override
-                public void run(int index, int byteValue) {
-                    ids[byteValue]++;
-                }
-            });
-            Map<Integer, Integer> blocks = new HashMap<Integer, Integer>();
-            for (int i = 0; i < ids.length; i++) {
-                if (ids[i] != 0) {
-                    blocks.put(i, ids[i]);
-                }
-            }
-            map.put("blocks", blocks);
-        }
-        Gson gson = new Gson();
-        String json = gson.toJson(map);
-        return MainUtil.upload(Settings.IMP.WEB.ASSETS, false, json, category, null, new RunnableVal<OutputStream>() {
-            @Override
-            public void run(OutputStream value) {
-                write(value, clipboard);
-            }
-        });
     }
 
     public static MultiClipboardHolder loadAllFromInput(Actor player, WorldData worldData, String input, boolean message) throws IOException {
@@ -343,7 +307,7 @@ public enum ClipboardFormat {
             if (input.startsWith("#")) {
                 String[] extensions;
                 if (format != null) {
-                    extensions = new String[] { format.getExtension() };
+                    extensions = new String[]{format.getExtension()};
                 } else {
                     extensions = ClipboardFormats.getFileExtensionArray();
                 }
@@ -370,7 +334,8 @@ public enum ClipboardFormat {
                 }
             }
             if (f == null || !f.exists() || !MainUtil.isInSubDirectory(working, f)) {
-                if (message) player.printError("Schematic " + input + " does not exist! (" + ((f == null) ? false : f.exists()) + "|" + f + "|" + (f == null ? false : !MainUtil.isInSubDirectory(working, f)) + ")");
+                if (message)
+                    player.printError("Schematic " + input + " does not exist! (" + ((f == null) ? false : f.exists()) + "|" + f + "|" + (f == null ? false : !MainUtil.isInSubDirectory(working, f)) + ")");
                 return null;
             }
             if (format == null && f.isFile()) {
@@ -453,6 +418,97 @@ public enum ClipboardFormat {
         }
     }
 
+    /**
+     * Find the clipboard format named by the given alias.
+     *
+     * @param alias the alias
+     * @return the format, otherwise null if none is matched
+     */
+    @Nullable
+    public static ClipboardFormat findByAlias(String alias) {
+        checkNotNull(alias);
+        return aliasMap.get(alias.toLowerCase().trim());
+    }
+
+    @Nullable
+    public static ClipboardFormat findByExtension(String extension) {
+        checkNotNull(extension);
+        extension = extension.toLowerCase();
+        for (ClipboardFormat format : values()) {
+            if (format.getExtension().equalsIgnoreCase(extension)) {
+                return format;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Detect the format given a file.
+     *
+     * @param file the file
+     * @return the format, otherwise null if one cannot be detected
+     */
+    @Nullable
+    public static ClipboardFormat findByFile(File file) {
+        checkNotNull(file);
+        for (ClipboardFormat format : EnumSet.allOf(ClipboardFormat.class)) {
+            if (format.isFormat(file)) {
+                return format;
+            }
+        }
+
+        return null;
+    }
+
+    public static ClipboardFormat addFormat(IClipboardFormat instance) {
+        ClipboardFormat newEnum = ReflectionUtils.addEnum(ClipboardFormat.class, instance.getName());
+        newEnum.format = instance;
+        for (String alias : newEnum.getAliases()) {
+            aliasMap.put(alias, newEnum);
+        }
+        return newEnum;
+    }
+
+    public static Class<?> inject() {
+        return ClipboardFormat.class;
+    }
+
+    public URL uploadPublic(final Clipboard clipboard, String category, String user) {
+        // summary
+        // blocks
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        Vector dimensions = clipboard.getDimensions();
+        map.put("width", dimensions.getX());
+        map.put("height", dimensions.getY());
+        map.put("length", dimensions.getZ());
+        map.put("creator", user);
+        if (clipboard instanceof BlockArrayClipboard) {
+            FaweClipboard fc = ((BlockArrayClipboard) clipboard).IMP;
+            final int[] ids = new int[4096];
+            fc.streamIds(new NBTStreamer.ByteReader() {
+                @Override
+                public void run(int index, int byteValue) {
+                    ids[byteValue]++;
+                }
+            });
+            Map<Integer, Integer> blocks = new HashMap<Integer, Integer>();
+            for (int i = 0; i < ids.length; i++) {
+                if (ids[i] != 0) {
+                    blocks.put(i, ids[i]);
+                }
+            }
+            map.put("blocks", blocks);
+        }
+        Gson gson = new Gson();
+        String json = gson.toJson(map);
+        return MainUtil.upload(Settings.IMP.WEB.ASSETS, false, json, category, null, new RunnableVal<OutputStream>() {
+            @Override
+            public void run(OutputStream value) {
+                write(value, clipboard);
+            }
+        });
+    }
+
     private void write(OutputStream value, Clipboard clipboard) {
         try {
             try (PGZIPOutputStream gzip = new PGZIPOutputStream(value)) {
@@ -511,6 +567,7 @@ public enum ClipboardFormat {
 
     /**
      * Set the player's clipboard
+     *
      * @param player
      * @param uri
      * @param in
@@ -566,60 +623,5 @@ public enum ClipboardFormat {
      */
     public boolean isFormat(File file) {
         return format.isFormat(file);
-    }
-
-    /**
-     * Find the clipboard format named by the given alias.
-     *
-     * @param alias the alias
-     * @return the format, otherwise null if none is matched
-     */
-    @Nullable
-    public static ClipboardFormat findByAlias(String alias) {
-        checkNotNull(alias);
-        return aliasMap.get(alias.toLowerCase().trim());
-    }
-
-    @Nullable
-    public static ClipboardFormat findByExtension(String extension) {
-        checkNotNull(extension);
-        extension = extension.toLowerCase();
-        for (ClipboardFormat format : values()) {
-            if (format.getExtension().equalsIgnoreCase(extension)) {
-                return format;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Detect the format given a file.
-     *
-     * @param file the file
-     * @return the format, otherwise null if one cannot be detected
-     */
-    @Nullable
-    public static ClipboardFormat findByFile(File file) {
-        checkNotNull(file);
-        for (ClipboardFormat format : EnumSet.allOf(ClipboardFormat.class)) {
-            if (format.isFormat(file)) {
-                return format;
-            }
-        }
-
-        return null;
-    }
-
-    public static ClipboardFormat addFormat(IClipboardFormat instance) {
-        ClipboardFormat newEnum = ReflectionUtils.addEnum(ClipboardFormat.class, instance.getName());
-        newEnum.format = instance;
-        for (String alias : newEnum.getAliases()) {
-            aliasMap.put(alias, newEnum);
-        }
-        return newEnum;
-    }
-
-    public static Class<?> inject() {
-        return ClipboardFormat.class;
     }
 }

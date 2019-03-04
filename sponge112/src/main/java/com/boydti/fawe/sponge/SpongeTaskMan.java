@@ -1,22 +1,21 @@
 package com.boydti.fawe.sponge;
 
 import com.boydti.fawe.util.TaskManager;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.scheduler.Task;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SpongeTaskMan extends TaskManager {
 
     private final SpongeMain plugin;
+    private final AtomicInteger i = new AtomicInteger();
+    private final ConcurrentHashMap<Integer, Task> tasks = new ConcurrentHashMap<>();
 
     public SpongeTaskMan(SpongeMain plugin) {
         this.plugin = plugin;
     }
-
-    private final AtomicInteger i = new AtomicInteger();
-
-    private final ConcurrentHashMap<Integer, Task> tasks = new ConcurrentHashMap<>();
 
     @Override
     public int repeat(Runnable runnable, int interval) {

@@ -33,13 +33,13 @@ public class NashornCraftScriptEngine implements CraftScriptEngine {
     private int timeLimit;
 
     @Override
-    public void setTimeLimit(int milliseconds) {
-        timeLimit = milliseconds;
+    public int getTimeLimit() {
+        return timeLimit;
     }
 
     @Override
-    public int getTimeLimit() {
-        return timeLimit;
+    public void setTimeLimit(int milliseconds) {
+        timeLimit = milliseconds;
     }
 
     @Override
@@ -57,9 +57,9 @@ public class NashornCraftScriptEngine implements CraftScriptEngine {
             bindings.put(entry.getKey(), entry.getValue());
         }
 
-       try {
-           Object result = engine.eval(script, bindings);
-           return result;
+        try {
+            Object result = engine.eval(script, bindings);
+            return result;
         } catch (Error e) {
             e.printStackTrace();
             throw new ScriptException(e.getMessage());

@@ -2,17 +2,18 @@ package com.sk89q.worldedit.util.command;
 
 import com.sk89q.minecraft.util.commands.CommandException;
 import com.sk89q.minecraft.util.commands.CommandLocals;
+
 import java.util.List;
 
 public class DelegateCallable implements CommandCallable {
     private final CommandCallable parent;
 
-    public CommandCallable getParent() {
-        return parent;
-    }
-
     public DelegateCallable(CommandCallable parent) {
         this.parent = parent;
+    }
+
+    public CommandCallable getParent() {
+        return parent;
     }
 
     @Override

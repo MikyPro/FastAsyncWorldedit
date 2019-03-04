@@ -10,17 +10,16 @@ public final class MutableBlockVector2D extends BlockVector2D implements Seriali
             return new MutableBlockVector2D();
         }
     };
-
-    public static MutableBlockVector2D get(int x, int z) {
-        return MUTABLE_CACHE.get().setComponents(x, z);
-    }
-
     private transient int x, z;
 
     public MutableBlockVector2D() {
         super(0, 0);
         this.x = 0;
         this.z = 0;
+    }
+
+    public static MutableBlockVector2D get(int x, int z) {
+        return MUTABLE_CACHE.get().setComponents(x, z);
     }
 
     @Override

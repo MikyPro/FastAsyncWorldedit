@@ -9,15 +9,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+
+import javax.net.ssl.HttpsURLConnection;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -27,21 +21,21 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import javax.net.ssl.HttpsURLConnection;
 
 /**
  * bStats collects some data for plugin authors.
- *
+ * <p>
  * Check out https://bStats.org/ to learn more about bStats!
  */
 public class BStats implements Closeable {
 
     // The version of this bStats class
     public static final int B_STATS_VERSION = 1;
-
+    private static final ConcurrentLinkedQueue<Object> knownMetricsInstances = new ConcurrentLinkedQueue<>();
+    // A list with all known metrics class objects including this one
+    private static Class<?> usedMetricsClass;
     // The url to which the data is sent
     private final String url;
-
     // The plugin
     private final String plugin;
     private final String platform;
@@ -50,26 +44,15 @@ public class BStats implements Closeable {
     private final String pluginVersion;
     private Timer timer;
     private Gson gson = new Gson();
-
     // Is bStats enabled on this server?
     private volatile boolean enabled;
-
     // The uuid of the server
     private UUID serverUUID;
-
     // Should failed requests be logged?
     private boolean logFailedRequests = false;
 
-    // A list with all known metrics class objects including this one
-    private static Class<?> usedMetricsClass;
-    private static final ConcurrentLinkedQueue<Object> knownMetricsInstances = new ConcurrentLinkedQueue<>();
-
     public BStats() {
         this("FastAsyncWorldEdit", Fawe.get().getVersion().toString(), Fawe.imp().getPlatformVersion(), Fawe.imp().getPlatform(), Fawe.imp().isOnlineMode());
-    }
-
-    public int getPlayerCount() {
-        return Fawe.imp() == null ? 1 : Fawe.imp().getPlayerCount();
     }
 
     private BStats(String plugin, String pluginVersion, String serverVersion, String platform, boolean online) {
@@ -95,7 +78,8 @@ public class BStats implements Closeable {
         if (config.isSet("serverUuid")) {
             try {
                 serverUUID = UUID.fromString(config.getString("serverUuid"));
-            } catch (IllegalArgumentException ignore) {}
+            } catch (IllegalArgumentException ignore) {
+            }
         }
         // Check if the config file exists
         if (serverUUID == null) {
@@ -116,7 +100,8 @@ public class BStats implements Closeable {
             ).copyDefaults(true);
             try {
                 config.save(configFile);
-            } catch (IOException ignored) { }
+            } catch (IOException ignored) {
+            }
         }
 
 
@@ -137,18 +122,12 @@ public class BStats implements Closeable {
         } else {
             // We aren't the first so we link to the first metrics class
             try {
-                usedMetricsClass.getMethod("linkMetrics", Object.class).invoke(null,this);
+                usedMetricsClass.getMethod("linkMetrics", Object.class).invoke(null, this);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 if (logFailedRequests) {
                     System.out.println("Failed to link to first metrics class " + usedMetricsClass.getName() + "!");
                 }
             }
-        }
-    }
-
-    public void start() {
-        if (enabled) {
-            startSubmitting();
         }
     }
 
@@ -160,6 +139,16 @@ public class BStats implements Closeable {
      */
     public static void linkMetrics(Object metrics) {
         if (!knownMetricsInstances.contains(metrics)) knownMetricsInstances.add(metrics);
+    }
+
+    public int getPlayerCount() {
+        return Fawe.imp() == null ? 1 : Fawe.imp().getPlayerCount();
+    }
+
+    public void start() {
+        if (enabled) {
+            startSubmitting();
+        }
     }
 
     /**
@@ -191,8 +180,8 @@ public class BStats implements Closeable {
                 }
                 submitData();
             }
-        // No 2m delay, as this is only started after the server is loaded
-        }, 0, 1000*60*30);
+            // No 2m delay, as this is only started after the server is loaded
+        }, 0, 1000 * 60 * 30);
     }
 
     @Override
@@ -258,8 +247,9 @@ public class BStats implements Closeable {
                 @Override
                 public void run(Object value) {
                     try {
-                    this.value = metrics.getClass().getMethod("getPluginData").invoke(metrics);
-                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NullPointerException | JsonSyntaxException ignored) {}
+                        this.value = metrics.getClass().getMethod("getPluginData").invoke(metrics);
+                    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NullPointerException | JsonSyntaxException ignored) {
+                    }
                 }
             });
             if (plugin != null) {
@@ -300,7 +290,8 @@ public class BStats implements Closeable {
                 try {
                     // Let's check if a class with the given name exists.
                     return Class.forName(className);
-                } catch (ClassNotFoundException ignored) { }
+                } catch (ClassNotFoundException ignored) {
+                }
             }
             writeFile(tempFile, getClass().getName());
             return getClass();
@@ -334,7 +325,7 @@ public class BStats implements Closeable {
         }
         try (
                 FileReader fileReader = new FileReader(file);
-                BufferedReader bufferedReader =  new BufferedReader(fileReader);
+                BufferedReader bufferedReader = new BufferedReader(fileReader);
         ) {
             return bufferedReader.readLine();
         }
@@ -343,7 +334,7 @@ public class BStats implements Closeable {
     /**
      * Writes a String to a file. It also adds a note for the user,
      *
-     * @param file The file to write to. Cannot be null.
+     * @param file  The file to write to. Cannot be null.
      * @param lines The lines to write.
      * @throws IOException If something did not work :(
      */

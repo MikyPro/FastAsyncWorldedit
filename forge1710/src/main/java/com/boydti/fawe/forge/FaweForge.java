@@ -17,15 +17,6 @@ import com.sk89q.worldedit.internal.LocalWorldAdapter;
 import com.sk89q.worldedit.world.World;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.ModMetadata;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.management.InstanceAlreadyExistsException;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -33,12 +24,19 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.management.InstanceAlreadyExistsException;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
 public class FaweForge implements IFawe {
 
     private final ForgeMain parent;
     private final File directory;
     private final Logger logger;
     private final ModMetadata mod;
+    private HashMap<String, FaweCommand> commands = new HashMap<>();
 
     public FaweForge(ForgeMain plugin, Logger logger, ModMetadata mod, File directory) {
         this.parent = plugin;
@@ -87,8 +85,6 @@ public class FaweForge implements IFawe {
         return directory;
     }
 
-    private HashMap<String, FaweCommand> commands = new HashMap<>();
-
     @Override
     public void setupCommand(String label, FaweCommand cmd) {
         this.commands.put(label, cmd);
@@ -131,8 +127,7 @@ public class FaweForge implements IFawe {
     public String getWorldName(World world) {
         if (world instanceof WorldWrapper) {
             return getWorldName(((WorldWrapper) world).getParent());
-        }
-        else if (world instanceof EditSession) {
+        } else if (world instanceof EditSession) {
             return getWorldName(((EditSession) world).getWorld());
         } else if (world.getClass().getName().equals("com.sk89q.worldedit.bukkit.BukkitWorld")) {
             try {
@@ -149,7 +144,7 @@ public class FaweForge implements IFawe {
                 e.printStackTrace();
                 return world.getName();
             }
-        }else if (world instanceof LocalWorldAdapter){
+        } else if (world instanceof LocalWorldAdapter) {
             return world.getName();
         }
         return getWorldName(((ForgeWorld) world).getWorld());

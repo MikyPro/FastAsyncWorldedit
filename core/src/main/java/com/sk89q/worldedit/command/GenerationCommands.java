@@ -51,15 +51,13 @@ import com.sk89q.worldedit.util.command.binding.Text;
 import com.sk89q.worldedit.util.command.parametric.Optional;
 import com.sk89q.worldedit.util.command.parametric.ParameterException;
 import com.sk89q.worldedit.world.biome.BaseBiome;
-import java.awt.RenderingHints;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 
-
-import static com.sk89q.minecraft.util.commands.Logging.LogMode.ALL;
-import static com.sk89q.minecraft.util.commands.Logging.LogMode.PLACEMENT;
-import static com.sk89q.minecraft.util.commands.Logging.LogMode.POSITION;
+import static com.sk89q.minecraft.util.commands.Logging.LogMode.*;
 
 /**
  * Commands for the generation of shapes and other objects.
@@ -76,6 +74,12 @@ public class GenerationCommands extends MethodCommands {
         super(worldEdit);
     }
 
+    public static Class<GenerationCommands> inject() {
+        return GenerationCommands.class;
+    }
+
+    // public void addOre(Mask mask, Pattern material, int size, int frequency, int rarity, int minY, int maxY) throws WorldEditException {
+
     @Command(
             aliases = {"/caves"},
             usage = "[size=8] [freq=40] [rarity=7] [minY=8] [maxY=127] [sysFreq=1] [sysRarity=25] [pocketRarity=0] [pocketMin=0] [pocketMax=3]",
@@ -91,8 +95,6 @@ public class GenerationCommands extends MethodCommands {
             BBC.VISITOR_BLOCK.send(fp, editSession.getBlockChangeCount());
         }, getArguments(context), region, context);
     }
-
-    // public void addOre(Mask mask, Pattern material, int size, int frequency, int rarity, int minY, int maxY) throws WorldEditException {
 
     @Command(
             aliases = {"/ores"},
@@ -464,9 +466,5 @@ public class GenerationCommands extends MethodCommands {
                 fp.sendMessage(BBC.getPrefix() + e.getMessage());
             }
         }, getArguments(context), region, context);
-    }
-
-    public static Class<GenerationCommands> inject() {
-        return GenerationCommands.class;
     }
 }

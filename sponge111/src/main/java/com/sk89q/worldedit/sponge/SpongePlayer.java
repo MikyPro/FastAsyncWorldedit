@@ -55,6 +55,10 @@ public class SpongePlayer extends AbstractPlayerActor {
         ThreadSafeCache.getInstance().getOnlineIds().add(getUniqueId());
     }
 
+    public static Class<SpongePlayer> inject() {
+        return SpongePlayer.class;
+    }
+
     @Override
     public UUID getUniqueId() {
         return player.getUniqueId();
@@ -224,10 +228,6 @@ public class SpongePlayer extends AbstractPlayerActor {
             return true;
         }
 
-    }
-
-    public static Class<SpongePlayer> inject() {
-        return SpongePlayer.class;
     }
 
 }

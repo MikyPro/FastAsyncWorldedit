@@ -10,6 +10,10 @@ public abstract class AbstractExtentMask extends AbstractMask {
         this.setExtent(extent);
     }
 
+    public static Class<?> inject() {
+        return AbstractExtentMask.class;
+    }
+
     public Extent getExtent() {
         return this.extent;
     }
@@ -17,9 +21,5 @@ public abstract class AbstractExtentMask extends AbstractMask {
     public void setExtent(Extent extent) {
         Preconditions.checkNotNull(extent);
         this.extent = extent;
-    }
-
-    public static Class<?> inject() {
-        return AbstractExtentMask.class;
     }
 }

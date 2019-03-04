@@ -36,7 +36,7 @@ info:
   worldedit_dangerous_worldedit: '&c%s1 在 %s0 处进行了不安全的编辑'
   worldedit_toggle_tips_on: '&7已禁用FAWE提示.'
   worldedit_toggle_tips_off: '&7已启用FAWE提示.'
-  
+
   worldedit_bypassed: '&7正绕过FAWE限制.'
   worldedit_unmasked: '&6你的FAWE编辑现已不受限制.'
 
@@ -49,7 +49,7 @@ info:
     &8 - &7禁用 `max-memory-percent`
   compressed: '已压缩历史.保存为 ~ %s0b（%s1 倍原大小）'
   action_complete: '已在 %s0 秒内完成操作'
-  
+
 error:
   worldedit_extend: '&c你的编辑可能已超过所允许的范围.'
   web_unauthorized: '仅允许来自已配置网页主机的链接: %s0'
@@ -74,12 +74,12 @@ error:
     &7注：低内存可能但不一定由创世导致
   worldedit_some_fails: '&c%s0 个方块由于在你所允许的区域外而无法放置.'
   worldedit_some_fails_blockbag: '&c缺少方块: %s0'
-  
+
 web:
   generating_link: '正在上传 %s，请稍后···'
   generating_link_failed: '&c生成下载链接失败！'
   download_link: '%s'
-  
+
 worldedit:
   general:
     mask_disabled: 已禁用全局蒙版

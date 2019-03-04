@@ -50,6 +50,77 @@ public final class IncendoPaster {
         this.pasteApplication = pasteApplication;
     }
 
+    public static String debugPaste() throws IOException {
+        final IncendoPaster incendoPaster = new IncendoPaster("fastasyncworldedit");
+
+        StringBuilder b = new StringBuilder();
+        b.append(
+                "# Welcome to this paste\n# It is meant to provide us at IntellectualSites with better information about your "
+                        + "problem\n");
+        b.append("\n# Server Information\n");
+        b.append(Fawe.imp().getDebugInfo()).append('\n');
+        b.append("\n\n# YAY! Now, let's see what we can find in your JVM\n");
+        Runtime runtime = Runtime.getRuntime();
+        b.append("memory.free: ").append(runtime.freeMemory()).append('\n');
+        b.append("memory.max: ").append(runtime.maxMemory()).append('\n');
+        b.append("java.specification.version: '").append(System.getProperty("java.specification.version")).append("'\n");
+        b.append("java.vendor: '").append(System.getProperty("java.vendor")).append("'\n");
+        b.append("java.version: '").append(System.getProperty("java.version")).append("'\n");
+        b.append("os.arch: '").append(System.getProperty("os.arch")).append("'\n");
+        b.append("os.name: '").append(System.getProperty("os.name")).append("'\n");
+        b.append("os.version: '").append(System.getProperty("os.version")).append("'\n\n");
+        b.append("# Okay :D Great. You are now ready to create your bug report!");
+        b.append("\n# You can do so at https://github.com/boy0001/FastAsyncWorldedit/issues");
+        b.append("\n# or via our Discord at https://discord.gg/ngZCzbU");
+        incendoPaster.addFile(new IncendoPaster.PasteFile("information", b.toString()));
+
+        try {
+            final File logFile = new File(Fawe.imp().getDirectory(), "../../logs/latest.log");
+            final String file;
+            if (Files.size(logFile.toPath()) > 14_000_000) {
+                file = "too big :(";
+            } else {
+                file = readFile(logFile);
+            }
+            incendoPaster.addFile(new IncendoPaster.PasteFile("latest.log", file));
+        } catch (IOException ignored) {
+        }
+
+        incendoPaster.addFile(new PasteFile("config.yml", readFile(new File(Fawe.imp().getDirectory(), "config.yml"))));
+        incendoPaster.addFile(new PasteFile("message.yml", readFile(new File(Fawe.imp().getDirectory(), "message.yml"))));
+
+        final String rawResponse;
+        try {
+            rawResponse = incendoPaster.upload();
+        } catch (Throwable throwable) {
+            throw new IOException(String.format("Failed to create the debug paste: %s", throwable.getMessage()), throwable);
+        }
+        final JsonObject jsonObject = new JsonParser().parse(rawResponse).getAsJsonObject();
+
+        if (jsonObject.has("created")) {
+            final String pasteId = jsonObject.get("paste_id").getAsString();
+            return String.format("https://incendo.org/paste/view/%s", pasteId);
+        } else {
+            throw new IOException(String.format("Failed to create the debug paste: %s",
+                    jsonObject.get("response").getAsString()));
+        }
+    }
+
+    private static String readFile(final File file) throws IOException {
+        final StringBuilder content = new StringBuilder();
+        final List<String> lines = new ArrayList<>();
+        try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        }
+        for (int i = Math.max(0, lines.size() - 1000); i < lines.size(); i++) {
+            content.append(lines.get(i)).append("\n");
+        }
+        return content.toString();
+    }
+
     /**
      * Get an immutable collection containing all the files that have been added to this paster
      *
@@ -154,7 +225,7 @@ public final class IncendoPaster {
          * Construct a new paste file
          *
          * @param fileName File name, cannot be empty, nor null
-         * @param content File content, cannot be empty, nor null
+         * @param content  File content, cannot be empty, nor null
          */
         public PasteFile(final String fileName, final String content) {
             if (fileName == null || fileName.isEmpty()) {
@@ -184,76 +255,5 @@ public final class IncendoPaster {
         public String getContent() {
             return this.content;
         }
-    }
-
-    public static String debugPaste() throws IOException {
-        final IncendoPaster incendoPaster = new IncendoPaster("fastasyncworldedit");
-
-        StringBuilder b = new StringBuilder();
-        b.append(
-                "# Welcome to this paste\n# It is meant to provide us at IntellectualSites with better information about your "
-                        + "problem\n");
-        b.append("\n# Server Information\n");
-        b.append(Fawe.imp().getDebugInfo()).append('\n');
-        b.append("\n\n# YAY! Now, let's see what we can find in your JVM\n");
-        Runtime runtime = Runtime.getRuntime();
-        b.append("memory.free: ").append(runtime.freeMemory()).append('\n');
-        b.append("memory.max: ").append(runtime.maxMemory()).append('\n');
-        b.append("java.specification.version: '").append(System.getProperty("java.specification.version")).append("'\n");
-        b.append("java.vendor: '").append(System.getProperty("java.vendor")).append("'\n");
-        b.append("java.version: '").append(System.getProperty("java.version")).append("'\n");
-        b.append("os.arch: '").append(System.getProperty("os.arch")).append("'\n");
-        b.append("os.name: '").append(System.getProperty("os.name")).append("'\n");
-        b.append("os.version: '").append(System.getProperty("os.version")).append("'\n\n");
-        b.append("# Okay :D Great. You are now ready to create your bug report!");
-        b.append("\n# You can do so at https://github.com/boy0001/FastAsyncWorldedit/issues");
-        b.append("\n# or via our Discord at https://discord.gg/ngZCzbU");
-        incendoPaster.addFile(new IncendoPaster.PasteFile("information", b.toString()));
-
-        try {
-            final File logFile = new File(Fawe.imp().getDirectory(), "../../logs/latest.log");
-            final String file;
-            if (Files.size(logFile.toPath()) > 14_000_000) {
-                file = "too big :(";
-            } else {
-                file = readFile(logFile);
-            }
-            incendoPaster.addFile(new IncendoPaster.PasteFile("latest.log", file));
-        } catch (IOException ignored) {
-        }
-
-        incendoPaster.addFile(new PasteFile("config.yml", readFile(new File(Fawe.imp().getDirectory(), "config.yml"))));
-        incendoPaster.addFile(new PasteFile("message.yml", readFile(new File(Fawe.imp().getDirectory(), "message.yml"))));
-
-        final String rawResponse;
-        try {
-            rawResponse = incendoPaster.upload();
-        } catch (Throwable throwable) {
-            throw new IOException(String.format("Failed to create the debug paste: %s", throwable.getMessage()), throwable);
-        }
-        final JsonObject jsonObject = new JsonParser().parse(rawResponse).getAsJsonObject();
-
-        if (jsonObject.has("created")) {
-            final String pasteId = jsonObject.get("paste_id").getAsString();
-            return String.format("https://incendo.org/paste/view/%s", pasteId);
-        } else {
-            throw new IOException(String.format("Failed to create the debug paste: %s",
-                    jsonObject.get("response").getAsString()));
-        }
-    }
-
-    private static String readFile(final File file) throws IOException {
-        final StringBuilder content = new StringBuilder();
-        final List<String> lines = new ArrayList<>();
-        try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-        }
-        for (int i = Math.max(0, lines.size() - 1000); i < lines.size(); i++) {
-            content.append(lines.get(i)).append("\n");
-        }
-        return content.toString();
     }
 }

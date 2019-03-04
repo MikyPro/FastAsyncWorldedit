@@ -6,11 +6,7 @@ import com.boydti.fawe.object.extent.NullExtent;
 import com.boydti.fawe.object.extent.ResettableExtent;
 import com.boydti.fawe.util.TextureUtil;
 import com.boydti.fawe.util.image.ImageUtil;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.extension.factory.DefaultTransformParser;
@@ -25,32 +21,14 @@ import com.sk89q.worldedit.session.request.Request;
 import com.sk89q.worldedit.util.command.binding.Range;
 import com.sk89q.worldedit.util.command.binding.Text;
 import com.sk89q.worldedit.util.command.binding.Validate;
-import com.sk89q.worldedit.util.command.parametric.ArgumentStack;
-import com.sk89q.worldedit.util.command.parametric.BindingBehavior;
-import com.sk89q.worldedit.util.command.parametric.BindingHelper;
-import com.sk89q.worldedit.util.command.parametric.BindingMatch;
-import com.sk89q.worldedit.util.command.parametric.ParameterException;
+import com.sk89q.worldedit.util.command.parametric.*;
 import com.sk89q.worldedit.world.World;
+
+import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.lang.annotation.Annotation;
-import javax.annotation.Nullable;
 
 public class FawePrimitiveBinding extends BindingHelper {
-    @BindingMatch(type = {Long.class, long.class},
-            behavior = BindingBehavior.CONSUMES,
-            consumedCount = 1,
-            provideModifiers = true)
-    public Long getLong(ArgumentStack context, Annotation[] modifiers) throws ParameterException {
-        try {
-            Long v = Long.parseLong(context.next());
-            validate(v, modifiers);
-            return v;
-
-        } catch (NumberFormatException ignore) {
-            return null;
-        }
-    }
-
     private static void validate(long number, Annotation[] modifiers) throws ParameterException {
         for (Annotation modifier : modifiers) {
             if (modifier instanceof Range) {
@@ -69,6 +47,135 @@ public class FawePrimitiveBinding extends BindingHelper {
             }
         }
     }
+
+    /**
+     * Try to parse numeric input as either a number or a mathematical expression.
+     *
+     * @param input input
+     * @return a number
+     * @throws ParameterException thrown on parse error
+     */
+    public static
+    @Nullable
+    Double parseNumericInput(@Nullable String input) throws ParameterException {
+        if (input == null) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(input);
+        } catch (NumberFormatException e1) {
+            try {
+                Expression expression = Expression.compile(input);
+                return expression.evaluate();
+            } catch (EvaluationException e) {
+                throw new ParameterException(String.format(
+                        "Expected '%s' to be a valid number (or a valid mathematical expression)", input));
+            } catch (ExpressionException e) {
+                throw new ParameterException(String.format(
+                        "Expected '%s' to be a number or valid math expression (error: %s)", input, e.getMessage()));
+            }
+        }
+    }
+
+    /**
+     * Validate a number value using relevant modifiers.
+     *
+     * @param number    the number
+     * @param modifiers the list of modifiers to scan
+     * @throws ParameterException on a validation error
+     */
+    private static void validate(double number, Annotation[] modifiers)
+            throws ParameterException {
+        for (Annotation modifier : modifiers) {
+            if (modifier instanceof Range) {
+                Range range = (Range) modifier;
+                if (number < range.min()) {
+                    throw new ParameterException(
+                            String.format(
+                                    "A valid value is greater than or equal to %s " +
+                                            "(you entered %s)", range.min(), number));
+                } else if (number > range.max()) {
+                    throw new ParameterException(
+                            String.format(
+                                    "A valid value is less than or equal to %s " +
+                                            "(you entered %s)", range.max(), number));
+                }
+            }
+        }
+    }
+
+    /**
+     * Validate a number value using relevant modifiers.
+     *
+     * @param number    the number
+     * @param modifiers the list of modifiers to scan
+     * @throws ParameterException on a validation error
+     */
+    private static void validate(int number, Annotation[] modifiers)
+            throws ParameterException {
+        for (Annotation modifier : modifiers) {
+            if (modifier instanceof Range) {
+                Range range = (Range) modifier;
+                if (number < range.min()) {
+                    throw new ParameterException(
+                            String.format(
+                                    "A valid value is greater than or equal to %s " +
+                                            "(you entered %s)", range.min(), number));
+                } else if (number > range.max()) {
+                    throw new ParameterException(
+                            String.format(
+                                    "A valid value is less than or equal to %s " +
+                                            "(you entered %s)", range.max(), number));
+                }
+            }
+        }
+    }
+
+    /**
+     * Validate a string value using relevant modifiers.
+     *
+     * @param string    the string
+     * @param modifiers the list of modifiers to scan
+     * @throws ParameterException on a validation error
+     */
+    private static void validate(String string, Annotation[] modifiers)
+            throws ParameterException {
+        if (string == null) {
+            return;
+        }
+
+        for (Annotation modifier : modifiers) {
+            if (modifier instanceof Validate) {
+                Validate validate = (Validate) modifier;
+
+                if (!validate.regex().isEmpty()) {
+                    if (!string.matches(validate.regex())) {
+                        throw new ParameterException(
+                                String.format(
+                                        "The given text doesn't match the right " +
+                                                "format (technically speaking, the 'format' is %s)",
+                                        validate.regex()));
+                    }
+                }
+            }
+        }
+    }
+
+    @BindingMatch(type = {Long.class, long.class},
+            behavior = BindingBehavior.CONSUMES,
+            consumedCount = 1,
+            provideModifiers = true)
+    public Long getLong(ArgumentStack context, Annotation[] modifiers) throws ParameterException {
+        try {
+            Long v = Long.parseLong(context.next());
+            validate(v, modifiers);
+            return v;
+
+        } catch (NumberFormatException ignore) {
+            return null;
+        }
+    }
+
     @BindingMatch(
             type = {BufferedImage.class},
             behavior = BindingBehavior.CONSUMES,
@@ -89,7 +196,6 @@ public class FawePrimitiveBinding extends BindingHelper {
         LocalSession session = WorldEdit.getInstance().getSessionManager().get(actor);
         return session.getTextureUtil();
     }
-
 
     @BindingMatch(
             type = {Extent.class},
@@ -176,7 +282,7 @@ public class FawePrimitiveBinding extends BindingHelper {
         return v;
     }
 
-    @BindingMatch(type = { Expression.class },
+    @BindingMatch(type = {Expression.class},
             behavior = BindingBehavior.CONSUMES,
             consumedCount = 1)
     public Expression getExpression(ArgumentStack context) throws ParameterException, ExpressionException {
@@ -263,7 +369,6 @@ public class FawePrimitiveBinding extends BindingHelper {
         return new Vector(radiusX, radiusY, radiusZ);
     }
 
-
     /**
      * Gets a type from a {@link ArgumentStack}.
      *
@@ -293,35 +398,6 @@ public class FawePrimitiveBinding extends BindingHelper {
                 throw new ParameterException("You must either specify 1 or 2 radius values.");
         }
         return new Vector2D(radiusX, radiusZ);
-    }
-
-    /**
-     * Try to parse numeric input as either a number or a mathematical expression.
-     *
-     * @param input input
-     * @return a number
-     * @throws ParameterException thrown on parse error
-     */
-    public static
-    @Nullable
-    Double parseNumericInput(@Nullable String input) throws ParameterException {
-        if (input == null) {
-            return null;
-        }
-        try {
-            return Double.parseDouble(input);
-        } catch (NumberFormatException e1) {
-            try {
-                Expression expression = Expression.compile(input);
-                return expression.evaluate();
-            } catch (EvaluationException e) {
-                throw new ParameterException(String.format(
-                        "Expected '%s' to be a valid number (or a valid mathematical expression)", input));
-            } catch (ExpressionException e) {
-                throw new ParameterException(String.format(
-                        "Expected '%s' to be a number or valid math expression (error: %s)", input, e.getMessage()));
-            }
-        }
     }
 
     /**
@@ -407,89 +483,5 @@ public class FawePrimitiveBinding extends BindingHelper {
             return v.floatValue();
         }
         return null;
-    }
-
-    /**
-     * Validate a number value using relevant modifiers.
-     *
-     * @param number    the number
-     * @param modifiers the list of modifiers to scan
-     * @throws ParameterException on a validation error
-     */
-    private static void validate(double number, Annotation[] modifiers)
-            throws ParameterException {
-        for (Annotation modifier : modifiers) {
-            if (modifier instanceof Range) {
-                Range range = (Range) modifier;
-                if (number < range.min()) {
-                    throw new ParameterException(
-                            String.format(
-                                    "A valid value is greater than or equal to %s " +
-                                            "(you entered %s)", range.min(), number));
-                } else if (number > range.max()) {
-                    throw new ParameterException(
-                            String.format(
-                                    "A valid value is less than or equal to %s " +
-                                            "(you entered %s)", range.max(), number));
-                }
-            }
-        }
-    }
-
-    /**
-     * Validate a number value using relevant modifiers.
-     *
-     * @param number    the number
-     * @param modifiers the list of modifiers to scan
-     * @throws ParameterException on a validation error
-     */
-    private static void validate(int number, Annotation[] modifiers)
-            throws ParameterException {
-        for (Annotation modifier : modifiers) {
-            if (modifier instanceof Range) {
-                Range range = (Range) modifier;
-                if (number < range.min()) {
-                    throw new ParameterException(
-                            String.format(
-                                    "A valid value is greater than or equal to %s " +
-                                            "(you entered %s)", range.min(), number));
-                } else if (number > range.max()) {
-                    throw new ParameterException(
-                            String.format(
-                                    "A valid value is less than or equal to %s " +
-                                            "(you entered %s)", range.max(), number));
-                }
-            }
-        }
-    }
-
-    /**
-     * Validate a string value using relevant modifiers.
-     *
-     * @param string    the string
-     * @param modifiers the list of modifiers to scan
-     * @throws ParameterException on a validation error
-     */
-    private static void validate(String string, Annotation[] modifiers)
-            throws ParameterException {
-        if (string == null) {
-            return;
-        }
-
-        for (Annotation modifier : modifiers) {
-            if (modifier instanceof Validate) {
-                Validate validate = (Validate) modifier;
-
-                if (!validate.regex().isEmpty()) {
-                    if (!string.matches(validate.regex())) {
-                        throw new ParameterException(
-                                String.format(
-                                        "The given text doesn't match the right " +
-                                                "format (technically speaking, the 'format' is %s)",
-                                        validate.regex()));
-                    }
-                }
-            }
-        }
     }
 }

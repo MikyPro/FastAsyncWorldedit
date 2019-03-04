@@ -8,12 +8,13 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.pattern.AbstractPattern;
+
 import java.io.IOException;
 
 public class DesaturatePattern extends AbstractPattern {
-    private transient TextureHolder holder;
     private final Extent extent;
     private final double value;
+    private transient TextureHolder holder;
 
     public DesaturatePattern(Extent extent, double value, TextureHolder util) {
         this.extent = extent;

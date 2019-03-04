@@ -9,18 +9,19 @@ public class DelegateFormWindow extends FormWindow {
     public DelegateFormWindow(FormWindow parent) {
         this.parent = parent;
     }
+
     @Override
     public String getJSONData() {
         return parent.getJSONData();
     }
 
     @Override
-    public void setResponse(String s) {
-        parent.setResponse(s);
+    public FormResponse getResponse() {
+        return parent.getResponse();
     }
 
     @Override
-    public FormResponse getResponse() {
-        return parent.getResponse();
+    public void setResponse(String s) {
+        parent.setResponse(s);
     }
 }

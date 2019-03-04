@@ -16,7 +16,6 @@ package net.jpountz.lz4;
 
 import java.nio.ByteBuffer;
 
-
 import static net.jpountz.util.ByteBufferUtils.checkNotReadOnly;
 import static net.jpountz.util.ByteBufferUtils.checkRange;
 import static net.jpountz.util.SafeUtils.checkRange;

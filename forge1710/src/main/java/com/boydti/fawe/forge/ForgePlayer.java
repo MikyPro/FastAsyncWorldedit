@@ -7,12 +7,13 @@ import com.boydti.fawe.object.FaweLocation;
 import com.boydti.fawe.object.FawePlayer;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.forge.ForgeWorldEdit;
-import java.util.UUID;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
+
+import java.util.UUID;
 
 public class ForgePlayer extends FawePlayer<EntityPlayerMP> {
     public ForgePlayer(EntityPlayerMP parent) {

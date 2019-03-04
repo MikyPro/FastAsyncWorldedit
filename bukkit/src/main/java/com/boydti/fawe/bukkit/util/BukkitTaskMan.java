@@ -8,6 +8,7 @@ import org.bukkit.plugin.Plugin;
 public class BukkitTaskMan extends TaskManager {
 
     private final Plugin plugin;
+    public MutableInt index = new MutableInt(0);
 
     public BukkitTaskMan(final Plugin plugin) {
         this.plugin = plugin;
@@ -22,8 +23,6 @@ public class BukkitTaskMan extends TaskManager {
     public int repeatAsync(final Runnable r, final int interval) {
         return this.plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(this.plugin, r, interval, interval);
     }
-
-    public MutableInt index = new MutableInt(0);
 
     @Override
     public void async(final Runnable r) {

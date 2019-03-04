@@ -2,11 +2,12 @@ package com.boydti.fawe.object.mask;
 
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.function.mask.AbstractMask;
+
 import java.util.SplittableRandom;
 
 public class RandomMask extends AbstractMask implements ResettableMask {
-    private transient SplittableRandom random;
     private final double threshold;
+    private transient SplittableRandom random;
 
     public RandomMask(double threshold) {
         this.random = new SplittableRandom();

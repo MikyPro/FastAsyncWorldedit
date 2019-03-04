@@ -10,11 +10,11 @@ public abstract class AbstractBrush implements Brush {
         this.tool = tool;
     }
 
-    public void setTool(BrushTool tool) {
-        this.tool = tool;
-    }
-
     public BrushTool getTool() {
         return tool;
+    }
+
+    public void setTool(BrushTool tool) {
+        this.tool = tool;
     }
 }

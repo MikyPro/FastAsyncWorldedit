@@ -14,11 +14,12 @@ package net.jpountz.lz4;
  * limitations under the License.
  */
 
+import net.jpountz.util.SafeUtils;
+
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.Checksum;
-import net.jpountz.util.SafeUtils;
 
 /**
  * Streaming LZ4.
@@ -47,21 +48,6 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     static final int COMPRESSION_METHOD_LZ4 = 0x20;
 
     static final int DEFAULT_SEED = 0x9747b28c;
-
-    private static int compressionLevel(int blockSize) {
-        if (blockSize < MIN_BLOCK_SIZE) {
-            throw new IllegalArgumentException("blockSize must be >= " + MIN_BLOCK_SIZE + ", got " + blockSize);
-        } else if (blockSize > MAX_BLOCK_SIZE) {
-            throw new IllegalArgumentException("blockSize must be <= " + MAX_BLOCK_SIZE + ", got " + blockSize);
-        }
-        int compressionLevel = 32 - Integer.numberOfLeadingZeros(blockSize - 1); // ceil of log2
-        assert (1 << compressionLevel) >= blockSize;
-        assert blockSize * 2 > (1 << compressionLevel);
-        compressionLevel = Math.max(0, compressionLevel - COMPRESSION_LEVEL_BASE);
-        assert compressionLevel >= 0 && compressionLevel <= 0x0F;
-        return compressionLevel;
-    }
-
     private final int blockSize;
     private final int compressionLevel;
     private final LZ4Compressor compressor;
@@ -71,7 +57,6 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
     private final boolean syncFlush;
     private boolean finished;
     private int o;
-
     /**
      * Create a new {@link OutputStream} with configurable block size. Large
      * blocks require more memory at compression and decompression time but
@@ -123,6 +108,27 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
      */
     public LZ4BlockOutputStream(OutputStream out) {
         this(out, 1 << 16);
+    }
+
+    private static int compressionLevel(int blockSize) {
+        if (blockSize < MIN_BLOCK_SIZE) {
+            throw new IllegalArgumentException("blockSize must be >= " + MIN_BLOCK_SIZE + ", got " + blockSize);
+        } else if (blockSize > MAX_BLOCK_SIZE) {
+            throw new IllegalArgumentException("blockSize must be <= " + MAX_BLOCK_SIZE + ", got " + blockSize);
+        }
+        int compressionLevel = 32 - Integer.numberOfLeadingZeros(blockSize - 1); // ceil of log2
+        assert (1 << compressionLevel) >= blockSize;
+        assert blockSize * 2 > (1 << compressionLevel);
+        compressionLevel = Math.max(0, compressionLevel - COMPRESSION_LEVEL_BASE);
+        assert compressionLevel >= 0 && compressionLevel <= 0x0F;
+        return compressionLevel;
+    }
+
+    private static void writeIntLE(int i, byte[] buf, int off) {
+        buf[off++] = (byte) i;
+        buf[off++] = (byte) (i >>> 8);
+        buf[off++] = (byte) (i >>> 16);
+        buf[off++] = (byte) (i >>> 24);
     }
 
     private void ensureNotFinished() {
@@ -240,13 +246,6 @@ public final class LZ4BlockOutputStream extends FilterOutputStream {
         out.write(compressedBuffer, 0, HEADER_LENGTH);
         finished = true;
         out.flush();
-    }
-
-    private static void writeIntLE(int i, byte[] buf, int off) {
-        buf[off++] = (byte) i;
-        buf[off++] = (byte) (i >>> 8);
-        buf[off++] = (byte) (i >>> 16);
-        buf[off++] = (byte) (i >>> 24);
     }
 
     @Override

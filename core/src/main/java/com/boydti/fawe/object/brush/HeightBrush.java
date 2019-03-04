@@ -18,17 +18,18 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.mask.Masks;
 import com.sk89q.worldedit.function.pattern.Pattern;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 public class HeightBrush implements Brush {
 
-    private HeightMap heightMap;
-    private boolean randomRotate;
     public final int rotation;
     public final double yscale;
     public final boolean layers;
     public final boolean smooth;
+    private HeightMap heightMap;
+    private boolean randomRotate;
 
     public HeightBrush(InputStream stream, int rotation, double yscale, boolean layers, boolean smooth, Clipboard clipboard) {
         this(stream, rotation, yscale, layers, smooth, clipboard, ScalableHeightMap.Shape.CONE);

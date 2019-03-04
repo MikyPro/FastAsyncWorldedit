@@ -3,7 +3,6 @@ package com.boydti.fawe.object.pattern;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.pattern.AbstractPattern;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractExtentPattern extends AbstractPattern {

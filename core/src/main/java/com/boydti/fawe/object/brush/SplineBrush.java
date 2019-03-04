@@ -5,11 +5,8 @@ import com.boydti.fawe.object.brush.visualization.VisualExtent;
 import com.boydti.fawe.object.exception.FaweException;
 import com.boydti.fawe.object.mask.IdMask;
 import com.boydti.fawe.object.visitor.DFSRecursiveVisitor;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.command.tool.brush.Brush;
 import com.sk89q.worldedit.entity.Player;
 import com.sk89q.worldedit.function.RegionFunction;
@@ -18,20 +15,16 @@ import com.sk89q.worldedit.function.mask.MaskIntersection;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.interpolation.Node;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+
+import java.util.*;
 
 public class SplineBrush implements Brush, ResettableTool {
 
     public static int MAX_POINTS = 15;
-    private ArrayList<ArrayList<Vector>> positionSets;
-    private int numSplines;
-
     private final LocalSession session;
     private final Player player;
+    private ArrayList<ArrayList<Vector>> positionSets;
+    private int numSplines;
     private Vector position;
 
     public SplineBrush(Player player, LocalSession session) {

@@ -30,6 +30,29 @@ public class Worldguard extends BukkitMaskManager implements Listener {
     WorldGuardPlugin worldguard;
     FaweBukkit plugin;
 
+    public Worldguard(final Plugin p2, final FaweBukkit p3) {
+        super(p2.getName());
+        this.worldguard = this.getWorldGuard();
+        this.plugin = p3;
+
+    }
+
+    private static Region adapt(ProtectedRegion region) {
+        if (region instanceof ProtectedCuboidRegion) {
+            return new CuboidRegion(region.getMinimumPoint(), region.getMaximumPoint());
+        }
+        if (region instanceof GlobalProtectedRegion) {
+            return RegionWrapper.GLOBAL();
+        }
+        if (region instanceof ProtectedPolygonalRegion) {
+            ProtectedPolygonalRegion casted = (ProtectedPolygonalRegion) region;
+            BlockVector max = region.getMaximumPoint();
+            BlockVector min = region.getMinimumPoint();
+            return new Polygonal2DRegion(null, casted.getPoints(), min.getBlockY(), max.getBlockY());
+        }
+        return new AdaptedRegion(region);
+    }
+
     private WorldGuardPlugin getWorldGuard() {
         final Plugin plugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
 
@@ -39,13 +62,6 @@ public class Worldguard extends BukkitMaskManager implements Listener {
         }
 
         return (WorldGuardPlugin) plugin;
-    }
-
-    public Worldguard(final Plugin p2, final FaweBukkit p3) {
-        super(p2.getName());
-        this.worldguard = this.getWorldGuard();
-        this.plugin = p3;
-
     }
 
     public ProtectedRegion getRegion(final com.sk89q.worldguard.LocalPlayer player, final Location loc) {
@@ -169,21 +185,5 @@ public class Worldguard extends BukkitMaskManager implements Listener {
         public boolean contains(Vector position) {
             return region.contains(position);
         }
-    }
-
-    private static Region adapt(ProtectedRegion region) {
-        if (region instanceof ProtectedCuboidRegion) {
-            return new CuboidRegion(region.getMinimumPoint(), region.getMaximumPoint());
-        }
-        if (region instanceof GlobalProtectedRegion) {
-            return RegionWrapper.GLOBAL();
-        }
-        if (region instanceof ProtectedPolygonalRegion) {
-            ProtectedPolygonalRegion casted = (ProtectedPolygonalRegion) region;
-            BlockVector max = region.getMaximumPoint();
-            BlockVector min = region.getMinimumPoint();
-            return new Polygonal2DRegion(null, casted.getPoints(), min.getBlockY(), max.getBlockY());
-        }
-        return new AdaptedRegion(region);
     }
 }

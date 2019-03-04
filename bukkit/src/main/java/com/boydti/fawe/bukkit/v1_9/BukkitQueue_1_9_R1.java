@@ -21,47 +21,7 @@ import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.LongAdder;
-import net.minecraft.server.v1_9_R2.Block;
-import net.minecraft.server.v1_9_R2.BlockPosition;
-import net.minecraft.server.v1_9_R2.ChunkSection;
-import net.minecraft.server.v1_9_R2.DataBits;
-import net.minecraft.server.v1_9_R2.DataPaletteBlock;
-import net.minecraft.server.v1_9_R2.Entity;
-import net.minecraft.server.v1_9_R2.EntityPlayer;
-import net.minecraft.server.v1_9_R2.EntityTracker;
-import net.minecraft.server.v1_9_R2.EntityTypes;
-import net.minecraft.server.v1_9_R2.EnumDifficulty;
-import net.minecraft.server.v1_9_R2.EnumSkyBlock;
-import net.minecraft.server.v1_9_R2.IBlockData;
-import net.minecraft.server.v1_9_R2.IDataManager;
-import net.minecraft.server.v1_9_R2.MinecraftServer;
-import net.minecraft.server.v1_9_R2.NBTTagCompound;
-import net.minecraft.server.v1_9_R2.NibbleArray;
-import net.minecraft.server.v1_9_R2.PacketDataSerializer;
-import net.minecraft.server.v1_9_R2.PacketPlayOutMapChunk;
-import net.minecraft.server.v1_9_R2.PacketPlayOutMultiBlockChange;
-import net.minecraft.server.v1_9_R2.PlayerChunk;
-import net.minecraft.server.v1_9_R2.PlayerChunkMap;
-import net.minecraft.server.v1_9_R2.ServerNBTManager;
-import net.minecraft.server.v1_9_R2.TileEntity;
-import net.minecraft.server.v1_9_R2.WorldData;
-import net.minecraft.server.v1_9_R2.WorldManager;
-import net.minecraft.server.v1_9_R2.WorldServer;
-import net.minecraft.server.v1_9_R2.WorldSettings;
-import net.minecraft.server.v1_9_R2.WorldType;
+import net.minecraft.server.v1_9_R2.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -74,6 +34,13 @@ import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.event.world.WorldInitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.generator.ChunkGenerator;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.atomic.LongAdder;
 
 public class BukkitQueue_1_9_R1 extends BukkitQueue_0<net.minecraft.server.v1_9_R2.Chunk, ChunkSection[], ChunkSection> {
 
@@ -112,8 +79,8 @@ public class BukkitQueue_1_9_R1 extends BukkitQueue_0<net.minecraft.server.v1_9_
             fieldBiomeCache.setAccessible(true);
             fieldBiomes2 = net.minecraft.server.v1_9_R2.WorldChunkManager.class.getDeclaredField("d");
             fieldBiomes2.setAccessible(true);
-            fieldGenLayer1 = net.minecraft.server.v1_9_R2.WorldChunkManager.class.getDeclaredField("a") ;
-            fieldGenLayer2 = net.minecraft.server.v1_9_R2.WorldChunkManager.class.getDeclaredField("b") ;
+            fieldGenLayer1 = net.minecraft.server.v1_9_R2.WorldChunkManager.class.getDeclaredField("a");
+            fieldGenLayer2 = net.minecraft.server.v1_9_R2.WorldChunkManager.class.getDeclaredField("b");
             fieldGenLayer1.setAccessible(true);
             fieldGenLayer2.setAccessible(true);
 
@@ -131,6 +98,11 @@ public class BukkitQueue_1_9_R1 extends BukkitQueue_0<net.minecraft.server.v1_9_
             e.printStackTrace();
         }
     }
+
+    protected WorldServer nmsWorld;
+    protected BlockPosition.MutableBlockPosition pos = new BlockPosition.MutableBlockPosition(0, 0, 0);
+    protected DataBits lastBits;
+    protected DataPaletteBlock lastBlocks;
 
     public BukkitQueue_1_9_R1(final com.sk89q.worldedit.world.World world) {
         super(world);
@@ -435,7 +407,8 @@ public class BukkitQueue_1_9_R1 extends BukkitQueue_0<net.minecraft.server.v1_9_
             });
             packet.a(buffer);
             for (int i = 0; i < players.length; i++) {
-                if (watchingArr[i]) ((CraftPlayer) ((BukkitPlayer) players[i]).parent).getHandle().playerConnection.sendPacket(packet);
+                if (watchingArr[i])
+                    ((CraftPlayer) ((BukkitPlayer) players[i]).parent).getHandle().playerConnection.sendPacket(packet);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -556,7 +529,7 @@ public class BukkitQueue_1_9_R1 extends BukkitQueue_0<net.minecraft.server.v1_9_
             worldSettings = null;
         }
         worlddata.checkName(name);
-        final WorldServer internal = (WorldServer)new WorldServer(console, sdm, worlddata, dimension, console.methodProfiler, creator.environment(), generator).b();
+        final WorldServer internal = (WorldServer) new WorldServer(console, sdm, worlddata, dimension, console.methodProfiler, creator.environment(), generator).b();
         startSet(true); // Temporarily allow async chunk load since the world isn't added yet
         if (worldSettings != null) {
             internal.a(worldSettings);
@@ -610,8 +583,6 @@ public class BukkitQueue_1_9_R1 extends BukkitQueue_0<net.minecraft.server.v1_9_
         pos.c(x, y, z);
         nmsWorld.w(pos);
     }
-
-    protected WorldServer nmsWorld;
 
     @Override
     public World getImpWorld() {
@@ -767,8 +738,6 @@ public class BukkitQueue_1_9_R1 extends BukkitQueue_0<net.minecraft.server.v1_9_
         return previous;
     }
 
-    protected BlockPosition.MutableBlockPosition pos = new BlockPosition.MutableBlockPosition(0, 0, 0);
-
     @Override
     public CompoundTag getTileEntity(net.minecraft.server.v1_9_R2.Chunk chunk, int x, int y, int z) {
         Map<BlockPosition, TileEntity> tiles = chunk.getTileEntities();
@@ -843,9 +812,6 @@ public class BukkitQueue_1_9_R1 extends BukkitQueue_0<net.minecraft.server.v1_9_
         IBlockData ibd = dataPalette.a(x & 15, y & 15, z & 15);
         return MathMan.pair16(ibd.c(), ibd.d());
     }
-
-    protected DataBits lastBits;
-    protected DataPaletteBlock lastBlocks;
 
     @Override
     public void relightBlock(int x, int y, int z) {

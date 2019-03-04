@@ -6,6 +6,7 @@ import com.boydti.fawe.object.Metadatable;
 import com.boydti.fawe.object.RunnableVal;
 import com.boydti.fawe.util.SetQueue;
 import com.boydti.fawe.util.TaskManager;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -18,6 +19,12 @@ public class TaskBuilder extends Metadatable {
     private final ArrayDeque<RunnableTask> tasks;
     private Object result = null;
     private Thread.UncaughtExceptionHandler handler;
+    private FaweQueue queue;
+    private long last;
+    private long start;
+    private Object asyncWaitLock = new Object();
+    private Object syncWaitLock = new Object();
+    private boolean finished;
 
     public TaskBuilder() {
         this(null);
@@ -346,6 +353,15 @@ public class TaskBuilder extends Metadatable {
             }
         }
     }
+    private enum TaskType {
+        SYNC,
+        ASYNC,
+        SYNC_PARALLEL,
+        ASYNC_PARALLEL,
+        SYNC_WHEN_FREE,
+        DELAY,
+        ABORT
+    }
 
     public static final class TaskAbortException extends RuntimeException {
         @Override
@@ -354,27 +370,12 @@ public class TaskBuilder extends Metadatable {
         }
     }
 
-    private FaweQueue queue;
-    private long last;
-    private long start;
-    private Object asyncWaitLock = new Object();
-    private Object syncWaitLock = new Object();
-    private boolean finished;
-
     private static abstract class RunnableTask<T> extends RunnableVal<T> {
         public final TaskType type;
         private boolean aborted;
 
         public RunnableTask(TaskType type) {
             this.type = type;
-        }
-
-        public void abortNextTasks() {
-            this.aborted = true;
-        }
-
-        public boolean isAborted() {
-            return aborted;
         }
 
         public static RunnableTask adapt(final Task task, TaskType type) {
@@ -419,6 +420,14 @@ public class TaskBuilder extends Metadatable {
             };
         }
 
+        public void abortNextTasks() {
+            this.aborted = true;
+        }
+
+        public boolean isAborted() {
+            return aborted;
+        }
+
         public abstract T exec(Object previous);
 
         @Override
@@ -432,13 +441,6 @@ public class TaskBuilder extends Metadatable {
         public RunnableDelayedTask(TaskType type) {
             super(type);
         }
-
-        @Override
-        public Object exec(Object previous) {
-            return previous;
-        }
-
-        public abstract int delay(Object previous);
 
         public static RunnableDelayedTask adapt(final DelayedTask task) {
             return new RunnableDelayedTask(TaskType.DELAY) {
@@ -457,6 +459,13 @@ public class TaskBuilder extends Metadatable {
                 }
             };
         }
+
+        @Override
+        public Object exec(Object previous) {
+            return previous;
+        }
+
+        public abstract int delay(Object previous);
     }
 
     public static abstract class SplitTask extends RunnableTask {
@@ -560,15 +569,5 @@ public class TaskBuilder extends Metadatable {
                 }
             }
         }
-    }
-
-    private enum TaskType {
-        SYNC,
-        ASYNC,
-        SYNC_PARALLEL,
-        ASYNC_PARALLEL,
-        SYNC_WHEN_FREE,
-        DELAY,
-        ABORT
     }
 }

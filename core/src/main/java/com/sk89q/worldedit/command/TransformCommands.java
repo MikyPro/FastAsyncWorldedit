@@ -1,14 +1,6 @@
 package com.sk89q.worldedit.command;
 
-import com.boydti.fawe.object.extent.Linear3DTransform;
-import com.boydti.fawe.object.extent.LinearTransform;
-import com.boydti.fawe.object.extent.OffsetExtent;
-import com.boydti.fawe.object.extent.PatternTransform;
-import com.boydti.fawe.object.extent.RandomOffsetTransform;
-import com.boydti.fawe.object.extent.RandomTransform;
-import com.boydti.fawe.object.extent.ResettableExtent;
-import com.boydti.fawe.object.extent.ScaleTransform;
-import com.boydti.fawe.object.extent.TransformExtent;
+import com.boydti.fawe.object.extent.*;
 import com.boydti.fawe.util.ExtentTraverser;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.worldedit.LocalSession;
@@ -19,6 +11,7 @@ import com.sk89q.worldedit.extent.transform.BlockTransformExtent;
 import com.sk89q.worldedit.function.pattern.Pattern;
 import com.sk89q.worldedit.math.transform.AffineTransform;
 import com.sk89q.worldedit.util.command.parametric.Optional;
+
 import java.util.Set;
 
 @Command(aliases = {"transforms"},

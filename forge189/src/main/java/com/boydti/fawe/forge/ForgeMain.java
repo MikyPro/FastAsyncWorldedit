@@ -3,8 +3,6 @@ package com.boydti.fawe.forge;
 import com.boydti.fawe.Fawe;
 import com.boydti.fawe.config.Settings;
 import com.boydti.fawe.object.FawePlayer;
-import java.io.File;
-import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -19,6 +17,9 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.util.List;
 
 @Mod(modid = "com.boydti.fawe", name = "FastAsyncWorldEdit", version = "3.5.1", acceptableRemoteVersions = "*", dependencies = "before:worldedit")
 public class ForgeMain {
@@ -35,7 +36,8 @@ public class ForgeMain {
         try {
             Class.forName("org.spongepowered.api.Sponge");
             Settings.IMP.QUEUE.PARALLEL_THREADS = 1;
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
     }
 
     @Mod.EventHandler
@@ -53,7 +55,7 @@ public class ForgeMain {
 
     @Mod.EventHandler
     public void serverStopping(FMLServerStoppingEvent event) {
-        for (EntityPlayerMP player : (List<EntityPlayerMP>)MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
+        for (EntityPlayerMP player : (List<EntityPlayerMP>) MinecraftServer.getServer().getConfigurationManager().playerEntityList) {
             handleQuit(player);
         }
     }

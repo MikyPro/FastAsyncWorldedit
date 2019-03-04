@@ -3,16 +3,7 @@ package com.boydti.fawe.bukkit.util.image;
 import com.boydti.fawe.util.image.Drawable;
 import com.boydti.fawe.util.image.ImageUtil;
 import com.boydti.fawe.util.image.ImageViewer;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Collection;
-import javax.annotation.Nullable;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Rotation;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
@@ -24,6 +15,12 @@ import org.inventivetalent.mapmanager.controller.MapController;
 import org.inventivetalent.mapmanager.controller.MultiMapController;
 import org.inventivetalent.mapmanager.manager.MapManager;
 import org.inventivetalent.mapmanager.wrapper.MapWrapper;
+
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Collection;
 
 public class BukkitImageViewer implements ImageViewer {
     private final MapManager mapManager;
@@ -133,7 +130,8 @@ public class BukkitImageViewer implements ImageViewer {
     }
 
     private void view(@Nullable BufferedImage image, @Nullable Drawable drawable) {
-        if (image == null && drawable == null) throw new IllegalArgumentException("An image or drawable must be provided. Both cannot be null");
+        if (image == null && drawable == null)
+            throw new IllegalArgumentException("An image or drawable must be provided. Both cannot be null");
         boolean initializing = last == null;
 
         if (this.frames != null) {

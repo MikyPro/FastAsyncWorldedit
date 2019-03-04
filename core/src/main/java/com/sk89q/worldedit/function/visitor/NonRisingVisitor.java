@@ -23,6 +23,7 @@ import com.boydti.fawe.object.HasFaweQueue;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.function.RegionFunction;
 import com.sk89q.worldedit.function.mask.Mask;
+
 import java.util.Collection;
 
 /**

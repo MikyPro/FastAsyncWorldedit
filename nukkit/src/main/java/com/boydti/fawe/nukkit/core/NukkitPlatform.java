@@ -23,22 +23,14 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import com.boydti.fawe.util.TaskManager;
 import com.sk89q.worldedit.entity.Player;
-import com.sk89q.worldedit.extension.platform.AbstractPlatform;
-import com.sk89q.worldedit.extension.platform.Actor;
-import com.sk89q.worldedit.extension.platform.Capability;
-import com.sk89q.worldedit.extension.platform.MultiUserPlatform;
-import com.sk89q.worldedit.extension.platform.Preference;
+import com.sk89q.worldedit.extension.platform.*;
 import com.sk89q.worldedit.util.command.CommandMapping;
 import com.sk89q.worldedit.util.command.Description;
 import com.sk89q.worldedit.util.command.Dispatcher;
 import com.sk89q.worldedit.world.World;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
 import javax.annotation.Nullable;
+import java.util.*;
 
 public class NukkitPlatform extends AbstractPlatform implements MultiUserPlatform {
 

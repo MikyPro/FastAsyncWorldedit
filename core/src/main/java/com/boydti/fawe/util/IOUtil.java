@@ -4,19 +4,6 @@ import java.io.*;
 import java.net.URI;
 
 public final class IOUtil {
-    public InputStream toInputStream(URI uri) throws IOException {
-        String scheme = uri.getScheme();
-        switch (scheme.toLowerCase()) {
-            case "file":
-                return new FileInputStream(uri.getPath());
-            case "http":
-            case "https":
-                return uri.toURL().openStream();
-            default:
-                return null;
-        }
-    }
-
     public static final int readInt(InputStream in) throws IOException {
         int ch1 = in.read();
         int ch2 = in.read();
@@ -30,12 +17,12 @@ public final class IOUtil {
     public static final void writeInt(OutputStream out, int v) throws IOException {
         out.write((v >>> 24) & 0xFF);
         out.write((v >>> 16) & 0xFF);
-        out.write((v >>>  8) & 0xFF);
-        out.write((v >>>  0) & 0xFF);
+        out.write((v >>> 8) & 0xFF);
+        out.write((v >>> 0) & 0xFF);
     }
 
     public static void writeVarInt(OutputStream out, int i) throws IOException {
-        while((i & -128) != 0) {
+        while ((i & -128) != 0) {
             out.write(i & 127 | 128);
             i >>>= 7;
         }
@@ -52,5 +39,18 @@ public final class IOUtil {
         }
         i |= b << offset;
         return i;
+    }
+
+    public InputStream toInputStream(URI uri) throws IOException {
+        String scheme = uri.getScheme();
+        switch (scheme.toLowerCase()) {
+            case "file":
+                return new FileInputStream(uri.getPath());
+            case "http":
+            case "https":
+                return uri.toURL().openStream();
+            default:
+                return null;
+        }
     }
 }

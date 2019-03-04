@@ -6,9 +6,6 @@ import com.boydti.fawe.sponge.SpongePlayer;
 import com.boydti.fawe.util.chat.ChatManager;
 import com.boydti.fawe.util.chat.Message;
 import com.boydti.fawe.wrappers.FakePlayer;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
@@ -16,6 +13,10 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyle;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.text.serializer.TextSerializers;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
 
 public class SpongeChatManager implements ChatManager<Text.Builder> {
 

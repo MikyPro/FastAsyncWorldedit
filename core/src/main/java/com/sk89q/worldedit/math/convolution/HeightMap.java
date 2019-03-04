@@ -2,17 +2,12 @@ package com.sk89q.worldedit.math.convolution;
 
 import com.boydti.fawe.FaweCache;
 import com.boydti.fawe.object.visitor.Fast2DIterator;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.MutableBlockVector;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.Regions;
-import java.util.Iterator;
 
+import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -124,6 +119,10 @@ public class HeightMap {
         this.data = data;
 
         this.layers = layers;
+    }
+
+    public static Class<?> inject() {
+        return HeightMap.class;
     }
 
     /**
@@ -305,10 +304,6 @@ public class HeightMap {
             }
         }
         return blocksChanged;
-    }
-
-    public static Class<?> inject() {
-        return HeightMap.class;
     }
 
 }

@@ -1,22 +1,18 @@
 package com.sk89q.worldedit;
 
 import com.boydti.fawe.util.MathMan;
+
 import java.io.IOException;
 import java.io.Serializable;
 
 public class MutableBlockVector extends BlockVector implements Serializable {
-    private transient int x, y, z;
-
     private static ThreadLocal<MutableBlockVector> MUTABLE_CACHE = new ThreadLocal<MutableBlockVector>() {
         @Override
         protected MutableBlockVector initialValue() {
             return new MutableBlockVector();
         }
     };
-
-    public static MutableBlockVector get(int x, int y, int z) {
-        return MUTABLE_CACHE.get().setComponents(x, y, z);
-    }
+    private transient int x, y, z;
 
     public MutableBlockVector(Vector v) {
         this(v.getBlockX(), v.getBlockY(), v.getBlockZ());
@@ -31,6 +27,10 @@ public class MutableBlockVector extends BlockVector implements Serializable {
 
     public MutableBlockVector() {
         super(0, 0, 0);
+    }
+
+    public static MutableBlockVector get(int x, int y, int z) {
+        return MUTABLE_CACHE.get().setComponents(x, y, z);
     }
 
     public MutableBlockVector setComponents(Vector other) {

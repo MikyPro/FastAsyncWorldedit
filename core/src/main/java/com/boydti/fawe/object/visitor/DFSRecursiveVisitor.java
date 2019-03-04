@@ -5,7 +5,6 @@ import com.sk89q.worldedit.function.RegionFunction;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.visitor.RecursiveVisitor;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -32,12 +31,12 @@ public class DFSRecursiveVisitor extends DFSVisitor {
         this.mask = mask;
     }
 
+    public static Class<?> inject() {
+        return RecursiveVisitor.class;
+    }
+
     @Override
     public boolean isVisitable(final Vector from, final Vector to) {
         return this.mask.test(to);
-    }
-
-    public static Class<?> inject() {
-        return RecursiveVisitor.class;
     }
 }

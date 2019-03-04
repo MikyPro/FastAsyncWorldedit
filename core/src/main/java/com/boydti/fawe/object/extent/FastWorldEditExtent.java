@@ -5,11 +5,7 @@ import com.boydti.fawe.object.FaweQueue;
 import com.boydti.fawe.object.HasFaweQueue;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.ReflectionUtils;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.DoubleTag;
-import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.StringTag;
-import com.sk89q.jnbt.Tag;
+import com.sk89q.jnbt.*;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.Vector2D;
 import com.sk89q.worldedit.WorldEditException;
@@ -21,14 +17,15 @@ import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.util.List;
 import java.util.Map;
 
 public class FastWorldEditExtent extends AbstractDelegateExtent implements HasFaweQueue {
 
     private final World world;
-    private FaweQueue queue;
     private final int maxY;
+    private FaweQueue queue;
 
     public FastWorldEditExtent(final World world, FaweQueue queue) {
         super(queue);

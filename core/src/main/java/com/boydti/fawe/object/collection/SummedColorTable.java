@@ -1,11 +1,12 @@
 package com.boydti.fawe.object.collection;
 
 import com.boydti.fawe.util.MathMan;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 public class SummedColorTable {
-    private static float inv256 = 1/256f;
+    private static float inv256 = 1 / 256f;
     private final long[] reds, greens, blues, alpha;
     private final int[] hasAlpha;
     private final int length;

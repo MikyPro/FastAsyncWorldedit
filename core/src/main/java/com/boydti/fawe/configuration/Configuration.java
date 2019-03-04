@@ -53,17 +53,6 @@ public interface Configuration extends ConfigurationSection {
     void addDefaults(final com.boydti.fawe.configuration.Configuration defaults);
 
     /**
-     * Sets the source of all default values for this {@link com.boydti.fawe.configuration.Configuration}.
-     * <p>
-     * If a previous source was set, or previous default values were defined,
-     * then they will not be copied to the new source.
-     *
-     * @param defaults New source of default values for this configuration.
-     * @throws IllegalArgumentException Thrown if defaults is null or this.
-     */
-    void setDefaults(final com.boydti.fawe.configuration.Configuration defaults);
-
-    /**
      * Gets the source {@link com.boydti.fawe.configuration.Configuration} for this configuration.
      * <p>
      * If no configuration source was set, but default values were added, then
@@ -73,6 +62,17 @@ public interface Configuration extends ConfigurationSection {
      * @return Configuration source for default values, or null if none exist.
      */
     com.boydti.fawe.configuration.Configuration getDefaults();
+
+    /**
+     * Sets the source of all default values for this {@link com.boydti.fawe.configuration.Configuration}.
+     * <p>
+     * If a previous source was set, or previous default values were defined,
+     * then they will not be copied to the new source.
+     *
+     * @param defaults New source of default values for this configuration.
+     * @throws IllegalArgumentException Thrown if defaults is null or this.
+     */
+    void setDefaults(final com.boydti.fawe.configuration.Configuration defaults);
 
     /**
      * Gets the {@link com.boydti.fawe.configuration.ConfigurationOptions} for this {@link com.boydti.fawe.configuration.Configuration}.

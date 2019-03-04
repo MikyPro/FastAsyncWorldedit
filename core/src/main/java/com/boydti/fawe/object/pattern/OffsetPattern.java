@@ -7,13 +7,14 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.pattern.AbstractPattern;
 import com.sk89q.worldedit.function.pattern.Pattern;
+
 import java.io.IOException;
 
 public class OffsetPattern extends AbstractPattern {
 
     private final int dx, dy, dz;
-    private transient MutableBlockVector mutable = new MutableBlockVector();
     private final Pattern pattern;
+    private transient MutableBlockVector mutable = new MutableBlockVector();
 
     public OffsetPattern(Pattern pattern, int dx, int dy, int dz) {
         this.dx = dx;

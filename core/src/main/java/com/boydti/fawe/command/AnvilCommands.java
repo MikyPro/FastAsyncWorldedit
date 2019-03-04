@@ -20,8 +20,8 @@ import com.boydti.fawe.util.SetQueue;
 import com.boydti.fawe.util.StringMan;
 import com.sk89q.minecraft.util.commands.Command;
 import com.sk89q.minecraft.util.commands.CommandPermissions;
-import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BlockType;
 import com.sk89q.worldedit.entity.Player;
@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.*;
 import java.util.function.Consumer;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -188,7 +187,7 @@ public class AnvilCommands {
 
 
     @Command(
-            aliases = {"deleteallunvisited", "delunvisited" },
+            aliases = {"deleteallunvisited", "delunvisited"},
             usage = "<folder> <age-ticks> [file-age=60000]",
             desc = "Delete all chunks which haven't been occupied",
             help = "Delete all chunks which haven't been occupied for `age-ticks` (20t = 1s) and \n" +
@@ -207,7 +206,7 @@ public class AnvilCommands {
     }
 
     @Command(
-            aliases = {"deleteallunclaimed", "delallunclaimed" },
+            aliases = {"deleteallunclaimed", "delallunclaimed"},
             usage = "<age-ticks> [file-age=60000]",
             desc = "(Supports: WG, P2, GP) Delete all chunks which haven't been occupied AND claimed",
             help = "(Supports: WG, P2, GP) Delete all chunks which aren't claimed AND haven't been occupied for `age-ticks` (20t = 1s) and \n" +
@@ -249,7 +248,7 @@ public class AnvilCommands {
     }
 
     @Command(
-            aliases = {"deletealloldregions", "deloldreg" },
+            aliases = {"deletealloldregions", "deloldreg"},
             usage = "<folder> <time>",
             desc = "Delete regions which haven't been accessed in a certain amount of time",
             help = "Delete regions which haven't been accessed in a certain amount of time\n" +
@@ -268,7 +267,7 @@ public class AnvilCommands {
     }
 
     @Command(
-            aliases = {"trimallplots", },
+            aliases = {"trimallplots",},
             desc = "Trim chunks in a Plot World",
             help = "Trim chunks in a Plot World\n" +
                     "Unclaimed chunks will be deleted\n" +
@@ -288,7 +287,7 @@ public class AnvilCommands {
     }
 
     @Command(
-            aliases = {"deletebiomechunks", },
+            aliases = {"deletebiomechunks",},
             desc = "Delete chunks matching a specific biome"
     )
     @CommandPermissions("worldedit.anvil.trimallair")
@@ -299,7 +298,7 @@ public class AnvilCommands {
     }
 
     @Command(
-            aliases = {"trimallair", },
+            aliases = {"trimallair",},
             desc = "Trim all air in the world"
     )
     @CommandPermissions("worldedit.anvil.trimallair")
@@ -311,7 +310,7 @@ public class AnvilCommands {
 
 
     @Command(
-            aliases = {"debugfixair", },
+            aliases = {"debugfixair",},
             desc = "debug - do not use"
     )
     @CommandPermissions("worldedit.anvil.debugfixair")
@@ -685,7 +684,9 @@ public class AnvilCommands {
         recordHistory(fp, editSession.getWorld(), iAnvilHistory -> {
             try {
                 pasteQueue.pasteRegion(copyQueue, copyRegion, offset, iAnvilHistory);
-            } catch (IOException e) { throw new RuntimeException(e); }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
         BBC.COMMAND_PASTE.send(player, player.getPosition().toBlockVector());
     }

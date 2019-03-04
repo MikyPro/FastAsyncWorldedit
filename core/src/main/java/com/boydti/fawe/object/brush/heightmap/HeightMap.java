@@ -2,11 +2,7 @@ package com.boydti.fawe.object.brush.heightmap;
 
 import com.boydti.fawe.object.PseudoRandom;
 import com.boydti.fawe.util.MainUtil;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.WorldVector;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.internal.LocalWorldAdapter;
 import com.sk89q.worldedit.math.convolution.GaussianKernel;

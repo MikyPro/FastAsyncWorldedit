@@ -25,9 +25,9 @@ import com.sk89q.worldedit.extent.inventory.BlockBag;
 import com.sk89q.worldedit.history.UndoContext;
 import com.sk89q.worldedit.history.change.Change;
 import com.sk89q.worldedit.history.changeset.ChangeSet;
+
 import java.util.Iterator;
 import java.util.List;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -36,12 +36,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ChangeSetExecutor implements Operation {
 
-    public enum Type {UNDO, REDO}
-
     private final Iterator<Change> iterator;
     private final Type type;
     private final UndoContext context;
-
     /**
      * Create a new instance.
      *
@@ -62,28 +59,6 @@ public class ChangeSetExecutor implements Operation {
         } else {
             iterator = changeSet.forwardIterator();
         }
-    }
-
-    @Override
-    public Operation resume(RunContext run) throws WorldEditException {
-        if (type == Type.UNDO) {
-            while (iterator.hasNext()) {
-                iterator.next().undo(context);
-            }
-        } else {
-            while (iterator.hasNext()) {
-                iterator.next().redo(context);
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void cancel() {
-    }
-
-    @Override
-    public void addStatusMessages(List<String> messages) {
     }
 
     public static ChangeSetExecutor create(ChangeSet changeSet, UndoContext context, Type type, BlockBag blockBag, int inventory) {
@@ -117,4 +92,28 @@ public class ChangeSetExecutor implements Operation {
     public static Class<?> inject() {
         return ChangeSetExecutor.class;
     }
+
+    @Override
+    public Operation resume(RunContext run) throws WorldEditException {
+        if (type == Type.UNDO) {
+            while (iterator.hasNext()) {
+                iterator.next().undo(context);
+            }
+        } else {
+            while (iterator.hasNext()) {
+                iterator.next().redo(context);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void cancel() {
+    }
+
+    @Override
+    public void addStatusMessages(List<String> messages) {
+    }
+
+    public enum Type {UNDO, REDO}
 }

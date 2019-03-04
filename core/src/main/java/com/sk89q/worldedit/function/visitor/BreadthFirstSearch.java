@@ -13,12 +13,8 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.function.RegionFunction;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.RunContext;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+
+import java.util.*;
 
 public abstract class BreadthFirstSearch implements Operation {
 
@@ -55,12 +51,12 @@ public abstract class BreadthFirstSearch implements Operation {
     }
 
     private final RegionFunction function;
+    private final MappedFaweQueue mFaweQueue;
+    private final int maxDepth;
     private List<Vector> directions = new ArrayList<>();
     private BlockVectorSet visited;
-    private final MappedFaweQueue mFaweQueue;
     private BlockVectorSet queue;
     private int currentDepth = 0;
-    private final int maxDepth;
     private int affected = 0;
     private int maxBranch = Integer.MAX_VALUE;
 
@@ -80,6 +76,10 @@ public abstract class BreadthFirstSearch implements Operation {
         this.function = function;
         this.directions.addAll(Arrays.asList(DEFAULT_DIRECTIONS));
         this.maxDepth = maxDepth;
+    }
+
+    public static Class<?> inject() {
+        return BreadthFirstSearch.class;
     }
 
     public abstract boolean isVisitable(Vector from, Vector to);
@@ -115,12 +115,12 @@ public abstract class BreadthFirstSearch implements Operation {
         affected = 0;
     }
 
-    public void setVisited(BlockVectorSet set) {
-        this.visited = set;
-    }
-
     public BlockVectorSet getVisited() {
         return visited;
+    }
+
+    public void setVisited(BlockVectorSet set) {
+        this.visited = set;
     }
 
     public boolean isVisited(Vector pos) {
@@ -213,9 +213,5 @@ public abstract class BreadthFirstSearch implements Operation {
 
     @Override
     public void cancel() {
-    }
-
-    public static Class<?> inject() {
-        return BreadthFirstSearch.class;
     }
 }

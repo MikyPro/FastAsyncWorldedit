@@ -24,6 +24,10 @@ package com.sk89q.jnbt;
  */
 public abstract class Tag {
 
+    public static Class<?> inject() {
+        return Tag.class;
+    }
+
     /**
      * Gets the value of this tag.
      *
@@ -33,10 +37,6 @@ public abstract class Tag {
 
     public Object getRaw() {
         return getValue();
-    }
-
-    public static Class<?> inject() {
-        return Tag.class;
     }
 
 

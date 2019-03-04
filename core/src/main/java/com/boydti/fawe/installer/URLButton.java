@@ -1,9 +1,6 @@
 package com.boydti.fawe.installer;
 
-import java.awt.Color;
-import java.awt.Desktop;
-import java.awt.Font;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;

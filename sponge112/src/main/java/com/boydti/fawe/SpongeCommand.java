@@ -3,9 +3,6 @@ package com.boydti.fawe;
 import com.boydti.fawe.config.BBC;
 import com.boydti.fawe.object.FaweCommand;
 import com.boydti.fawe.object.FawePlayer;
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nullable;
 import org.spongepowered.api.command.CommandCallable;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -13,6 +10,10 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Jesse on 4/2/2016.
@@ -43,7 +44,9 @@ public class SpongeCommand implements CommandCallable {
 
 
     @Override
-    public boolean testPermission(CommandSource source) {return true;}
+    public boolean testPermission(CommandSource source) {
+        return true;
+    }
 
     @Override
     public Optional<Text> getShortDescription(CommandSource source) {

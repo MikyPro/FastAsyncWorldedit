@@ -39,6 +39,10 @@ public class While extends Node {
         this.footChecked = footChecked;
     }
 
+    public static Class<While> inject() {
+        return While.class;
+    }
+
     @Override
     public double getValue() throws EvaluationException {
         int iterations = 0;
@@ -49,7 +53,7 @@ public class While extends Node {
                 if (iterations > 256) {
                     throw new EvaluationException(getPosition(), "Loop exceeded 256 iterations.");
                 }
-                if(Thread.currentThread().isInterrupted()){
+                if (Thread.currentThread().isInterrupted()) {
                     throw new EvaluationException(this.getPosition(), "Thread has been interrupted.");
                 }
                 ++iterations;
@@ -69,7 +73,7 @@ public class While extends Node {
                 if (iterations > 256) {
                     throw new EvaluationException(getPosition(), "Loop exceeded 256 iterations.");
                 }
-                if(Thread.currentThread().isInterrupted()){
+                if (Thread.currentThread().isInterrupted()) {
                     throw new EvaluationException(this.getPosition(), "Thread has been interrupted.");
                 }
                 ++iterations;
@@ -128,9 +132,5 @@ public class While extends Node {
         body = body.bindVariables(expression, false);
 
         return this;
-    }
-
-    public static Class<While> inject() {
-        return While.class;
     }
 }

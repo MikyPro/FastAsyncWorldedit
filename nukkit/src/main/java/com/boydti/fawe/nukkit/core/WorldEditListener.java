@@ -32,7 +32,6 @@ import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
 import cn.nukkit.event.player.PlayerGameModeChangeEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.player.PlayerInteractEvent.Action;
-
 import com.google.common.base.Joiner;
 import com.sk89q.util.StringUtil;
 import com.sk89q.worldedit.LocalPlayer;
@@ -42,6 +41,7 @@ import com.sk89q.worldedit.event.platform.CommandEvent;
 import com.sk89q.worldedit.extension.platform.CommandManager;
 import com.sk89q.worldedit.internal.LocalWorldAdapter;
 import com.sk89q.worldedit.world.World;
+
 import java.util.Arrays;
 
 /**
@@ -77,7 +77,7 @@ public class WorldEditListener implements Listener {
      *
      * @param event Relevant event details
      */
-    @EventHandler(ignoreCancelled = true,priority = EventPriority.MONITOR)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         String[] split = event.getMessage().split(" ");
 
@@ -100,7 +100,7 @@ public class WorldEditListener implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true,priority = EventPriority.LOWEST)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onPlayerChat(PlayerChatEvent event) {
         String message = event.getMessage();
         if (message.charAt(0) == '.') {

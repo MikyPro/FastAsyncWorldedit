@@ -10,15 +10,6 @@ import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.ListTag;
 import com.sk89q.jnbt.StringTag;
 import com.sk89q.jnbt.Tag;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,6 +20,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.NibbleArray;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
+
+import java.util.*;
 
 public class ForgeChunk_All extends CharFaweChunk<Chunk, ForgeQueue_All> {
 
@@ -374,7 +367,7 @@ public class ForgeChunk_All extends CharFaweChunk<Chunk, ForgeQueue_All> {
             // Set biomes
             if (this.biomes != null) {
                 byte[] currentBiomes = nmsChunk.getBiomeArray();
-                for (int i = 0 ; i < this.biomes.length; i++) {
+                for (int i = 0; i < this.biomes.length; i++) {
                     byte biome = this.biomes[i];
                     if (biome != 0) {
                         if (biome == -1) biome = 0;

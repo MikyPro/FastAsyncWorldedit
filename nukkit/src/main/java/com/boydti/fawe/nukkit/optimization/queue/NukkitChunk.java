@@ -14,13 +14,17 @@ import com.boydti.fawe.object.FaweQueue;
 import com.boydti.fawe.util.MainUtil;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.MutableBlockVector2D;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
 public class NukkitChunk extends CharFaweChunk<BaseFullChunk, NukkitQueue> {
 
+
+    private int layer = -1;
+    private int index;
+    private boolean place = true;
 
     /**
      * A FaweSections object represents a chunk and the blocks that you wish to change in it.
@@ -56,10 +60,6 @@ public class NukkitChunk extends CharFaweChunk<BaseFullChunk, NukkitQueue> {
     public BaseFullChunk getNewChunk() {
         return ((NukkitQueue) getParent()).getWorld().getChunk(getX(), getZ(), true);
     }
-
-    private int layer = -1;
-    private int index;
-    private boolean place = true;
 
     @Override
     public void start() {
@@ -129,7 +129,7 @@ public class NukkitChunk extends CharFaweChunk<BaseFullChunk, NukkitQueue> {
             int index = 0;
             for (int y = by; y < by + 16; y++) {
                 for (int z = 0; z < 16; z++) {
-                    for (int x = 0; x < 16; x++,index++) {
+                    for (int x = 0; x < 16; x++, index++) {
                         char combined = ids[index];
                         switch (combined) {
                             case 0:

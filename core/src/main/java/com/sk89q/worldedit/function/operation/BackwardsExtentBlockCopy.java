@@ -8,6 +8,7 @@ import com.sk89q.worldedit.function.RegionFunction;
 import com.sk89q.worldedit.math.transform.Transform;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
+
 import java.util.List;
 
 public class BackwardsExtentBlockCopy implements Operation {
@@ -47,9 +48,9 @@ public class BackwardsExtentBlockCopy implements Operation {
         Vector max = new MutableBlockVector(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
         Vector pos1 = region.getMinimumPoint();
         Vector pos2 = region.getMaximumPoint();
-        for (int x : new int[] { pos1.getBlockX(), pos2.getBlockX() }) {
-            for (int y : new int[] { pos1.getBlockY(), pos2.getBlockY() }) {
-                for (int z : new int[] { pos1.getBlockZ(), pos2.getBlockZ() }) {
+        for (int x : new int[]{pos1.getBlockX(), pos2.getBlockX()}) {
+            for (int y : new int[]{pos1.getBlockY(), pos2.getBlockY()}) {
+                for (int z : new int[]{pos1.getBlockZ(), pos2.getBlockZ()}) {
                     Vector pt = transform(transform, new Vector(x, y, z)).toBlockVector();
                     min = Vector.getMinimum(min, pt);
                     max = Vector.getMaximum(max, pt);

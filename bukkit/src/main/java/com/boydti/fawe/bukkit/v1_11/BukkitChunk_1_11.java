@@ -10,48 +10,23 @@ import com.boydti.fawe.object.FaweQueue;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.MathMan;
 import com.boydti.fawe.util.ReflectionUtils;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.LongTag;
-import com.sk89q.jnbt.StringTag;
-import com.sk89q.jnbt.Tag;
+import com.sk89q.jnbt.*;
 import com.sk89q.worldedit.internal.Constants;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import net.minecraft.server.v1_11_R1.Block;
-import net.minecraft.server.v1_11_R1.BlockPosition;
-import net.minecraft.server.v1_11_R1.ChunkSection;
-import net.minecraft.server.v1_11_R1.DataBits;
-import net.minecraft.server.v1_11_R1.DataPalette;
-import net.minecraft.server.v1_11_R1.DataPaletteBlock;
-import net.minecraft.server.v1_11_R1.DataPaletteGlobal;
-import net.minecraft.server.v1_11_R1.Entity;
-import net.minecraft.server.v1_11_R1.EntityPlayer;
-import net.minecraft.server.v1_11_R1.EntityTypes;
-import net.minecraft.server.v1_11_R1.IBlockData;
-import net.minecraft.server.v1_11_R1.MinecraftKey;
-import net.minecraft.server.v1_11_R1.NBTTagCompound;
-import net.minecraft.server.v1_11_R1.NBTTagInt;
-import net.minecraft.server.v1_11_R1.TileEntity;
+import net.minecraft.server.v1_11_R1.*;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_11_R1.CraftChunk;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+
 public class BukkitChunk_1_11 extends CharFaweChunk<Chunk, com.boydti.fawe.bukkit.v1_11.BukkitQueue_1_11> {
 
-    public DataPaletteBlock[] sectionPalettes;
-
     public static Map<String, Class<? extends Entity>> entityKeys;
+    public DataPaletteBlock[] sectionPalettes;
 
     /**
      * A FaweSections object represents a chunk and the blocks that you wish to change in it.
@@ -402,7 +377,7 @@ public class BukkitChunk_1_11 extends CharFaweChunk<Chunk, com.boydti.fawe.bukki
                     short[][] i1 = FaweCache.CACHE_J[y];
                     for (int z = 0; z < 16; z++) {
                         short[] i2 = i1[z];
-                        for (int x= 0; x < 16; x++) {
+                        for (int x = 0; x < 16; x++) {
                             char combinedId = array[i2[x]];
                             switch (combinedId) {
                                 case 0:
@@ -475,7 +450,7 @@ public class BukkitChunk_1_11 extends CharFaweChunk<Chunk, com.boydti.fawe.bukki
                     copy.storeBiomes(nmsChunk.getBiomeIndex());
                 }
                 byte[] currentBiomes = nmsChunk.getBiomeIndex();
-                for (int i = 0 ; i < this.biomes.length; i++) {
+                for (int i = 0; i < this.biomes.length; i++) {
                     byte biome = this.biomes[i];
                     if (biome != 0) {
                         if (biome == -1) biome = 0;

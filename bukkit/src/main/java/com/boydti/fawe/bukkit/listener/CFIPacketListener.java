@@ -29,8 +29,6 @@ import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.event.platform.BlockInteractEvent;
 import com.sk89q.worldedit.event.platform.Interaction;
 import com.sk89q.worldedit.extension.platform.PlatformManager;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -41,11 +39,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
 /**
  * The CFIPacketListener handles packets for editing the VirtualWorld
  * The generator is a virtual world which only the creator can see
- *  - The virtual world is displayed inside the current world
- *  - Block/Chunk/Movement packets need to be handled properly
+ * - The virtual world is displayed inside the current world
+ * - Block/Chunk/Movement packets need to be handled properly
  */
 public class CFIPacketListener implements Listener {
 
@@ -320,13 +321,20 @@ public class CFIPacketListener implements Listener {
         EnumWrappers.Direction dir = dirs.readSafely(0);
         if (dir == null) return pt;
         switch (dir.ordinal()) {
-            case 0: return pt.add(0, -1, 0);
-            case 1: return pt.add(0, 1, 0);
-            case 2: return pt.add(0, 0, -1);
-            case 3: return pt.add(0, 0, 1);
-            case 4: return pt.add(-1, 0, 0);
-            case 5: return pt.add(1, 0, 0);
-            default: return pt;
+            case 0:
+                return pt.add(0, -1, 0);
+            case 1:
+                return pt.add(0, 1, 0);
+            case 2:
+                return pt.add(0, 0, -1);
+            case 3:
+                return pt.add(0, 0, 1);
+            case 4:
+                return pt.add(-1, 0, 0);
+            case 5:
+                return pt.add(1, 0, 0);
+            default:
+                return pt;
         }
     }
 }

@@ -19,6 +19,7 @@ import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -28,12 +29,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A clipboard with disk backed storage. (lower memory + loads on crash)
@@ -45,22 +41,23 @@ public class DiskOptimizedClipboard extends FaweClipboard implements Closeable {
     public static int COMPRESSION = 0;
     public static int MODE = 0;
     public static int HEADER_SIZE = 14;
-
+    private final HashMap<IntegerTrio, CompoundTag> nbtMap;
+    private final HashSet<ClipboardEntity> entities;
+    private final File file;
     protected int length;
     protected int height;
     protected int width;
     protected int area;
     protected int volume;
-
-    private final HashMap<IntegerTrio, CompoundTag> nbtMap;
-    private final HashSet<ClipboardEntity> entities;
-    private final File file;
-
     private RandomAccessFile braf;
     private MappedByteBuffer mbb;
 
     private FileChannel fc;
     private boolean hasBiomes;
+    private int ylast;
+    private int ylasti;
+    private int zlast;
+    private int zlasti;
 
     public DiskOptimizedClipboard(int width, int height, int length, UUID uuid) {
         this(width, height, length, MainUtil.getFile(Fawe.get() != null ? Fawe.imp().getDirectory() : new File("."), Settings.IMP.PATHS.CLIPBOARD + File.separator + uuid + ".bd"));
@@ -87,6 +84,47 @@ public class DiskOptimizedClipboard extends FaweClipboard implements Closeable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public DiskOptimizedClipboard(int width, int height, int length, File file) {
+        try {
+            nbtMap = new HashMap<>();
+            entities = new HashSet<>();
+            this.file = file;
+            this.width = width;
+            this.height = height;
+            this.length = length;
+            this.area = width * length;
+            this.volume = width * length * height;
+            try {
+                if (!file.exists()) {
+                    File parent = file.getParentFile();
+                    if (parent != null) {
+                        file.getParentFile().mkdirs();
+                    }
+                    file.createNewFile();
+                }
+            } catch (Exception e) {
+                MainUtil.handleError(e);
+            }
+            this.braf = new RandomAccessFile(file, "rw");
+            long volume = (long) width * (long) height * (long) length * 2l + (long) HEADER_SIZE;
+            braf.setLength(0);
+            braf.setLength(volume);
+            if (width * height * length != 0) {
+                init();
+                // write length etc
+                mbb.putChar(2, (char) width);
+                mbb.putChar(4, (char) height);
+                mbb.putChar(6, (char) length);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public DiskOptimizedClipboard(int width, int height, int length) {
+        this(width, height, length, MainUtil.getFile(Fawe.imp() != null ? Fawe.imp().getDirectory() : new File("."), Settings.IMP.PATHS.CLIPBOARD + File.separator + UUID.randomUUID() + ".bd"));
     }
 
     public File getFile() {
@@ -166,69 +204,6 @@ public class DiskOptimizedClipboard extends FaweClipboard implements Closeable {
         return new Vector(width, height, length);
     }
 
-    public BlockArrayClipboard toClipboard() {
-        try {
-            CuboidRegion region = new CuboidRegion(new Vector(0, 0, 0), new Vector(width - 1, height - 1, length - 1));
-            int ox = mbb.getShort(8);
-            int oy = mbb.getShort(10);
-            int oz = mbb.getShort(12);
-            BlockArrayClipboard clipboard = new BlockArrayClipboard(region, this);
-            clipboard.setOrigin(new Vector(ox, oy, oz));
-            return clipboard;
-        } catch (Throwable e) {
-            MainUtil.handleError(e);
-        }
-        return null;
-    }
-
-    public DiskOptimizedClipboard(int width, int height, int length, File file) {
-        try {
-            nbtMap = new HashMap<>();
-            entities = new HashSet<>();
-            this.file = file;
-            this.width = width;
-            this.height = height;
-            this.length = length;
-            this.area = width * length;
-            this.volume = width * length * height;
-            try {
-                if (!file.exists()) {
-                    File parent = file.getParentFile();
-                    if (parent != null) {
-                        file.getParentFile().mkdirs();
-                    }
-                    file.createNewFile();
-                }
-            } catch (Exception e) {
-                MainUtil.handleError(e);
-            }
-            this.braf = new RandomAccessFile(file, "rw");
-            long volume = (long) width * (long) height * (long) length * 2l + (long) HEADER_SIZE;
-            braf.setLength(0);
-            braf.setLength(volume);
-            if (width * height * length != 0) {
-                init();
-                // write length etc
-                mbb.putChar(2, (char) width);
-                mbb.putChar(4, (char) height);
-                mbb.putChar(6, (char) length);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void setOrigin(Vector offset) {
-        try {
-            mbb.putShort(8, (short) offset.getBlockX());
-            mbb.putShort(10, (short) offset.getBlockY());
-            mbb.putShort(12, (short) offset.getBlockZ());
-        } catch (Throwable e) {
-            MainUtil.handleError(e);
-        }
-    }
-
     @Override
     public void setDimensions(Vector dimensions) {
         try {
@@ -252,13 +227,35 @@ public class DiskOptimizedClipboard extends FaweClipboard implements Closeable {
         }
     }
 
+    public BlockArrayClipboard toClipboard() {
+        try {
+            CuboidRegion region = new CuboidRegion(new Vector(0, 0, 0), new Vector(width - 1, height - 1, length - 1));
+            int ox = mbb.getShort(8);
+            int oy = mbb.getShort(10);
+            int oz = mbb.getShort(12);
+            BlockArrayClipboard clipboard = new BlockArrayClipboard(region, this);
+            clipboard.setOrigin(new Vector(ox, oy, oz));
+            return clipboard;
+        } catch (Throwable e) {
+            MainUtil.handleError(e);
+        }
+        return null;
+    }
+
+    @Override
+    public void setOrigin(Vector offset) {
+        try {
+            mbb.putShort(8, (short) offset.getBlockX());
+            mbb.putShort(10, (short) offset.getBlockY());
+            mbb.putShort(12, (short) offset.getBlockZ());
+        } catch (Throwable e) {
+            MainUtil.handleError(e);
+        }
+    }
+
     @Override
     public void flush() {
         mbb.force();
-    }
-
-    public DiskOptimizedClipboard(int width, int height, int length) {
-        this(width, height, length, MainUtil.getFile(Fawe.imp() != null ? Fawe.imp().getDirectory() : new File("."), Settings.IMP.PATHS.CLIPBOARD + File.separator + UUID.randomUUID() + ".bd"));
     }
 
     private void closeDirectBuffer(ByteBuffer cb) {
@@ -325,11 +322,6 @@ public class DiskOptimizedClipboard extends FaweClipboard implements Closeable {
 //            }
 //        }, 200);
     }
-
-    private int ylast;
-    private int ylasti;
-    private int zlast;
-    private int zlasti;
 
     @Override
     public void streamIds(NBTStreamer.ByteReader task) {

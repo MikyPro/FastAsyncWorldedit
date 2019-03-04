@@ -8,9 +8,9 @@ import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.entity.metadata.EntityType;
 import com.sk89q.worldedit.function.EntityFunction;
 import com.sk89q.worldedit.world.registry.EntityRegistry;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 
+import javax.annotation.Nullable;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -18,6 +18,49 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * The implementation of /remove.
  */
 public class EntityRemover {
+
+    private Type type;
+
+    public static Class<?> inject() {
+        return EntityRemover.class;
+    }
+
+    public void fromString(String str) throws CommandException {
+        Type type = Type.findByPattern(str);
+        if (type != null) {
+            this.type = type;
+        } else {
+            throw new CommandException("Acceptable types: projectiles, items, paintings, itemframes, boats, minecarts, tnt, xp, or all");
+        }
+    }
+
+    public EntityFunction createFunction(final EntityRegistry entityRegistry) {
+        final Type type = this.type;
+        checkNotNull("type can't be null", type);
+        return new EntityFunction() {
+            @Override
+            public boolean apply(final Entity entity) throws WorldEditException {
+                EntityType registryType = entity.getFacet(EntityType.class);
+                if (registryType != null) {
+                    if (type.matches(registryType)) {
+                        if (Fawe.isMainThread()) {
+                            entity.remove();
+                        } else {
+                            SetQueue.IMP.addTask(new Runnable() {
+                                @Override
+                                public void run() {
+                                    entity.remove();
+                                }
+                            });
+                        }
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        };
+    }
 
     public enum Type {
         ALL("all") {
@@ -92,12 +135,6 @@ public class EntityRemover {
             this.pattern = Pattern.compile(pattern);
         }
 
-        public boolean matches(String str) {
-            return pattern.matcher(str).matches();
-        }
-
-        abstract boolean matches(EntityType type);
-
         @Nullable
         public static Type findByPattern(String str) {
             for (Type type : values()) {
@@ -108,48 +145,11 @@ public class EntityRemover {
 
             return null;
         }
-    }
 
-    private Type type;
-
-    public void fromString(String str) throws CommandException {
-        Type type = Type.findByPattern(str);
-        if (type != null) {
-            this.type = type;
-        } else {
-            throw new CommandException("Acceptable types: projectiles, items, paintings, itemframes, boats, minecarts, tnt, xp, or all");
+        public boolean matches(String str) {
+            return pattern.matcher(str).matches();
         }
-    }
 
-    public EntityFunction createFunction(final EntityRegistry entityRegistry) {
-        final Type type = this.type;
-        checkNotNull("type can't be null", type);
-        return new EntityFunction() {
-            @Override
-            public boolean apply(final Entity entity) throws WorldEditException {
-                EntityType registryType = entity.getFacet(EntityType.class);
-                if (registryType != null) {
-                    if (type.matches(registryType)) {
-                        if (Fawe.isMainThread()) {
-                            entity.remove();
-                        } else {
-                            SetQueue.IMP.addTask(new Runnable() {
-                                @Override
-                                public void run() {
-                                    entity.remove();
-                                }
-                            });
-                        }
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        };
-    }
-
-    public static Class<?> inject() {
-        return EntityRemover.class;
+        abstract boolean matches(EntityType type);
     }
 }

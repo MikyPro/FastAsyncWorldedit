@@ -25,6 +25,7 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.command.UtilityCommands;
 import com.sk89q.worldedit.extent.Extent;
+
 import java.io.Serializable;
 
 /**
@@ -33,6 +34,10 @@ import java.io.Serializable;
 @Deprecated
 @Link(clazz = UtilityCommands.class, value = "patterns")
 public interface Pattern extends Serializable {
+
+    public static Class<?> inject() {
+        return Pattern.class;
+    }
 
     /**
      * Get a block for a position. This return value of this method does
@@ -57,8 +62,4 @@ public interface Pattern extends Serializable {
      * @return a block
      */
     public BaseBlock next(int x, int y, int z);
-
-    public static Class<?> inject() {
-        return Pattern.class;
-    }
 }

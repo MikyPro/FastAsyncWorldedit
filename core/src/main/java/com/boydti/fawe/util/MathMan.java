@@ -9,6 +9,8 @@ public class MathMan {
     private static final int ATAN2_DIM = (int) Math.sqrt(ATAN2_COUNT);
     private static final float INV_ATAN2_DIM_MINUS_1 = 1.0f / (ATAN2_DIM - 1);
     private static final float[] atan2 = new float[ATAN2_COUNT];
+    private static float[] ANGLES = new float[65536];
+    private static char[] SQRT = new char[65536];
 
     static {
         for (int i = 0; i < ATAN2_DIM; i++) {
@@ -21,17 +23,21 @@ public class MathMan {
         }
     }
 
-    private static float[] ANGLES = new float[65536];
-    private static char[] SQRT = new char[65536];
-
     static {
         for (int i = 0; i < SQRT.length; i++) {
             SQRT[i] = (char) Math.round(Math.sqrt(i));
         }
     }
 
+    static {
+        for (int i = 0; i < 65536; ++i) {
+            ANGLES[i] = (float) Math.sin((double) i * 3.141592653589793D * 2.0D / 65536.0D);
+        }
+    }
+
     /**
      * Optimized for i elem 0,65536 (characters)
+     *
      * @param i
      * @return square root
      */
@@ -50,7 +56,7 @@ public class MathMan {
         return ANGLES[(int) (paramFloat * 10430.378F + 16384.0F) & 0xFFFF];
     }
 
-    public static int log2nlz( int bits ) {
+    public static int log2nlz(int bits) {
         return Integer.SIZE - Integer.numberOfLeadingZeros(bits);
     }
 
@@ -114,12 +120,6 @@ public class MathMan {
 
     public static float clamp(float check, float min, float max) {
         return check > max ? max : (check < min ? min : check);
-    }
-
-    static {
-        for (int i = 0; i < 65536; ++i) {
-            ANGLES[i] = (float) Math.sin((double) i * 3.141592653589793D * 2.0D / 65536.0D);
-        }
     }
 
     public static double hypot(final double... pars) {

@@ -21,7 +21,6 @@ package com.sk89q.worldedit.util.formatting.component;
 
 import com.sk89q.worldedit.util.formatting.StyledFragment;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -41,6 +40,10 @@ public class MessageBox extends StyledFragment {
         append(contents);
     }
 
+    public static Class<?> inject() {
+        return MessageBox.class;
+    }
+
     /**
      * Get the internal contents.
      *
@@ -48,9 +51,5 @@ public class MessageBox extends StyledFragment {
      */
     public StyledFragment getContents() {
         return contents;
-    }
-
-    public static Class<?> inject() {
-        return MessageBox.class;
     }
 }

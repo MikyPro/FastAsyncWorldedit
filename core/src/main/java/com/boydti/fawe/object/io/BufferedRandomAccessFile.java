@@ -29,8 +29,8 @@ import java.util.Arrays;
  * A <code>BufferedRandomAccessFile</code> is like a
  * <code>RandomAccessFile</code>, but it uses a private buffer so that most
  * operations do not require a disk access.
- * <P>
- *
+ * <p>
+ * <p>
  * Note: The operations on this class are unmonitored. Also, the correct
  * functioning of the <code>RandomAccessFile</code> methods that are not
  * overridden here relies on the implementation of those methods in the

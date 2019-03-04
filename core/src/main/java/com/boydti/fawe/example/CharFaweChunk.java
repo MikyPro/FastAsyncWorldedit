@@ -111,6 +111,11 @@ public abstract class CharFaweChunk<T, V extends FaweQueue> extends FaweChunk<T>
         return bitMask;
     }
 
+    @Deprecated
+    public void setBitMask(int ignore) {
+        // Remove
+    }
+
     /**
      * Get the raw data for a section
      *
@@ -339,11 +344,6 @@ public abstract class CharFaweChunk<T, V extends FaweQueue> extends FaweChunk<T>
                 heightMap[z << 4 | x] = (byte) y;
                 return;
         }
-    }
-
-    @Deprecated
-    public void setBitMask(int ignore) {
-        // Remove
     }
 
     @Override

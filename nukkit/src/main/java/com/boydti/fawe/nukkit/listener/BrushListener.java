@@ -58,7 +58,7 @@ public class BrushListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         Location from = event.getFrom();
         Location to = event.getTo();
-        if ((from.getYaw() != to.getYaw() &&  from.getPitch() != to.getPitch()) || from.getFloorX() != to.getFloorX() || from.getFloorZ() != to.getFloorZ() || from.getFloorY() != to.getFloorY()) {
+        if ((from.getYaw() != to.getYaw() && from.getPitch() != to.getPitch()) || from.getFloorX() != to.getFloorX() || from.getFloorZ() != to.getFloorZ() || from.getFloorY() != to.getFloorY()) {
             Player nukkitPlayer = event.getPlayer();
             FawePlayer<Object> fp = FawePlayer.wrap(nukkitPlayer);
             com.sk89q.worldedit.entity.Player player = fp.getPlayer();

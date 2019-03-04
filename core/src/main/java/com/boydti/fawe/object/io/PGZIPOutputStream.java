@@ -1,5 +1,7 @@
 package com.boydti.fawe.object.io;
 
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -7,18 +9,11 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPOutputStream;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 
 /**
  * A multi-threaded version of {@link GZIPOutputStream}.
@@ -28,21 +23,61 @@ import javax.annotation.Nonnull;
 public class PGZIPOutputStream extends FilterOutputStream {
 
     private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    // private static final Logger LOG = LoggerFactory.getLogger(PGZIPOutputStream.class);
+    private final static int GZIP_MAGIC = 0x8b1f;
+    // TODO: Share, daemonize.
+    private final ExecutorService executor;
+    private final int nthreads;
+    private final CRC32 crc = new CRC32();
+    private final BlockingQueue<Future<byte[]>> emitQueue;
+    // todo: remove after block guessing is implemented
+    // array list that contains the block sizes
+    ArrayList<Integer> blockSizes = new ArrayList<Integer>();
+    private int level = Deflater.DEFAULT_COMPRESSION;
+    private int strategy = Deflater.DEFAULT_STRATEGY;
+    private PGZIPBlock block = new PGZIPBlock(this/* 0 */);
+    /**
+     * Used as a sentinel for 'closed'.
+     */
+    private int bytesWritten = 0;
+    // Master thread only
+    public PGZIPOutputStream(@Nonnull OutputStream out, @Nonnull ExecutorService executor, @Nonnegative int nthreads) throws IOException {
+        super(out);
+        this.executor = executor;
+        this.nthreads = nthreads;
+        this.emitQueue = new ArrayBlockingQueue<Future<byte[]>>(nthreads);
+        writeHeader();
+    }
+    /**
+     * Creates a PGZIPOutputStream
+     * using {@link PGZIPOutputStream#getSharedThreadPool()}.
+     *
+     * @param out the eventual output stream for the compressed data.
+     * @throws IOException if it all goes wrong.
+     */
+    public PGZIPOutputStream(@Nonnull OutputStream out, @Nonnegative int nthreads) throws IOException {
+        this(out, PGZIPOutputStream.getSharedThreadPool(), nthreads);
+    }
+    /**
+     * Creates a PGZIPOutputStream
+     * using {@link PGZIPOutputStream#getSharedThreadPool()}
+     * and {@link Runtime#availableProcessors()}.
+     *
+     * @param out the eventual output stream for the compressed data.
+     * @throws IOException if it all goes wrong.
+     */
+    public PGZIPOutputStream(@Nonnull OutputStream out) throws IOException {
+        this(out, Runtime.getRuntime().availableProcessors());
+    }
 
     public static ExecutorService getSharedThreadPool() {
         return EXECUTOR;
     }
 
-
-    // private static final Logger LOG = LoggerFactory.getLogger(PGZIPOutputStream.class);
-    private final static int GZIP_MAGIC = 0x8b1f;
-
-    // todo: remove after block guessing is implemented
-    // array list that contains the block sizes
-    ArrayList<Integer> blockSizes = new ArrayList<Integer>();
-
-    private int level = Deflater.DEFAULT_COMPRESSION;
-    private int strategy = Deflater.DEFAULT_STRATEGY;
+    @Nonnull
+    protected static DeflaterOutputStream newDeflaterOutputStream(@Nonnull OutputStream out, @Nonnull Deflater deflater) {
+        return new DeflaterOutputStream(out, deflater, 512, true);
+    }
 
     @Nonnull
     protected Deflater newDeflater() {
@@ -57,54 +92,6 @@ public class PGZIPOutputStream extends FilterOutputStream {
 
     public void setLevel(int level) {
         this.level = level;
-    }
-
-    @Nonnull
-    protected static DeflaterOutputStream newDeflaterOutputStream(@Nonnull OutputStream out, @Nonnull Deflater deflater) {
-        return new DeflaterOutputStream(out, deflater, 512, true);
-    }
-
-    // TODO: Share, daemonize.
-    private final ExecutorService executor;
-    private final int nthreads;
-    private final CRC32 crc = new CRC32();
-    private final BlockingQueue<Future<byte[]>> emitQueue;
-    private PGZIPBlock block = new PGZIPBlock(this/* 0 */);
-    /**
-     * Used as a sentinel for 'closed'.
-     */
-    private int bytesWritten = 0;
-
-    // Master thread only
-    public PGZIPOutputStream(@Nonnull OutputStream out, @Nonnull ExecutorService executor, @Nonnegative int nthreads) throws IOException {
-        super(out);
-        this.executor = executor;
-        this.nthreads = nthreads;
-        this.emitQueue = new ArrayBlockingQueue<Future<byte[]>>(nthreads);
-        writeHeader();
-    }
-
-    /**
-     * Creates a PGZIPOutputStream
-     * using {@link PGZIPOutputStream#getSharedThreadPool()}.
-     *
-     * @param out the eventual output stream for the compressed data.
-     * @throws IOException if it all goes wrong.
-     */
-    public PGZIPOutputStream(@Nonnull OutputStream out, @Nonnegative int nthreads) throws IOException {
-        this(out, PGZIPOutputStream.getSharedThreadPool(), nthreads);
-    }
-
-    /**
-     * Creates a PGZIPOutputStream
-     * using {@link PGZIPOutputStream#getSharedThreadPool()}
-     * and {@link Runtime#availableProcessors()}.
-     *
-     * @param out the eventual output stream for the compressed data.
-     * @throws IOException if it all goes wrong.
-     */
-    public PGZIPOutputStream(@Nonnull OutputStream out) throws IOException {
-        this(out, Runtime.getRuntime().availableProcessors());
     }
 
     /*

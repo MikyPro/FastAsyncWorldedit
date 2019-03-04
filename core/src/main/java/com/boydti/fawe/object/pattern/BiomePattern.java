@@ -6,11 +6,12 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.io.IOException;
 
 public class BiomePattern extends ExistingPattern {
-    private transient MutableBlockVector2D mutable = new MutableBlockVector2D();
     private final BaseBiome biome;
+    private transient MutableBlockVector2D mutable = new MutableBlockVector2D();
 
     public BiomePattern(Extent extent, BaseBiome biome) {
         super(extent);
@@ -25,6 +26,11 @@ public class BiomePattern extends ExistingPattern {
     @Override
     public boolean apply(Extent extent, Vector set, Vector getPosition) throws WorldEditException {
         return extent.setBiome(set.getBlockX(), set.getBlockY(), set.getBlockZ(), biome);
+    }
+
+    private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        mutable = new MutableBlockVector2D();
     }
 
     public class BiomePatternException extends RuntimeException {
@@ -43,10 +49,5 @@ public class BiomePattern extends ExistingPattern {
         public Throwable fillInStackTrace() {
             return this;
         }
-    }
-
-    private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
-        stream.defaultReadObject();
-        mutable = new MutableBlockVector2D();
     }
 }

@@ -9,11 +9,12 @@ import com.boydti.fawe.util.SetQueue;
 import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 public class NullFaweQueue implements FaweQueue {
     private final String worldName;
@@ -103,13 +104,13 @@ public class NullFaweQueue implements FaweQueue {
     }
 
     @Override
-    public void setChangeTask(RunnableVal2<FaweChunk, FaweChunk> changeTask) {
-
+    public RunnableVal2<FaweChunk, FaweChunk> getChangeTask() {
+        return null;
     }
 
     @Override
-    public RunnableVal2<FaweChunk, FaweChunk> getChangeTask() {
-        return null;
+    public void setChangeTask(RunnableVal2<FaweChunk, FaweChunk> changeTask) {
+
     }
 
     @Override

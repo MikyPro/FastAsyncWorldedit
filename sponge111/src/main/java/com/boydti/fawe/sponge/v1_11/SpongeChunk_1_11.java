@@ -6,22 +6,7 @@ import com.boydti.fawe.example.CharFaweChunk;
 import com.boydti.fawe.object.FaweQueue;
 import com.boydti.fawe.util.MainUtil;
 import com.boydti.fawe.util.MathMan;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.DoubleTag;
-import com.sk89q.jnbt.FloatTag;
-import com.sk89q.jnbt.ListTag;
-import com.sk89q.jnbt.StringTag;
-import com.sk89q.jnbt.Tag;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import com.sk89q.jnbt.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -40,11 +25,13 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IBlockStatePalette;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
+import java.lang.reflect.Field;
+import java.util.*;
+
 public class SpongeChunk_1_11 extends CharFaweChunk<Chunk, SpongeQueue_1_11> {
 
-    public BlockStateContainer[] sectionPalettes;
-
     public static Map<String, ResourceLocation> entityKeys;
+    public BlockStateContainer[] sectionPalettes;
 
     /**
      * A FaweSections object represents a chunk and the blocks that you wish to change in it.
@@ -377,7 +364,7 @@ public class SpongeChunk_1_11 extends CharFaweChunk<Chunk, SpongeQueue_1_11> {
             // Set biomes
             if (this.biomes != null) {
                 byte[] currentBiomes = nmsChunk.getBiomeArray();
-                for (int i = 0 ; i < this.biomes.length; i++) {
+                for (int i = 0; i < this.biomes.length; i++) {
                     byte biome = this.biomes[i];
                     if (biome != 0) {
                         if (biome == -1) biome = 0;

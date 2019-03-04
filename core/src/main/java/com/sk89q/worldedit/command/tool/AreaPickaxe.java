@@ -22,6 +22,10 @@ public class AreaPickaxe implements BlockTool {
         this.range = range;
     }
 
+    public static Class<?> inject() {
+        return AreaPickaxe.class;
+    }
+
     @Override
     public boolean canUse(Actor player) {
         return player.hasPermission("worldedit.superpickaxe.area");
@@ -59,9 +63,5 @@ public class AreaPickaxe implements BlockTool {
         session.remember(editSession);
 
         return true;
-    }
-
-    public static Class<?> inject() {
-        return AreaPickaxe.class;
     }
 }

@@ -8,12 +8,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemPickaxeDiamond;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.Vector3;
-import com.sk89q.worldedit.BlockVector2D;
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.LocalWorld;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.Vector2D;
-import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.*;
 import com.sk89q.worldedit.blocks.BaseBlock;
 import com.sk89q.worldedit.blocks.BaseItemStack;
 import com.sk89q.worldedit.entity.BaseEntity;
@@ -22,12 +17,12 @@ import com.sk89q.worldedit.util.TreeGenerator;
 import com.sk89q.worldedit.world.biome.BaseBiome;
 import com.sk89q.worldedit.world.registry.LegacyWorldData;
 import com.sk89q.worldedit.world.registry.WorldData;
+
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import javax.annotation.Nullable;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -36,6 +31,7 @@ public class NukkitWorld extends LocalWorld {
     private static final Logger logger = WorldEdit.logger;
 
     private final WeakReference<Level> worldRef;
+    private Vector3 mutable = new Vector3(0, 0, 0);
 
     /**
      * Construct the object.
@@ -47,7 +43,6 @@ public class NukkitWorld extends LocalWorld {
         this.worldRef = new WeakReference<Level>(world);
     }
 
-    private Vector3 mutable = new Vector3(0, 0, 0);
     private Vector3 setMutable(Vector pt) {
         mutable.x = pt.getX();
         mutable.y = pt.getY();

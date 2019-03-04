@@ -13,6 +13,7 @@ import com.sk89q.worldedit.history.change.EntityCreate;
 import com.sk89q.worldedit.history.change.EntityRemove;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.biome.BaseBiome;
+
 import java.util.Iterator;
 
 public class AbstractDelegateChangeSet extends FaweChangeSet {

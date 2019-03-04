@@ -20,11 +20,7 @@
 package com.sk89q.worldedit.command.composition;
 
 import com.boydti.fawe.config.BBC;
-import com.boydti.fawe.object.FaweChunk;
-import com.boydti.fawe.object.FawePlayer;
-import com.boydti.fawe.object.FaweQueue;
-import com.boydti.fawe.object.RegionWrapper;
-import com.boydti.fawe.object.RunnableVal;
+import com.boydti.fawe.object.*;
 import com.boydti.fawe.object.extent.FaweRegionExtent;
 import com.boydti.fawe.util.MainUtil;
 import com.google.common.base.Joiner;
@@ -52,9 +48,9 @@ import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.util.command.argument.CommandArgs;
 import com.sk89q.worldedit.util.command.composition.CommandExecutor;
 import com.sk89q.worldedit.util.command.composition.SimpleCommand;
+
 import java.lang.reflect.Field;
 import java.util.List;
-
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -69,6 +65,10 @@ public class SelectionCommand extends SimpleCommand<Operation> {
         this.delegate = delegate;
         this.permission = permission;
         addParameter(delegate);
+    }
+
+    public static Class<?> inject() {
+        return SelectionCommand.class;
     }
 
     @Override
@@ -184,10 +184,6 @@ public class SelectionCommand extends SimpleCommand<Operation> {
     @Override
     public boolean testPermission0(CommandLocals locals) {
         return locals.get(Actor.class).hasPermission(permission);
-    }
-
-    public static Class<?> inject() {
-        return SelectionCommand.class;
     }
 
 }

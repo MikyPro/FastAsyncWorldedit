@@ -4,7 +4,6 @@ import com.boydti.fawe.FaweCache;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.blocks.BaseBlock;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -25,6 +24,10 @@ public class BlockPattern implements Pattern {
 
     public BlockPattern(int id, int data) {
         this.block = FaweCache.getBlock(id, data);
+    }
+
+    public static Class<BlockPattern> inject() {
+        return BlockPattern.class;
     }
 
     @Override
@@ -54,9 +57,5 @@ public class BlockPattern implements Pattern {
     public void setBlock(BaseBlock block) {
         checkNotNull(block);
         this.block = block;
-    }
-
-    public static Class<BlockPattern> inject() {
-        return BlockPattern.class;
     }
 }

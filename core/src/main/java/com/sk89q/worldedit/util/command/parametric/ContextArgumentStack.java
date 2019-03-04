@@ -43,6 +43,10 @@ public class ContextArgumentStack implements ArgumentStack {
         this.context = context;
     }
 
+    public static Class<?> inject() {
+        return ContextArgumentStack.class;
+    }
+
     @Override
     public String next() throws ParameterException {
         try {
@@ -175,10 +179,6 @@ public class ContextArgumentStack implements ArgumentStack {
     @Override
     public CommandContext getContext() {
         return context;
-    }
-
-    public static Class<?> inject() {
-        return ContextArgumentStack.class;
     }
 
 }

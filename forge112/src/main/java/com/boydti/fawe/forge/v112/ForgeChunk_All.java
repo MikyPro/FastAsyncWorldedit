@@ -10,15 +10,6 @@ import com.sk89q.jnbt.CompoundTag;
 import com.sk89q.jnbt.ListTag;
 import com.sk89q.jnbt.StringTag;
 import com.sk89q.jnbt.Tag;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -37,11 +28,13 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IBlockStatePalette;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 
+import java.lang.reflect.Field;
+import java.util.*;
+
 public class ForgeChunk_All extends CharFaweChunk<Chunk, ForgeQueue_All> {
 
-    public BlockStateContainer[] sectionPalettes;
-
     public static Map<String, ResourceLocation> entityKeys;
+    public BlockStateContainer[] sectionPalettes;
 
     /**
      * A FaweSections object represents a chunk and the blocks that you wish to change in it.
@@ -241,7 +234,7 @@ public class ForgeChunk_All extends CharFaweChunk<Chunk, ForgeQueue_All> {
                 if (entityKey != null) {
                     Entity entity = EntityList.createEntityByIDFromName(entityKey, nmsWorld);
                     if (entity != null) {
-                        NBTTagCompound tag = (NBTTagCompound)ForgeQueue_All.methodFromNative.invoke(null, nativeTag);
+                        NBTTagCompound tag = (NBTTagCompound) ForgeQueue_All.methodFromNative.invoke(null, nativeTag);
                         entity.readFromNBT(tag);
                         tag.removeTag("UUIDMost");
                         tag.removeTag("UUIDLeast");
@@ -355,7 +348,7 @@ public class ForgeChunk_All extends CharFaweChunk<Chunk, ForgeQueue_All> {
             // Set biomes
             if (this.biomes != null) {
                 byte[] currentBiomes = nmsChunk.getBiomeArray();
-                for (int i = 0 ; i < this.biomes.length; i++) {
+                for (int i = 0; i < this.biomes.length; i++) {
                     byte biome = this.biomes[i];
                     if (biome != 0) {
                         if (biome == -1) biome = 0;

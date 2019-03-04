@@ -20,11 +20,7 @@
 package com.sk89q.worldedit.blocks;
 
 import com.boydti.fawe.FaweCache;
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.NBTInputStream;
-import com.sk89q.jnbt.NBTOutputStream;
-import com.sk89q.jnbt.StringTag;
-import com.sk89q.jnbt.Tag;
+import com.sk89q.jnbt.*;
 import com.sk89q.minecraft.util.commands.Link;
 import com.sk89q.worldedit.CuboidClipboard.FlipDirection;
 import com.sk89q.worldedit.Vector;
@@ -32,14 +28,14 @@ import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.function.mask.Mask;
 import com.sk89q.worldedit.function.pattern.Pattern;
-import com.sk89q.worldedit.world.registry.BundledBlockData;
 import com.sk89q.worldedit.world.registry.WorldData;
+
+import javax.annotation.Nullable;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import javax.annotation.Nullable;
 
 /**
  * Represents a mutable "snapshot" of a block.
@@ -145,8 +141,25 @@ public class BaseBlock implements TileEntityBlock, Pattern, Serializable {
         this(other.getId(), other.getData(), other.getNbtData());
     }
 
+    /**
+     * @deprecated Use {@link Blocks#containsFuzzy(Collection, BaseBlock)}
+     */
+    @Deprecated
+    public static boolean containsFuzzy(Collection<BaseBlock> collection, BaseBlock o) {
+        return Blocks.containsFuzzy(collection, o);
+    }
+
+    public static Class<BaseBlock> inject() {
+        return BaseBlock.class;
+    }
+
     public int getCombined() {
         return FaweCache.getCombined(this);
+    }
+
+    public void setCombined(int combined) {
+        setId(FaweCache.getId(combined));
+        setData(FaweCache.getData(combined));
     }
 
     /**
@@ -156,6 +169,15 @@ public class BaseBlock implements TileEntityBlock, Pattern, Serializable {
      */
     public int getId() {
         return id;
+    }
+
+    /**
+     * Set the block ID.
+     *
+     * @param id block id (between 0 and {@link #MAX_ID}).
+     */
+    public void setId(int id) {
+        internalSetId(id);
     }
 
     /**
@@ -175,26 +197,21 @@ public class BaseBlock implements TileEntityBlock, Pattern, Serializable {
     }
 
     /**
-     * Set the block ID.
-     *
-     * @param id block id (between 0 and {@link #MAX_ID}).
-     */
-    public void setId(int id) {
-        internalSetId(id);
-    }
-
-    public void setCombined(int combined) {
-        setId(FaweCache.getId(combined));
-        setData(FaweCache.getData(combined));
-    }
-
-    /**
      * Get the block's data value.
      *
      * @return data value (0-15)
      */
     public int getData() {
         return data;
+    }
+
+    /**
+     * Set the block's data value.
+     *
+     * @param data block data value (between 0 and {@link #MAX_DATA}).
+     */
+    public void setData(int data) {
+        internalSetData(data);
     }
 
     /**
@@ -214,15 +231,6 @@ public class BaseBlock implements TileEntityBlock, Pattern, Serializable {
         }
 
         this.data = (short) data;
-    }
-
-    /**
-     * Set the block's data value.
-     *
-     * @param data block data value (between 0 and {@link #MAX_DATA}).
-     */
-    public void setData(int data) {
-        internalSetData(data);
     }
 
     /**
@@ -256,7 +264,6 @@ public class BaseBlock implements TileEntityBlock, Pattern, Serializable {
     public boolean canStoreNBTData() {
         return FaweCache.hasNBT(getId());
     }
-
 
     @Override
     public String getNbtId() {
@@ -417,14 +424,6 @@ public class BaseBlock implements TileEntityBlock, Pattern, Serializable {
         return false;
     }
 
-    /**
-     * @deprecated Use {@link Blocks#containsFuzzy(Collection, BaseBlock)}
-     */
-    @Deprecated
-    public static boolean containsFuzzy(Collection<BaseBlock> collection, BaseBlock o) {
-        return Blocks.containsFuzzy(collection, o);
-    }
-
     @Override
     public int hashCode() {
         int ret = getId() << 3;
@@ -469,9 +468,5 @@ public class BaseBlock implements TileEntityBlock, Pattern, Serializable {
         if (stream.readBoolean()) {
             this.nbtData = (CompoundTag) new NBTInputStream(new DataInputStream(stream)).readTag();
         }
-    }
-
-    public static Class<BaseBlock> inject() {
-        return BaseBlock.class;
     }
 }
