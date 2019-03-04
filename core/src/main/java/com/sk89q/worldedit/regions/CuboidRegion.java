@@ -475,10 +475,6 @@ public class CuboidRegion extends AbstractRegion implements FlatRegion {
         return new Iterator<BlockVector>() {
             final MutableBlockVector mutable = new MutableBlockVector(0, 0, 0);
             public boolean hasNext = true;
-            int cbx = Math.max(bx, cx << 4);
-            int cbz = Math.max(bz, cz << 4);
-            int ctx = Math.min(tx, 15 + (cx << 4));
-            int ctz = Math.min(tz, 15 + (cz << 4));
             private Vector min = getMinimumPoint();
             int bx = min.getBlockX();
             int by = min.getBlockY();
@@ -492,6 +488,10 @@ public class CuboidRegion extends AbstractRegion implements FlatRegion {
             private int y = min.getBlockY();
             private int z = min.getBlockZ();
             int cz = z >> 4;
+            int cbx = Math.max(bx, cx << 4);
+            int cbz = Math.max(bz, cz << 4);
+            int ctx = Math.min(tx, 15 + (cx << 4));
+            int ctz = Math.min(tz, 15 + (cz << 4));
 
             @Override
             public boolean hasNext() {
